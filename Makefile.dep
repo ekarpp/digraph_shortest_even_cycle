@@ -1,3 +1,5 @@
 main.o: main.cc
 
-graph.o: graph.cc
+graph.o: graph.cc graph.hh
+
+util.o: util.cc util.hh
