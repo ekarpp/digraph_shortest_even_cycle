@@ -20,7 +20,7 @@ int main(int argc, char **argv)
     if (d >= 64)
         return -1;
 
-    unsigned long long p = ben_or(d);
+    unsigned long long p = util::irred_poly(d);
 
     return 0;
 }

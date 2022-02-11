@@ -5,7 +5,9 @@
 
 using namespace std;
 
-unsigned long long ben_or(int deg);
-bool gcd1(int i, bitset<64> p);
-
+namespace util
+{
+    unsigned long long irred_poly(int deg);
+    bool gcd1(int i, bitset<64> p);
+}
 #endif
