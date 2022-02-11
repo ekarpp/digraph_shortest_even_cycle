@@ -5,7 +5,7 @@ vpath %.hh src
 
 all: digraph
 
-digraph: main.o
+digraph: main.o graph.o
 	$(CXX) $^ -o $@
 
 clean:

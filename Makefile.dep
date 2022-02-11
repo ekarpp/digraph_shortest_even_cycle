@@ -1,1 +1,3 @@
 main.o: main.cc
+
+graph.o: graph.cc
