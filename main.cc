@@ -3,13 +3,16 @@
 #include <cmath>
 
 #include "src/graph.hh"
-#include "src/gf.hh"
 #include "src/util.hh"
+#include "src/global.hh"
 
 using namespace std;
 
+util::rand64bit global::randgen;
+
 int main(int argc, char **argv)
 {
+    global::randgen.init(10);
     vector<vector<int>> vec = {
         {1},
         {0}
@@ -21,6 +24,5 @@ int main(int argc, char **argv)
         return -1;
 
     unsigned long long p = util::irred_poly(d);
-
     return 0;
 }

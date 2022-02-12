@@ -1,4 +1,4 @@
-main.o: main.cc
+main.o: main.cc global.hh
 
 graph.o: graph.cc graph.hh
 
