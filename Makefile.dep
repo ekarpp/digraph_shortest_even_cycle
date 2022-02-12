@@ -3,3 +3,5 @@ main.o: main.cc global.hh
 graph.o: graph.cc graph.hh
 
 util.o: util.cc util.hh
+
+gf.o: gf.cc gf.hh

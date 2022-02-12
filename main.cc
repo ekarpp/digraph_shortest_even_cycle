@@ -2,13 +2,15 @@
 #include <vector>
 #include <cmath>
 
+#include "src/gf.hh"
+#include "src/global.hh"
 #include "src/graph.hh"
 #include "src/util.hh"
-#include "src/global.hh"
 
 using namespace std;
 
 util::rand64bit global::randgen;
+GF2n global::F;
 
 int main(int argc, char **argv)
 {
@@ -23,6 +25,8 @@ int main(int argc, char **argv)
     if (d >= 64)
         return -1;
 
-    uint64_t p = util::irred_poly(d);
+    int64_t poly = util::irred_poly(d);
+    global::F.init(d, poly);
+
     return 0;
 }

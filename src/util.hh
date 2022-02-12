@@ -8,7 +8,7 @@ using namespace std;
 
 namespace util
 {
-    uint64_t irred_poly(int deg);
+    int64_t irred_poly(int deg);
     bool gcd1(int i, bitset<64> p);
 
     class rand64bit
@@ -19,7 +19,7 @@ namespace util
     public:
         rand64bit() {}
         void init(int seed) { gen = mt19937_64(seed); }
-        uint64_t operator() () { return dist(gen); }
+        int64_t operator() () { return dist(gen); }
     };
 
 }

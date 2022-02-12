@@ -2,11 +2,13 @@
 #define GLOBAL_H
 
 #include "util.hh"
+#include "gf.hh"
 
 namespace global
 {
+    /* these are defined in main.cc */
     extern util::rand64bit randgen;
-    extern int a;
+    extern GF2n F;
 }
 
 
