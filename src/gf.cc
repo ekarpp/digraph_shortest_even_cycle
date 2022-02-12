@@ -56,9 +56,9 @@ int64_t GF2n::rem(int64_t a) const
 
 /* GF element */
 
-GF_element::GF_element(int64_t n, const GF2n &field) : field(field),
-                                                       repr(n)
+GF_element::GF_element(const int64_t n, const GF2n &field) : field(field)
 {
+    this->repr = n;
     return;
 }
 

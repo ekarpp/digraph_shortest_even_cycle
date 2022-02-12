@@ -1,6 +1,9 @@
-#include "graph.hh"
-#include <vector>
 #include <iostream>
+#include <vector>
+
+#include "global.hh"
+#include "graph.hh"
+
 
 using namespace std;
 
@@ -19,9 +22,26 @@ Graph::Graph(vector<vector<int>> adjacency_list)
     }
 }
 
-/* samples the adjacency matrix with random edge weights */
-/* also creates a loop at each vertex */
+/* samples the adjacency matrix with random edge weights from F
+ * also creates a loop at each vertex
+ */
 void Graph::sample_adjacency(vector<vector<int>> adjacency_list)
 {
+    this->A =
+        vector<vector<GF_element>>(
+            this->n,
+            vector<GF_element>(this->n, global::F.zero())
+        );
+
+    for (int u = 0; u < this->n; u++)
+    {
+        /* loop at each vertex */
+        this->A[u][u] = global::F.random();
+        for (int i = 0; i < adjacency_list[u].size(); i++)
+        {
+            int v = adjacency_list[u][i];
+            this->A[u][v] = global::F.random();
+        }
+    }
     return;
 }
