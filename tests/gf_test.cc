@@ -10,9 +10,11 @@ GF2n global::F;
 
 GF_test::GF_test(int deg)
 {
-    GF2n field();
     this->n = deg;
     global::F.init(this->n, util::irred_poly(this->n));
+    cout << "----------" << endl;
+    cout << "TESTING GF" << endl;
+    cout << "----------" << endl << endl;
 }
 
 void GF_test::end_test(int err)

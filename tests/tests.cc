@@ -1,7 +1,9 @@
 #include <iostream>
 
 #include "../src/global.hh"
+#include "../src/util.hh"
 #include "gf_test.hh"
+#include "extension_test.hh"
 
 util::rand64bit global::randgen;
 
@@ -16,11 +18,14 @@ int main(int argc, char** argv)
     }
 
     global::randgen.init(10);
-    GF_test t(stoi(argv[1]));
 
-    t.test_add_inverse();
-    t.test_associativity();
-    t.test_mul_inverse();
-    t.test_mul_id();
+    Extension_test e(stoi(argv[1]));
+    e.test_add_inverse();
+
+    GF_test f(stoi(argv[1]));
+    f.test_add_inverse();
+    f.test_associativity();
+    f.test_mul_inverse();
+    f.test_mul_id();
     return 0;
 }

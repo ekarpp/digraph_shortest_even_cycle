@@ -6,9 +6,9 @@
 class GF_test
 {
 private:
-    GF2n field;
     int n;
     void end_test(int err);
+
 public:
     GF_test(int deg);
     void test_add_inverse();
