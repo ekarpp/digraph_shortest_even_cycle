@@ -129,14 +129,14 @@ GF_element::GF_element(const int64_t n, const GF2n &field) : field(field)
 
 GF_element GF_element::operator+(const GF_element &other)
 {
-    return GF_element(this->repr ^ other.repr, this->field);
+    return GF_element(this->repr ^ other.get_repr(), this->field);
 }
 
 GF_element GF_element::operator*(const GF_element &other)
 {
     const int64_t prod = this->field.clmul(
         this->repr,
-        other.repr
+        other.get_repr()
     );
 
     return GF_element(
@@ -153,5 +153,5 @@ GF_element GF_element::operator/(const GF_element &other)
 
 bool GF_element::operator==(const GF_element &other)
 {
-    return this->repr == other.repr && this->field == other.field;
+    return this->repr == other.get_repr() && this->field == other.get_field();
 }
