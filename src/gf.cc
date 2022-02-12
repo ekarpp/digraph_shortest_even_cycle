@@ -153,5 +153,5 @@ GF_element GF_element::operator/(const GF_element &other)
 
 bool GF_element::operator==(const GF_element &other)
 {
-    return this->repr == other.get_repr() && this->field == other.get_field();
+    return this->repr == other.get_repr();
 }
