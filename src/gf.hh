@@ -13,15 +13,17 @@ private:
     int64_t mask;
     int n;
     int64_t mod;
+    int64_t quo(int64_t a, int64_t b) const;
 
 public:
     GF2n() {};
     void init(const int n, const int64_t mod);
     bool operator==(const GF2n &other) const;
-    GF_element zero();
-    GF_element one();
+    GF_element zero() const;
+    GF_element one() const;
     GF_element random();
     int64_t rem(int64_t a) const;
+    int64_t ext_euclid(int64_t a) const;
 
     int get_n() const { return this->n; }
     int64_t get_mod() const { return this->mod; }
@@ -38,6 +40,7 @@ public:
     GF_element(const int64_t n, const GF2n &field);
     GF_element operator+(const GF_element &other);
     GF_element operator*(const GF_element &other);
+    GF_element operator/(const GF_element &other);
     bool operator==(const GF_element &other);
 
     const GF2n &get_field() const { return this->field; }
@@ -53,8 +56,12 @@ public:
         this->repr = other.get_repr();
         return *this;
     }
+
+    bool operator!=(const GF_element &other)
+    {
+        return !(*this == other);
+    }
+
 };
-
-
 
 #endif
