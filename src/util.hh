@@ -10,6 +10,8 @@ namespace util
 {
     int64_t irred_poly(int deg);
     bool gcd1(int i, bitset<64> p);
+    int64_t modz2(int64_t a, int64_t b, int deg);
+
 
     class rand64bit
     {

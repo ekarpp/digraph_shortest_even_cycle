@@ -15,6 +15,7 @@ namespace util
      */
     int64_t irred_poly(int deg)
     {
+        // assert(deg > 2)
         bitset<64> p;
         p[deg] = true;
         srand(1);
@@ -84,5 +85,26 @@ namespace util
         }
 
         return r.size() == 1 && r.count(0) == 1;
+    }
+
+    /* returns r s.t. for some q,
+     * a = q*b + r is the division equation (in Z(2^n))
+     * bdeg is degree of b (can be computed, but is stored in field anyways)
+     */
+    // a needs to be 128 bit for support up to GF(2^64)
+    // now just GF(2^32)
+    int64_t modz2(int64_t a, int64_t b, int bdeg)
+    {
+        // assert(b != 0)
+        int64_t mask = (1 << bdeg) - 1;
+        while (a > mask)
+        {
+            int shift;
+            for (shift = 0; a >> shift; shift++);
+            shift -= 1 + bdeg;
+            /* shift = deg(a) - deg(b) */
+            a ^= (b << shift);
+        }
+        return a;
     }
 }
