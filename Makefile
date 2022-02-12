@@ -1,5 +1,5 @@
 CXX := g++
-CXXFLAGS := -g -std=c++1z -O0 -Wall -Wextra -march=native
+CXXFLAGS := -g -std=c++1z -O3 -Wall -Wextra -march=native
 VPATH = src:tests
 BIN := digraph digraph-tests
 
