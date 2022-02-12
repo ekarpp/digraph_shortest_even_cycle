@@ -13,7 +13,7 @@ namespace util
      * returns irreducible polynomial of degree deg
      * in Z2[x] encoded as a bitstring
      */
-    unsigned long long irred_poly(int deg)
+    uint64_t irred_poly(int deg)
     {
         bitset<64> p;
         p[deg] = true;
@@ -42,11 +42,11 @@ namespace util
     {
         /* use set to represent polynomials for conveninece of
          * the methods and to save space as we have degree 2^i */
-        set<long long> r;
+        set<int64_t> r;
         r.insert(1 << i);
         r.insert(1);
 
-        set<long long> rn;
+        set<int64_t> rn;
         for (int j = 0; j < 64; j++)
         {
             if (p[j])
@@ -59,15 +59,15 @@ namespace util
         /* standard Euclid's algo with Euclidean division */
         while (rn.size() != 0)
         {
-            long long deg_r = *r.rbegin();
-            long long deg_rn = *rn.rbegin();
+            int64_t deg_r = *r.rbegin();
+            int64_t deg_rn = *rn.rbegin();
 
             while (deg_r >= deg_rn)
             {
-                set<long long>::reverse_iterator it = rn.rbegin();
+                set<int64_t>::reverse_iterator it = rn.rbegin();
                 for ( ; it != rn.rend(); it++)
                 {
-                    long long id = *it + deg_r - deg_rn;
+                    int64_t id = *it + deg_r - deg_rn;
                     if (r.count(id) == 1)
                         r.erase(id);
                     else

@@ -8,7 +8,7 @@ using namespace std;
 
 namespace util
 {
-    unsigned long long irred_poly(int deg);
+    uint64_t irred_poly(int deg);
     bool gcd1(int i, bitset<64> p);
 
     class rand64bit
