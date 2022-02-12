@@ -5,3 +5,7 @@ graph.o: graph.cc graph.hh
 util.o: util.cc util.hh
 
 gf.o: gf.cc gf.hh
+
+tests.o: tests.cc
+
+gf_test.o: gf_test.cc gf_test.hh
