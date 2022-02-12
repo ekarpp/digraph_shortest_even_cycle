@@ -9,6 +9,7 @@ void GF2n::init(const int n, const int64_t mod)
 {
     this->n = n;
     this->mod = mod;
+    this->mask = (1 << this->n) - 1;
     return;
 }
 
@@ -30,8 +31,7 @@ GF_element GF2n::one()
 /* this can create zero, is it a problem? */
 GF_element GF2n::random()
 {
-    uint64_t mask = (1 << this->n) - 1;
-    return GF_element(global::randgen() & mask, *this);
+    return GF_element(global::randgen() & this->mask, *this);
 }
 
 

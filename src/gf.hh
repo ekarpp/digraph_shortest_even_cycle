@@ -32,6 +32,8 @@ class GF2n
 private:
     int n;
     int64_t mod;
+    /* largest possible element in the field */
+    int64_t mask;
 public:
     GF2n() {};
     void init(const int n, const int64_t mod);
