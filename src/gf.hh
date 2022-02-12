@@ -24,6 +24,7 @@ public:
     GF_element random();
     int64_t rem(int64_t a) const;
     int64_t ext_euclid(int64_t a) const;
+    int64_t clmul(int64_t a, int64_t) const;
 
     int get_n() const { return this->n; }
     int64_t get_mod() const { return this->mod; }

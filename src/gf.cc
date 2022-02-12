@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <immintrin.h>
+#include <iostream>
 
 #include "gf.hh"
 #include "global.hh"
@@ -69,8 +70,25 @@ int64_t GF2n::quo(int64_t a, int64_t b) const
         shift -= 1 + degb;
         /* shift = deg(a) - deg(b) */
         q ^= (1ll << shift);
+        a ^= (b << shift);
     }
     return q;
+}
+
+/* carryless multiplication of a and b, polynomial multiplicatoin that is
+ * done with Intel CLMUL
+ */
+int64_t GF2n::clmul(int64_t a, int64_t b) const
+{
+    const __m128i prod = _mm_clmulepi64_si128(
+        _mm_set_epi64x(0, a),
+        _mm_set_epi64x(0, b),
+        0x0
+    );
+
+    uint64_t lo = _mm_extract_epi64(prod, 0x0);
+    /* discard hi, only support up to 32 bit */
+    return lo;
 }
 
 /* returns s s.t. for some t: s*a + t*field.mod = gcd(field.mod, a)
@@ -79,23 +97,25 @@ int64_t GF2n::quo(int64_t a, int64_t b) const
 int64_t GF2n::ext_euclid(int64_t a) const
 {
     // assert(a != 0)
-    GF_element s = this->one();
-    GF_element s_next = this->zero();
-    GF_element r(a, *this);
-    GF_element r_next(this->mod, *this);
-    GF_element tmp = this->zero();
-    while (r_next != this->zero())
+    int64_t s = 0x1;
+    int64_t s_next = 0x0;
+    int64_t r = a;
+    int64_t r_next = this->mod;
+    int64_t tmp;
+
+    while (r_next != 0x0)
     {
-        GF_element q(quo(r.get_repr(), r_next.get_repr()), *this);
-        tmp = r - q*r_next;
+        int64_t q = this->quo(r, r_next);
+        tmp = r ^ this->clmul(q, r_next);
         r = r_next;
         r_next = tmp;
 
-        tmp = s - q*s_next;
+        tmp = s ^ this->clmul(q, s_next);
         s = s_next;
         s_next = tmp;
     }
-    return r.get_repr();
+
+    return s;
 }
 
 
@@ -114,17 +134,13 @@ GF_element GF_element::operator+(const GF_element &other)
 
 GF_element GF_element::operator*(const GF_element &other)
 {
-    const __m128i prod = _mm_clmulepi64_si128(
-        _mm_set_epi64x(0, this->repr),
-        _mm_set_epi64x(0, other.repr),
-        0x0
+    const int64_t prod = this->field.clmul(
+        this->repr,
+        other.repr
     );
 
-    uint64_t lo = _mm_extract_epi64(prod, 0x0);
-    /* discard hi, only support up to 32 bit */
-
     return GF_element(
-        this->field.rem(lo),
+        this->field.rem(prod),
         this->field
     );
 }
