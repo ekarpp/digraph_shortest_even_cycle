@@ -11,6 +11,7 @@ using namespace std;
 
 util::rand64bit global::randgen;
 GF2n global::F;
+Extension global::E;
 
 int main(int argc, char **argv)
 {
@@ -28,6 +29,7 @@ int main(int argc, char **argv)
 
     int64_t poly = util::irred_poly(d);
     global::F.init(d, poly);
+    global::E.init(d, poly);
 
     return 0;
 }

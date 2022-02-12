@@ -6,6 +6,8 @@ util.o: util.cc util.hh
 
 gf.o: gf.cc gf.hh
 
+extension.o: extension.cc extension.hh
+
 tests.o: tests.cc
 
 gf_test.o: gf_test.cc gf_test.hh

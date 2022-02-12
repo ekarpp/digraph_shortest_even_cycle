@@ -14,18 +14,30 @@ class Extension
 private:
     int n;
     int64_t mod;
+    int64_t masklo;
+    int64_t maskhi;
+    int64_t mask;
 
 public:
     Extension() {};
     void init(const int n, const int64_t mod);
     Extension_element zero();
-    Extension_element one();
+    Extension_element one() const;
     Extension_element random();
+
+    int64_t add(int64_t a, int64_t b) const;
 
     int get_n() { return this->n; }
     int64_t get_mod() { return this->mod; }
+    int64_t get_mask() { return this->mask; }
+    int64_t get_masklo() const { return this->masklo; }
+    int64_t get_maskhi() const { return this->maskhi; }
 };
 
+/* represented as aaaabbbb
+ * where aaaa are high bits of each coefficient
+ * and bbbb are the low bits
+ */
 class Extension_element
 {
 private:
@@ -35,12 +47,20 @@ private:
 public:
     Extension_element(const int64_t n, const Extension &ring);
     Extension_element operator+(const Extension_element &other);
-    Extension_element operator*(const Extension_element &other);
     Extension_element operator-(const Extension_element &other);
+    Extension_element operator*(const Extension_element &other);
     bool operator==(const Extension_element &other);
 
     const Extension &get_ring() { return this->ring; }
-    int64_t get_repr() { return this->repr; }
+    int64_t get_repr() const { return this->repr; }
+    int64_t get_lo() const
+    {
+        return this->repr & this->ring.get_masklo();
+    }
+    int64_t get_hi() const
+    {
+        return (this->repr & this->ring.get_maskhi()) >> 32;
+    }
 
     Extension_element &operator=(const Extension_element &other)
     {
@@ -52,6 +72,6 @@ public:
     {
         return !(*this == other);
     }
-}
+};
 
 #endif

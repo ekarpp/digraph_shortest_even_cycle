@@ -5,7 +5,7 @@ BIN := digraph digraph-tests
 
 all: $(BIN)
 
-digraph: main.o graph.o util.o gf.o
+digraph: main.o graph.o util.o gf.o extension.o
 	$(CXX) $^ -o $@
 
 digraph-tests: tests.o util.o gf.o gf_test.o
