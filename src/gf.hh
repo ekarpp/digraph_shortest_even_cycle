@@ -18,7 +18,6 @@ private:
 public:
     GF2n() {};
     void init(const int n, const int64_t mod);
-    bool operator==(const GF2n &other) const;
     GF_element zero() const;
     GF_element one() const;
     GF_element random();
@@ -34,17 +33,15 @@ public:
 class GF_element
 {
 private:
-    const GF2n &field;
     int64_t repr;
 
 public:
-    GF_element(const int64_t n, const GF2n &field);
+    GF_element(const int64_t n);
     GF_element operator+(const GF_element &other);
     GF_element operator*(const GF_element &other);
     GF_element operator/(const GF_element &other);
     bool operator==(const GF_element &other);
 
-    const GF2n &get_field() const { return this->field; }
     int64_t get_repr() const { return this->repr; }
 
     GF_element operator-(const GF_element &other)

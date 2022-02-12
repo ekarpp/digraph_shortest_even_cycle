@@ -15,25 +15,20 @@ void GF2n::init(const int n, const int64_t mod)
     return;
 }
 
-bool GF2n::operator==(const GF2n &other) const
-{
-    return this->n == other.n && this->mod == other.mod;
-}
-
 GF_element GF2n::zero() const
 {
-    return GF_element(0, *this);
+    return GF_element(0);
 }
 
 GF_element GF2n::one() const
 {
-    return GF_element(1, *this);
+    return GF_element(1);
 }
 
 /* this can create zero, is it a problem? */
 GF_element GF2n::random()
 {
-    return GF_element(global::randgen() & this->mask, *this);
+    return GF_element(global::randgen() & this->mask);
 }
 
 /* returns r s.t. for some q,
@@ -121,7 +116,7 @@ int64_t GF2n::ext_euclid(int64_t a) const
 
 /* GF element */
 
-GF_element::GF_element(const int64_t n, const GF2n &field) : field(field)
+GF_element::GF_element(const int64_t n)
 {
     this->repr = n;
     return;
@@ -129,25 +124,24 @@ GF_element::GF_element(const int64_t n, const GF2n &field) : field(field)
 
 GF_element GF_element::operator+(const GF_element &other)
 {
-    return GF_element(this->repr ^ other.get_repr(), this->field);
+    return GF_element(this->repr ^ other.get_repr());
 }
 
 GF_element GF_element::operator*(const GF_element &other)
 {
-    const int64_t prod = this->field.clmul(
+    const int64_t prod = global::F.clmul(
         this->repr,
         other.get_repr()
     );
 
     return GF_element(
-        this->field.rem(prod),
-        this->field
+        global::F.rem(prod)
     );
 }
 
 GF_element GF_element::operator/(const GF_element &other)
 {
-    GF_element inv(this->field.ext_euclid(other.get_repr()), this->field);
+    GF_element inv(global::F.ext_euclid(other.get_repr()));
     return *this * inv;
 }
 

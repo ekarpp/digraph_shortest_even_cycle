@@ -41,26 +41,18 @@ public:
 class Extension_element
 {
 private:
-    const Extension &ring;
     int64_t repr;
 
 public:
-    Extension_element(const int64_t n, const Extension &ring);
+    Extension_element(const int64_t n);
     Extension_element operator+(const Extension_element &other);
     Extension_element operator-(const Extension_element &other);
     Extension_element operator*(const Extension_element &other);
     bool operator==(const Extension_element &other);
 
-    const Extension &get_ring() { return this->ring; }
     int64_t get_repr() const { return this->repr; }
-    int64_t get_lo() const
-    {
-        return this->repr & this->ring.get_masklo();
-    }
-    int64_t get_hi() const
-    {
-        return (this->repr & this->ring.get_maskhi()) >> 32;
-    }
+    int64_t get_lo() const;
+    int64_t get_hi() const;
 
     Extension_element &operator=(const Extension_element &other)
     {

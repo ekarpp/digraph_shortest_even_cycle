@@ -3,14 +3,16 @@
 #include "gf_test.hh"
 #include "../src/gf.hh"
 #include "../src/util.hh"
+#include "../src/global.hh"
 
 using namespace std;
+GF2n global::F;
 
 GF_test::GF_test(int deg)
 {
     GF2n field();
     this->n = deg;
-    this->field.init(this->n, util::irred_poly(this->n));
+    global::F.init(this->n, util::irred_poly(this->n));
 }
 
 void GF_test::end_test(int err)
@@ -27,11 +29,11 @@ void GF_test::test_add_inverse()
     cout << "add inverse" << endl;
     int err = 0;
     int64_t i = 0;
-    while (i <= this->field.get_mask())
+    while (i <= global::F.get_mask())
     {
-        GF_element e(i, this->field);
-        if (e + e != this->field.zero()
-            || e - e != this->field.zero())
+        GF_element e(i);
+        if (e + e != global::F.zero()
+            || e - e != global::F.zero())
             err++;
         i++;
     }
@@ -44,9 +46,9 @@ void GF_test::test_associativity()
     int err = 0;
     for (int i = 0; i < 10000; i++)
     {
-        GF_element a = this->field.random();
-        GF_element b = this->field.random();
-        GF_element c = this->field.random();
+        GF_element a = global::F.random();
+        GF_element b = global::F.random();
+        GF_element c = global::F.random();
         if (a*(b+c) != c*a + b*a)
             err++;
     }
@@ -58,10 +60,10 @@ void GF_test::test_mul_id()
     cout << "mul with id" << endl;
     int err = 0;
     int64_t i = 0;
-    while (i <= this->field.get_mask())
+    while (i <= global::F.get_mask())
     {
-        GF_element e(i, this->field);
-        if (e * this->field.one() != e)
+        GF_element e(i);
+        if (e * global::F.one() != e)
             err++;
         i++;
     }
@@ -73,10 +75,10 @@ void GF_test::test_mul_inverse()
     cout << "mul with inverse" << endl;
     int err = 0;
     int64_t i = 2;
-    while (i <= this->field.get_mask())
+    while (i <= global::F.get_mask())
     {
-        GF_element e(i, this->field);
-        if (e / e != this->field.one())
+        GF_element e(i);
+        if (e / e != global::F.one())
             err++;
         i++;
     }
