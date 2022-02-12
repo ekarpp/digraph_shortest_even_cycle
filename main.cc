@@ -22,7 +22,8 @@ int main(int argc, char **argv)
 
     Graph G(vec);
     int d = 5 * ceil(log(G.get_n()) / log(2));
-    if (d >= 64)
+    /* modz2 and gfmul only support upto 32 */
+    if (d > 32)
         return -1;
 
     int64_t poly = util::irred_poly(d);

@@ -1,5 +1,5 @@
 CXX := g++
-CXXFLAGS := -g -std=c++1z -O3 -Wall
+CXXFLAGS := -g -std=c++1z -O3 -Wall -Wextra -march=native
 vpath %.cc src
 vpath %.hh src
 

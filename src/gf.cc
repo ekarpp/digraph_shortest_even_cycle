@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <immintrin.h>
 
 #include "gf.hh"
 #include "global.hh"
@@ -50,8 +51,19 @@ GF_element GF_element::operator+(const GF_element &other)
 
 GF_element GF_element::operator*(const GF_element &other)
 {
-    // carryless multiplication + mod
-    return GF_element(this->repr * other.repr, this->field);
+    const __m128i prod = _mm_clmulepi64_si128(
+        _mm_set_epi64x(0, this->repr),
+        _mm_set_epi64x(0, other.repr),
+        0x0
+    );
+
+    uint64_t lo = _mm_extract_epi64(prod, 0x0);
+    /* discard hi, only support up to 32 bit */
+
+    return GF_element(
+        util::modz2(lo, this->field.mod, this->field.n),
+        this->field
+    );
 }
 
 bool GF_element::operator==(const GF_element &other)
