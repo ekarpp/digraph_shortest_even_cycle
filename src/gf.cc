@@ -35,6 +35,24 @@ GF_element GF2n::random()
     return GF_element(global::randgen() & this->mask, *this);
 }
 
+/* returns r s.t. for some q,
+ * a = q*field.mod + r is the division relation (in Z(2^n))
+ */
+// r needs to be 128 bit for support up to GF(2^64)
+// now just GF(2^32)
+int64_t GF2n::rem(int64_t a) const
+{
+    while (a > this->mask)
+    {
+        int shift;
+        for (shift = 0; a >> shift; shift++);
+        shift -= 1 + this->n;
+        /* shift = deg(a) - deg(b) */
+        a ^= (this->mod << shift);
+    }
+    return a;
+}
+
 
 /* GF element */
 
@@ -61,7 +79,7 @@ GF_element GF_element::operator*(const GF_element &other)
     /* discard hi, only support up to 32 bit */
 
     return GF_element(
-        util::modz2(lo, this->field.mod, this->field.n),
+        this->field.rem(lo),
         this->field
     );
 }

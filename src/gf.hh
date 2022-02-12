@@ -39,6 +39,7 @@ public:
     GF_element zero();
     GF_element one();
     GF_element random();
+    int64_t rem(int64_t a) const;
 };
 
 #endif
