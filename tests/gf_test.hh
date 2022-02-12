@@ -12,7 +12,7 @@ private:
 public:
     GF_test(int deg);
     void test_add_inverse();
-    void test_mul_commutative();
+    void test_associativity();
     void test_mul_id();
     void test_mul_inverse();
 };

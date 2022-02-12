@@ -38,15 +38,16 @@ void GF_test::test_add_inverse()
     end_test(err);
 }
 
-void GF_test::test_mul_commutative()
+void GF_test::test_associativity()
 {
-    cout << "mul commutative" << endl;
+    cout << "test associativity" << endl;
     int err = 0;
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 10000; i++)
     {
         GF_element a = this->field.random();
         GF_element b = this->field.random();
-        if (a*b != b*a)
+        GF_element c = this->field.random();
+        if (a*(b+c) != c*a + b*a)
             err++;
     }
     this->end_test(err);
