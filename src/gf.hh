@@ -46,6 +46,7 @@ public:
     GF_element operator/(const GF_element &other);
     bool operator==(const GF_element &other);
 
+    GF_element inv() const;
     Extension_element lift();
 
     int64_t get_repr() const { return this->repr; }

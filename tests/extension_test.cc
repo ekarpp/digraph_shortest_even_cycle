@@ -72,3 +72,22 @@ void Extension_test::test_mul()
     }
     end_test(err);
 }
+
+void Extension_test::test_even_tau()
+{
+    cout << "test even tau" << endl;
+    int err = 0;
+    for (int i = 0; i < this->tests; i++)
+    {
+        Extension_element sigma = global::E.random();
+        Extension_element v = global::E.random();
+        if (sigma.is_even() || v.is_even())
+            /* we get here with probability (0.5)^(2d) */
+            continue;
+        Extension_element t = util::tau(sigma, v);
+        Extension_element e = v - sigma * t;
+        if (!e.is_even())
+            err++;
+    }
+    this->end_test(err);
+}

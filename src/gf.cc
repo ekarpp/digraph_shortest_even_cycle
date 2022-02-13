@@ -140,10 +140,14 @@ GF_element GF_element::operator*(const GF_element &other)
     );
 }
 
+GF_element GF_element::inv() const
+{
+    return GF_element(global::F.ext_euclid(this->repr));
+}
+
 GF_element GF_element::operator/(const GF_element &other)
 {
-    GF_element inv(global::F.ext_euclid(other.get_repr()));
-    return *this * inv;
+    return *this * other.inv();
 }
 
 bool GF_element::operator==(const GF_element &other)

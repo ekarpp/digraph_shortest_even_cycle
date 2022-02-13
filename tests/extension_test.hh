@@ -15,6 +15,7 @@ public:
     void test_add_inverse();
     void test_associativity();
     void test_mul();
+    void test_even_tau();
 };
 
 #endif

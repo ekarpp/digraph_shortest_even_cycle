@@ -4,6 +4,8 @@
 #include <random>
 #include <bitset>
 
+#include "extension.hh"
+
 using namespace std;
 
 namespace util
@@ -11,6 +13,7 @@ namespace util
     int64_t irred_poly(int deg);
     bool gcd1(int i, bitset<64> p);
 
+    Extension_element tau(Extension_element sigma, Extension_element v);
 
     class rand64bit
     {

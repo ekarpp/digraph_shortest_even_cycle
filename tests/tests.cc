@@ -24,6 +24,7 @@ int main(int argc, char** argv)
     e.test_add_inverse();
     e.test_associativity();
     e.test_mul();
+    e.test_even_tau();
 
     GF_test f(stoi(argv[1]));
     f.test_add_inverse();
