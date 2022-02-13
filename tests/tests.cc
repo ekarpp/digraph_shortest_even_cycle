@@ -21,16 +21,10 @@ int main(int argc, char** argv)
     global::randgen.init(seed);
 
     Extension_test e(stoi(argv[1]));
-    e.test_add_inverse();
-    e.test_associativity();
-    e.test_mul();
-    e.test_even_tau();
+    e.run();
 
     GF_test f(stoi(argv[1]));
-    f.test_add_inverse();
-    f.test_associativity();
-    f.test_mul_inverse();
-    f.test_mul_id();
-    f.test_lift_project();
+    f.run();
+
     return 0;
 }

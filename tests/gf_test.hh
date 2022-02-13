@@ -8,14 +8,23 @@ class GF_test
 private:
     int n;
     void end_test(int err);
-
-public:
-    GF_test(int deg);
     void test_add_inverse();
     void test_associativity();
     void test_mul_id();
     void test_mul_inverse();
     void test_lift_project();
+
+public:
+    GF_test(int deg);
+
+    void run()
+    {
+        test_add_inverse();
+        test_associativity();
+        test_mul_id();
+        test_mul_inverse();
+        test_lift_project();
+    }
 };
 
 #endif

@@ -90,3 +90,16 @@ void Extension_test::test_even_tau()
     }
     this->end_test(err);
 }
+
+void Extension_test::test_is_even()
+{
+    cout << "test is even" << endl;
+    int err = 0;
+    for (int i = 0; i < this->tests; i++)
+    {
+        Extension_element e(0x0, global::randgen() & global::E.get_mask());
+        if (!e.is_even())
+            err++;
+    }
+    this->end_test(err);
+}
