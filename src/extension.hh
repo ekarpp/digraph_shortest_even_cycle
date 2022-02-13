@@ -66,6 +66,20 @@ public:
     Extension_element operator*(const Extension_element &other);
     bool operator==(const Extension_element &other);
 
+    bool is_even()
+    {
+        return this->repr.lo == 0x0;
+    }
+
+    /* used only on elements that are multiplied by two
+     * thus we can just move the hi to low
+     * maybe even just return gf element straight away
+     * as this (probably?) gets anyways done after div2 */
+    Extension_element div2()
+    {
+        return Extension_element(this->repr.hi, 0x0);
+    }
+
     GF_element project();
 
     int64_t get_lo() const { return this->repr.lo; }
