@@ -26,6 +26,9 @@ private:
     int n;
     int64_t mod;
     int64_t mask;
+    /* lookuptable that returns for each non-negative integer < 4
+     * the polynomial where each coefficient is that integer */
+    int64_2_t lookup[4];
 
 public:
     Extension() {};
@@ -35,13 +38,13 @@ public:
     Extension_element random();
 
     inline int64_2_t add(int64_2_t a, int64_2_t b) const;
+    inline int64_2_t mul_const(int a, int64_2_t b);
 
     int get_n() { return this->n; }
     int64_t get_mod() { return this->mod; }
     int64_t get_mask() { return this->mask; }
 
 };
-
 
 
 class Extension_element

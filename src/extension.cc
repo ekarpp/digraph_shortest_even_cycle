@@ -36,6 +36,33 @@ inline int64_2_t Extension::add(int64_2_t a, int64_2_t b) const
     return { carry ^ a.hi ^ b.hi, a.lo ^ b.lo };
 }
 
+/* multiplication by constant, 0 <= a < 4 */
+inline int64_2_t Extension::mul_const(int a, int64_2_t b)
+{
+    int64_2_t c = { 0, 0 };
+    /* form repeating polynomial and then
+     * multiply each coefficient */
+    if (a & 0b1)
+        c.lo = this->mask;
+    if (a & 0b10)
+        c.hi = this->mask;
+
+    /* lo bit if multiplication is simply and */
+    int64_t lo = c.lo & b.lo;
+    /* boolean formula for the hi bit for multiplication
+     * of two mod 4 integers. solved by writing the truth
+     * table and then forming DNF and simplifying it
+     * formula for a*b: (hi_a & lo_b & ~hi_b) |
+     * (hi_a & lo_b & ~lo_a) | (lo_a & hi_b & ~lo_b) |
+     * (lo_a & hi_b & ~hi_a)
+     */
+    int64_t hi = c.hi & b.lo & (b.hi ^ this->mask);
+    hi |= c.hi & b.lo & (c.lo ^ this->mask);
+    hi |= c.lo & b.hi & (b.lo ^ this->mask);
+    hi |= c.lo & b.hi & (c.hi ^ this->mask);
+
+    return { hi, lo };
+}
 /* mul if need 64b support, maybe store intermadiary
 results in  array of len 64 and then add with offset */
 
@@ -73,7 +100,25 @@ Extension_element Extension_element::operator-(const Extension_element &other)
 
 Extension_element Extension_element::operator*(const Extension_element &other)
 {
-    return global::E.one();
+    /* this is horrible all around
+     * how to make better?
+     * (optimiza boolean formula with XOR?,
+     * lookuptable for repeating constants?) */
+    int64_2_t a = this->repr;
+    int64_2_t b = other.get_repr();
+    int64_2_t c = { 0, 0 };
+
+    for (int i = 0; i <= global::E.get_n(); i++)
+    {
+        int hi = (a.hi >> i) & 1;
+        int lo = (a.lo >> i) & 1;
+        int64_2_t aib = global::E.mul_const((hi << 1) | lo, b);
+        aib.lo <<= i;
+        aib.hi <<= i;
+        c = global::E.add(c, aib);
+    }
+
+    return Extension_element(c);
 }
 
 bool Extension_element::operator==(const Extension_element &other)

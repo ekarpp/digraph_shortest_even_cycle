@@ -16,11 +16,14 @@ int main(int argc, char** argv)
         cout << "pls only argument, n for GF(2^n)" << endl;
         return -1;
     }
-
-    global::randgen.init(10);
+    int64_t seed = time(nullptr);
+    cout << "seed: " << seed << endl;
+    global::randgen.init(seed);
 
     Extension_test e(stoi(argv[1]));
     e.test_add_inverse();
+    e.test_associativity();
+    e.test_mul();
 
     GF_test f(stoi(argv[1]));
     f.test_add_inverse();
