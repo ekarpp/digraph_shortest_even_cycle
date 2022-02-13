@@ -37,8 +37,9 @@ public:
     Extension_element one() const;
     Extension_element random();
 
-    inline int64_2_t add(int64_2_t a, int64_2_t b) const;
+    inline int64_2_t add(int64_2_t a, int64_2_t b);
     inline int64_2_t mul_const(int a, int64_2_t b);
+    inline int64_2_t negate(int64_2_t a);
 
     int get_n() { return this->n; }
     int64_t get_mod() { return this->mod; }

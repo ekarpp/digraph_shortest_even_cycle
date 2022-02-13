@@ -30,10 +30,18 @@ Extension_element Extension::random()
     );
 }
 
-inline int64_2_t Extension::add(int64_2_t a, int64_2_t b) const
+inline int64_2_t Extension::add(int64_2_t a, int64_2_t b)
 {
     int64_t carry = a.lo & b.lo;
     return { carry ^ a.hi ^ b.hi, a.lo ^ b.lo };
+}
+
+inline int64_2_t Extension::negate(int64_2_t a)
+{
+    return {
+        a.lo ^ a.hi,
+        a.lo
+    };
 }
 
 /* multiplication by constant, 0 <= a < 4 */
@@ -89,12 +97,8 @@ Extension_element Extension_element::operator+(const Extension_element &other)
 Extension_element Extension_element::operator-(const Extension_element &other)
 {
     /* turn other to the additive inverse and then just add */
-    int64_2_t b = {
-        other.get_lo() ^ other.get_hi(),
-        other.get_lo()
-    };
     return Extension_element(
-        global::E.add(this->repr, b)
+        global::E.add(this->repr, global::E.negate(other.get_repr()))
     );
 }
 
