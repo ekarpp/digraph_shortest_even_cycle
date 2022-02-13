@@ -97,8 +97,10 @@ void GF_test::test_lift_project()
     {
         GF_element e(i);
         Extension_element b(i, global::randgen() & global::E.get_mask());
+        Extension_element c(i, 0b0);
         if (e.lift().project() != e
-            || b.project() != e)
+            || b.project() != e
+            || e.lift() != c)
             err++;
         i++;
     }
