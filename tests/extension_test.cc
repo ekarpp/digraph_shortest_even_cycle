@@ -84,8 +84,7 @@ void Extension_test::test_even_tau()
         if (sigma.is_even() || v.is_even())
             /* we get here with probability (0.5)^(d-1) */
             continue;
-        Extension_element t = util::tau(sigma, v);
-        Extension_element e = v - sigma * t;
+        Extension_element e = v - sigma * util::tau(sigma, v);
         if (!e.is_even())
             err++;
     }
