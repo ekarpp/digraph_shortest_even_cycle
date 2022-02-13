@@ -15,10 +15,6 @@ private:
     void test_even_tau();
     void test_is_even();
 
-public:
-    Extension_test(int deg);
-
-
     void run()
     {
         test_add_inverse();
@@ -27,6 +23,10 @@ public:
         test_even_tau();
         test_is_even();
     }
+
+public:
+    Extension_test(int deg);
+
 };
 
 #endif

@@ -21,10 +21,7 @@ int main(int argc, char** argv)
     global::randgen.init(seed);
 
     Extension_test e(stoi(argv[1]));
-    e.run();
-
     GF_test f(stoi(argv[1]));
-    f.run();
 
     return 0;
 }

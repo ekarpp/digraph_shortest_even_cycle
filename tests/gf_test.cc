@@ -16,6 +16,8 @@ GF_test::GF_test(int deg)
     cout << "----------" << endl;
     cout << "TESTING GF" << endl;
     cout << "----------" << endl << endl;
+
+    this->run();
 }
 
 void GF_test::end_test(int err)

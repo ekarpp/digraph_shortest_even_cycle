@@ -14,9 +14,6 @@ private:
     void test_mul_inverse();
     void test_lift_project();
 
-public:
-    GF_test(int deg);
-
     void run()
     {
         test_add_inverse();
@@ -25,6 +22,10 @@ public:
         test_mul_inverse();
         test_lift_project();
     }
+
+public:
+    GF_test(int deg);
+
 };
 
 #endif

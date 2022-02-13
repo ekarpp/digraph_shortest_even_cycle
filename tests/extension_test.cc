@@ -16,6 +16,8 @@ Extension_test::Extension_test(int deg)
     cout << "-----------------" << endl;
     cout << "TESTING EXTENSION" << endl;
     cout << "-----------------" << endl << endl;
+
+    this->run();
 }
 
 void Extension_test::end_test(int err)
