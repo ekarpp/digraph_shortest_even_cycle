@@ -3,7 +3,11 @@
 
 #include <stdint.h>
 
+#include "extension.hh"
+
+/* forward declare */
 class GF_element;
+class Extension_element;
 
 /* GF(2^n) */
 class GF2n
@@ -41,6 +45,8 @@ public:
     GF_element operator*(const GF_element &other);
     GF_element operator/(const GF_element &other);
     bool operator==(const GF_element &other);
+
+    Extension_element lift();
 
     int64_t get_repr() const { return this->repr; }
 

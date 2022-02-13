@@ -3,6 +3,12 @@
 
 #include <stdint.h>
 
+#include "gf.hh"
+
+/* forward declare */
+class GF_element;
+class Extension_element;
+
 /* representation for elements of E(4^n)
  * each bit in lo is the low bit of the mod 4 coefficient.
  * similarly for hi
@@ -13,8 +19,6 @@ struct int64_2_t
     int64_t hi;
     int64_t lo;
 };
-
-class Extension_element;
 
 /* Extension of GF(2^n) to the ring E(4^n).
  * If GF(2^n) = Z2 / <g_2> for irreducible polynomial
@@ -60,6 +64,8 @@ public:
     Extension_element operator-(const Extension_element &other);
     Extension_element operator*(const Extension_element &other);
     bool operator==(const Extension_element &other);
+
+    GF_element project();
 
     int64_t get_lo() const { return this->repr.lo; }
     int64_t get_hi() const { return this->repr.hi; }

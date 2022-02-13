@@ -15,6 +15,7 @@ public:
     void test_associativity();
     void test_mul_id();
     void test_mul_inverse();
+    void test_lift_project();
 };
 
 #endif

@@ -2,6 +2,7 @@
 #include <immintrin.h>
 #include <iostream>
 
+#include "extension.hh"
 #include "gf.hh"
 #include "global.hh"
 
@@ -148,4 +149,9 @@ GF_element GF_element::operator/(const GF_element &other)
 bool GF_element::operator==(const GF_element &other)
 {
     return this->repr == other.get_repr();
+}
+
+Extension_element GF_element::lift()
+{
+    return Extension_element(this->repr, 0b0);
 }

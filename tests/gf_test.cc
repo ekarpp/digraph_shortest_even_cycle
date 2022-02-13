@@ -4,6 +4,7 @@
 #include "../src/gf.hh"
 #include "../src/util.hh"
 #include "../src/global.hh"
+#include "../src/extension.hh"
 
 using namespace std;
 GF2n global::F;
@@ -76,11 +77,27 @@ void GF_test::test_mul_inverse()
 {
     cout << "mul with inverse" << endl;
     int err = 0;
-    int64_t i = 2;
+    int64_t i = 1;
     while (i <= global::F.get_mask())
     {
         GF_element e(i);
         if (e / e != global::F.one())
+            err++;
+        i++;
+    }
+    this->end_test(err);
+}
+
+void GF_test::test_lift_project()
+{
+    cout << "lift project" << endl;
+    int err = 0;
+    int64_t i = 0;
+    while (i <= global::F.get_mask())
+    {
+        GF_element e(i);
+
+        if (e.lift().project() != e)
             err++;
         i++;
     }

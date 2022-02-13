@@ -1,3 +1,4 @@
+#include "gf.hh"
 #include "global.hh"
 #include "extension.hh"
 
@@ -100,6 +101,11 @@ Extension_element Extension_element::operator-(const Extension_element &other)
     return Extension_element(
         global::E.add(this->repr, global::E.negate(other.get_repr()))
     );
+}
+
+GF_element Extension_element::project()
+{
+    return GF_element(this->repr.lo);
 }
 
 Extension_element Extension_element::operator*(const Extension_element &other)

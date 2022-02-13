@@ -30,5 +30,6 @@ int main(int argc, char** argv)
     f.test_associativity();
     f.test_mul_inverse();
     f.test_mul_id();
+    f.test_lift_project();
     return 0;
 }
