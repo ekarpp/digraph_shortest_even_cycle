@@ -41,6 +41,7 @@ public:
     Extension_element one() const;
     Extension_element random();
 
+    int64_2_t rem(int64_2_t a);
     inline int64_2_t add(int64_2_t a, int64_2_t b);
     inline int64_2_t mul_const(int a, int64_2_t b);
     inline int64_2_t negate(int64_2_t a);

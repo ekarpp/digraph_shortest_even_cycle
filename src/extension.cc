@@ -31,6 +31,20 @@ Extension_element Extension::random()
     );
 }
 
+int64_2_t Extension::rem(int64_2_t a)
+{
+    while (a.lo > this->mask || a.hi > this->mask)
+    {
+        int shift;
+        for (shift = 0; a.lo >> shift || a.hi >> shift; shift++);
+        shift -= 1 + this->n;
+        /* mod has coefficients 01, thus its negation
+         * is just it applied to hi and lo (see negate function) */
+        a = this->add(a, { this->mod << shift, this->mod << shift });
+    }
+    return a;
+}
+
 inline int64_2_t Extension::add(int64_2_t a, int64_2_t b)
 {
     int64_t carry = a.lo & b.lo;
@@ -128,7 +142,8 @@ Extension_element Extension_element::operator*(const Extension_element &other)
         c = global::E.add(c, aib);
     }
 
-    return Extension_element(c);
+    /* use rem in initializer? same for GF */
+    return Extension_element(global::E.rem(c));
 }
 
 bool Extension_element::operator==(const Extension_element &other)
