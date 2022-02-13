@@ -82,7 +82,7 @@ void Extension_test::test_even_tau()
         Extension_element sigma = global::E.random();
         Extension_element v = global::E.random();
         if (sigma.is_even() || v.is_even())
-            /* we get here with probability (0.5)^(2d) */
+            /* we get here with probability (0.5)^(d-1) */
             continue;
         Extension_element t = util::tau(sigma, v);
         Extension_element e = v - sigma * t;
