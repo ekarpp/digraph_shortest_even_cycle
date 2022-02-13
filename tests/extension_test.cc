@@ -31,7 +31,7 @@ void Extension_test::test_add_inverse()
 {
     cout << "add inverse" << endl;
     int err = 0;
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < 10000; i++)
     {
         Extension_element e = global::E.random();
         if (e - e != global::E.zero())
