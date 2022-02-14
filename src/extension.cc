@@ -86,8 +86,27 @@ int64_2_t Extension::mul_const(int a, int64_2_t b) const
 
     return { hi, lo };
 }
-/* mul if need 64b support, maybe store intermadiary
-results in  array of len 64 and then add with offset */
+
+int64_2_t Extension::mul(int64_2_t a, int64_2_t b) const
+{
+    /* this is horrible all around
+     * how to make better?
+     * (optimiza boolean formula with XOR?,
+     * lookuptable for repeating constants?) */
+    int64_2_t c = { 0, 0 };
+
+    for (int i = 0; i <= global::E.get_n(); i++)
+    {
+        int hi = (a.hi >> i) & 1;
+        int lo = (a.lo >> i) & 1;
+        int64_2_t aib = global::E.mul_const((hi << 1) | lo, b);
+        aib.lo <<= i;
+        aib.hi <<= i;
+        c = global::E.add(c, aib);
+    }
+
+    return c;
+}
 
 /* Extension element */
 Extension_element::Extension_element(const int64_t lo, const int64_t hi)
@@ -141,26 +160,16 @@ GF_element Extension_element::project() const
 
 Extension_element Extension_element::operator*(const Extension_element &other) const
 {
-    /* this is horrible all around
-     * how to make better?
-     * (optimiza boolean formula with XOR?,
-     * lookuptable for repeating constants?) */
-    int64_2_t a = this->repr;
-    int64_2_t b = other.get_repr();
-    int64_2_t c = { 0, 0 };
-
-    for (int i = 0; i <= global::E.get_n(); i++)
-    {
-        int hi = (a.hi >> i) & 1;
-        int lo = (a.lo >> i) & 1;
-        int64_2_t aib = global::E.mul_const((hi << 1) | lo, b);
-        aib.lo <<= i;
-        aib.hi <<= i;
-        c = global::E.add(c, aib);
-    }
-
+    int64_2_t prod = global::E.mul(this->repr, other.get_repr());
     /* use rem in initializer? same for GF */
-    return Extension_element(global::E.rem(c));
+    return Extension_element(global::E.rem(prod));
+}
+
+Extension_element &Extension_element::operator*=(const Extension_element &other)
+{
+    int64_2_t prod = global::E.mul(this->repr, other.get_repr());
+    this->repr = global::E.rem(prod);
+    return *this;
 }
 
 bool Extension_element::operator==(const Extension_element &other) const

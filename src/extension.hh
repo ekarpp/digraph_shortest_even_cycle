@@ -44,6 +44,7 @@ public:
     int64_2_t rem(int64_2_t a) const;
     int64_2_t add(int64_2_t a, int64_2_t b) const;
     int64_2_t mul_const(int a, int64_2_t b) const;
+    int64_2_t mul(int64_2_t a, int64_2_t b) const;
     int64_2_t negate(int64_2_t a) const;
 
     int get_n() const { return this->n; }
