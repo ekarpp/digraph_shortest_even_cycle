@@ -31,7 +31,7 @@ int main(int argc, char** argv)
 
     Extension_test e(n);
     GF_test f(n);
-    FMatrix_test fm(5);
+    Matrix_test m(5);
 
     return 0;
 }

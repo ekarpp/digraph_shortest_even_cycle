@@ -5,7 +5,7 @@
 #include "../src/fmatrix.hh"
 #include "test.hh"
 
-class FMatrix_test : Test
+class Matrix_test : Test
 {
 private:
     int dim;
@@ -21,7 +21,7 @@ private:
     }
 
 public:
-    FMatrix_test(int dim);
+    Matrix_test(int dim);
 };
 
 #endif

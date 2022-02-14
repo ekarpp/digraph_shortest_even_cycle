@@ -1,25 +1,25 @@
 #include <iostream>
 #include <vector>
 
-#include "fmatrix_test.hh"
+#include "matrix_test.hh"
 #include "../src/fmatrix.hh"
 #include "../src/global.hh"
 #include "../src/gf.hh"
 
 using namespace std;
 
-FMatrix_test::FMatrix_test(int dim)
+Matrix_test::Matrix_test(int dim)
 {
     this->dim = dim;
 
-    cout << "---------------" << endl;
-    cout << "TESTING FMATRIX" << endl;
-    cout << "---------------" << endl << endl;
+    cout << "--------------" << endl;
+    cout << "TESTING MATRIX" << endl;
+    cout << "--------------" << endl << endl;
 
     this->run();
 }
 
-FMatrix FMatrix_test::random_matrix()
+FMatrix Matrix_test::random_matrix()
 {
     vector<vector<GF_element>> m(this->dim, vector<GF_element>(this->dim));
     for (int i = 0; i < this->dim; i++)
@@ -28,7 +28,7 @@ FMatrix FMatrix_test::random_matrix()
     return FMatrix(this->dim, m);
 }
 
-void FMatrix_test::test_addition()
+void Matrix_test::test_addition()
 {
     cout << "addition" << endl;
     int err = 0;
@@ -48,7 +48,7 @@ void FMatrix_test::test_addition()
     end_test(err);
 }
 
-void FMatrix_test::test_multiplication()
+void Matrix_test::test_multiplication()
 {
 
 }

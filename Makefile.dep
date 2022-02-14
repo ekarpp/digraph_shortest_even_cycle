@@ -16,4 +16,4 @@ extension_test.o: extension_test.cc extension_test.hh test.hh
 
 fmatrix.o: fmatrix.cc fmatrix.hh
 
-fmatrix_test.o: fmatrix_test.cc fmatrix_test.hh test.hh
+matrix_test.o: matrix_test.cc matrix_test.hh test.hh
