@@ -43,8 +43,11 @@ public:
     GF_element() { }
     GF_element(const int64_t n);
     GF_element operator+(const GF_element &other) const;
+    GF_element &operator+=(const GF_element &other);
     GF_element operator*(const GF_element &other) const;
+    GF_element &operator*=(const GF_element &other);
     GF_element operator/(const GF_element &other) const;
+    GF_element &operator/=(const GF_element &other);
     bool operator==(const GF_element &other) const;
 
     GF_element inv() const;
@@ -55,6 +58,12 @@ public:
     GF_element operator-(const GF_element &other) const
     {
         return *this + other;
+    }
+
+    GF_element operator-=(const GF_element &other)
+    {
+        this->repr ^= other.get_repr();
+        return *this;
     }
 
     GF_element &operator=(const GF_element &other)

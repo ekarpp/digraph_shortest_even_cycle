@@ -128,6 +128,12 @@ GF_element GF_element::operator+(const GF_element &other) const
     return GF_element(this->repr ^ other.get_repr());
 }
 
+GF_element &GF_element::operator+=(const GF_element &other)
+{
+    this->repr ^= other.get_repr();
+    return *this;
+}
+
 GF_element GF_element::operator*(const GF_element &other) const
 {
     const int64_t prod = global::F.clmul(
@@ -140,6 +146,18 @@ GF_element GF_element::operator*(const GF_element &other) const
     );
 }
 
+GF_element &GF_element::operator*=(const GF_element &other)
+{
+    const int64_t prod = global::F.clmul(
+        this->repr,
+        other.get_repr()
+    );
+
+    this->repr = global::F.rem(prod);
+
+    return *this;
+}
+
 GF_element GF_element::inv() const
 {
     return GF_element(global::F.ext_euclid(this->repr));
@@ -148,6 +166,18 @@ GF_element GF_element::inv() const
 GF_element GF_element::operator/(const GF_element &other) const
 {
     return *this * other.inv();
+}
+
+GF_element &GF_element::operator/=(const GF_element &other)
+{
+    const int64_t inv = global::F.ext_euclid(other.get_repr());
+    const int64_t prod = global::F.clmul(
+        this->repr,
+        inv
+    );
+
+    this->repr = global::F.rem(prod);
+    return *this;
 }
 
 bool GF_element::operator==(const GF_element &other) const
