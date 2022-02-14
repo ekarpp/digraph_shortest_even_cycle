@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "gf.hh"
+#include "fmatrix.hh"
 
 using namespace std;
 
@@ -11,7 +12,7 @@ class Graph
 private:
     int n;
     void sample_adjacency(vector<vector<int>> adjacency_list);
-    vector<vector<GF_element>> A;
+    FMatrix A;
 
 public:
     Graph(vector<vector<int>> adjacency_list);

@@ -22,8 +22,7 @@ int main(int argc, char **argv)
         {0}
     };
 
-    Graph G(vec);
-    int d = 5 * ceil(log(G.get_n()) / log(2));
+    int d = 5 * ceil(log(vec.size()) / log(2));
     /* modz2 and gfmul only support upto 32 */
     if (d > 32)
         return -1;
@@ -31,6 +30,9 @@ int main(int argc, char **argv)
     int64_t poly = util::irred_poly(d);
     global::F.init(d, poly);
     global::E.init(d, poly);
+
+    Graph G(vec);
+
 
     return 0;
 }

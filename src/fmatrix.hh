@@ -17,6 +17,8 @@ private:
     int n;
 
 public:
+    /* for graph.cc */
+    FMatrix() {};
     FMatrix(int n, std::vector<std::vector<GF_element>> m);
     FMatrix(Matrix<GF_element> m);
 
