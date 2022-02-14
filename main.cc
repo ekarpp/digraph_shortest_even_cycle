@@ -16,7 +16,10 @@ Extension global::E;
 
 int main(int argc, char **argv)
 {
-    global::randgen.init(10);
+    int64_t seed = time(nullptr);
+    cout << "seed: " << seed << endl;
+    global::randgen.init(seed);
+
     vector<vector<int>> vec = {
         {1},
         {0}

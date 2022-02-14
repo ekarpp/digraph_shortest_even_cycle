@@ -13,6 +13,17 @@ void GF2n::init(const int n, const int64_t mod)
     this->n = n;
     this->mod = mod;
     this->mask = (1 << this->n) - 1;
+
+    cout << "initialized GF(2^" << n << ") with modulus: ";
+    for (int i = n; i >= 0; i--)
+    {
+        if ((mod >> i) & 1)
+            cout << "1";
+        else
+            cout << "0";
+    }
+    cout << endl;
+
     return;
 }
 
