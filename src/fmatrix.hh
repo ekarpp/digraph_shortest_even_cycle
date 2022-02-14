@@ -24,6 +24,16 @@ public:
     {
         return this->m[i];
     }
+
+    bool operator==(const FMatrix &other) const
+    {
+        return this->m == other.get_m();
+    }
+
+    bool operator!=(const FMatrix &other) const
+    {
+        return !(*this == other);
+    }
 };
 
 #endif

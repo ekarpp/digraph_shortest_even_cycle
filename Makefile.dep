@@ -14,4 +14,6 @@ gf_test.o: gf_test.cc gf_test.hh test.hh
 
 extension_test.o: extension_test.cc extension_test.hh test.hh
 
+fmatrix.o: fmatrix.cc fmatrix.hh
+
 fmatrix_test.o: fmatrix_test.cc fmatrix_test.hh test.hh

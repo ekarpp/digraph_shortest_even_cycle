@@ -43,23 +43,23 @@ public:
 
         for (int i = 0; i < this->n; i++)
             for (int j = 0; j < this->n; j++)
-                sum[i][j] = (*this)[i][j] + other[i][j];
+                sum[i][j] = this->m[i][j] + other[i][j];
 
         return Matrix(this->n, this->one, sum);
     }
 
-    Matrix operator-(const Matrix &other)
+    Matrix operator-(const Matrix &other) const
     {
         std::vector<std::vector<E>> sum(n, std::vector<E>(n));
 
         for (int i = 0; i < this->n; i++)
             for (int j = 0; j < this->n; j++)
-                sum[i][j] = this[i][j] - other[i][j];
+                sum[i][j] = this->m[i][j] - other[i][j];
 
         return Matrix(this->n, this->one, sum);
     }
 
-    Matrix operator*(const Matrix &other)
+    Matrix operator*(const Matrix &other) const
     {
         std::vector<std::vector<E>> prod(n, std::vector<E>(n));
 
@@ -69,20 +69,39 @@ public:
             {
                 prod[i][j] = this->one;
                 for (int k = 0; k < this->n; k++)
-                    prod[i][j] = prod[i][j] + this[i][j] * other[i][j];
+                    prod[i][j] = prod[i][j] + this->m[i][j] * other[i][j];
             }
         }
 
         return Matrix(this->n, this->one, prod);
     }
 
-    std::vector<E> operator[](int i)
+    /*  figure out the const here */
+    std::vector<E> operator[](int i) const
     {
         /* todo: error check, append zeros? */
         return this->m[i];
     }
 
-    int get_n() { return this->n; }
+    int get_n() const { return this->n; }
+
+    bool operator==(const Matrix &other) const
+    {
+        if (this->n != other.get_n())
+            return false;
+
+        for (int i = 0; i < this->n; i++)
+            for (int j = 0; j < this->n; j++)
+                if (this->m[i][j] != other[i][j])
+                    return false;
+
+        return true;
+    }
+
+    bool operator!=(const Matrix &other) const
+    {
+        return !(*this == other);
+    }
 };
 
 #endif

@@ -37,13 +37,13 @@ void FMatrix_test::test_addition()
         FMatrix a = this->random_matrix();
         FMatrix b = this->random_matrix();
 
-        GF_element sum = global::F.zero();
+        FMatrix sum = this->random_matrix();
         for (int i = 0; i < this->dim; i++)
             for (int j = 0; j < this->dim; j++)
-                sum = sum + a[i][j] + b[i][j];
-        FMatrix c = a + b;
-        //if (sum != a + b)
-        //    err++;
+                sum[i][j] = a[i][j] + b[i][j];
+        //FMatrix c = a + b;
+        if (sum != a + b)
+            err++;
     }
     end_test(err);
 }
