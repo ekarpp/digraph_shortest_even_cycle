@@ -8,7 +8,7 @@ all: $(BIN)
 digraph: main.o graph.o util.o gf.o extension.o fmatrix.o
 	$(CXX) $^ -o $@
 
-digraph-tests: tests.o util.o gf.o gf_test.o extension.o extension_test.o
+digraph-tests: tests.o util.o gf.o gf_test.o extension.o extension_test.o fmatrix.o fmatrix_test.o
 	$(CXX) $^ -o $@
 
 clean:

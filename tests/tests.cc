@@ -4,6 +4,7 @@
 #include "../src/util.hh"
 #include "gf_test.hh"
 #include "extension_test.hh"
+#include "fmatrix_test.hh"
 
 util::rand64bit global::randgen;
 Extension global::E;
@@ -30,6 +31,7 @@ int main(int argc, char** argv)
 
     Extension_test e(n);
     GF_test f(n);
+    FMatrix_test fm(5);
 
     return 0;
 }

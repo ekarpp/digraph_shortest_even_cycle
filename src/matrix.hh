@@ -15,6 +15,8 @@ private:
     E one;
 
 public:
+    Matrix() {}
+
     Matrix(int n, E one, std::vector<std::vector<E>> &matrix)
     {
         this->n = n;
@@ -26,29 +28,38 @@ public:
         this->m = v;
     }
 
-    Matrix &operator+(const Matrix &other)
+    Matrix &operator+=(const Matrix &other)
+    {
+        for (int i = 0; i < this->n; i++)
+            for (int j = 0; j < this->n; j++)
+                this[i][j] = this[i][j] + other[i][j];
+
+        return *this;
+    }
+
+    Matrix operator+(const Matrix &other) const
     {
         std::vector<std::vector<E>> sum(n, std::vector<E>(n));
 
         for (int i = 0; i < this->n; i++)
-            for (int j = 0; j < this->n; i++)
-                sum[i][j] = *this[i][j] + other[i][j];
+            for (int j = 0; j < this->n; j++)
+                sum[i][j] = (*this)[i][j] + other[i][j];
 
         return Matrix(this->n, this->one, sum);
     }
 
-    Matrix &operator-(const Matrix &other)
+    Matrix operator-(const Matrix &other)
     {
         std::vector<std::vector<E>> sum(n, std::vector<E>(n));
 
         for (int i = 0; i < this->n; i++)
-            for (int j = 0; j < this->n; i++)
-                sum[i][j] = *this[i][j] - other[i][j];
+            for (int j = 0; j < this->n; j++)
+                sum[i][j] = this[i][j] - other[i][j];
 
         return Matrix(this->n, this->one, sum);
     }
 
-    Matrix &operator*(const Matrix &other)
+    Matrix operator*(const Matrix &other)
     {
         std::vector<std::vector<E>> prod(n, std::vector<E>(n));
 
@@ -58,14 +69,14 @@ public:
             {
                 prod[i][j] = this->one;
                 for (int k = 0; k < this->n; k++)
-                    prod[i][j] = prod[i][j] + *this[i][j] * other[i][j];
+                    prod[i][j] = prod[i][j] + this[i][j] * other[i][j];
             }
         }
 
         return Matrix(this->n, this->one, prod);
     }
 
-    std::vector<E> &operator[](int i)
+    std::vector<E> operator[](int i)
     {
         /* todo: error check, append zeros? */
         return this->m[i];
