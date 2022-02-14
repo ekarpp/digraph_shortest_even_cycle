@@ -32,9 +32,5 @@ int main(int argc, char **argv)
     global::F.init(d, poly);
     global::E.init(d, poly);
 
-    vector<vector<GF_element>> v(1, vector<GF_element>(1, global::F.one()));
-    FMatrix m(1, global::F.one(), v);
-
-
     return 0;
 }
