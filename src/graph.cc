@@ -36,7 +36,7 @@ void Graph::sample_adjacency(vector<vector<int>> adjacency_list)
     {
         /* loop at each vertex */
         m[u][u] = global::F.random();
-        for (int i = 0; i < adjacency_list[u].size(); i++)
+        for (uint i = 0; i < adjacency_list[u].size(); i++)
         {
             int v = adjacency_list[u][i];
             m[u][v] = global::F.random();
