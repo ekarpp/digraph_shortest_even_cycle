@@ -10,8 +10,6 @@ extension.o: extension.cc extension.hh
 
 tests.o: tests.cc
 
-gf_test.o: gf_test.cc gf_test.hh
+gf_test.o: gf_test.cc gf_test.hh test.hh
 
-extension_test.o: extension_test.cc extension_test.hh
-
-fmatrix.o: fmatrix.cc fmatrix.hh matrix.hh
+extension_test.o: extension_test.cc extension_test.hh test.hh

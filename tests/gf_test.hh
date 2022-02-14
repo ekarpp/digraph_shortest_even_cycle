@@ -1,13 +1,14 @@
 #ifndef GF_TEST_H
 #define GF_TEST_H
 
+#include "test.hh"
 #include "../src/gf.hh"
 
-class GF_test
+class GF_test : Test
 {
 private:
     int n;
-    void end_test(int err);
+
     void test_add_inverse();
     void test_associativity();
     void test_mul_id();

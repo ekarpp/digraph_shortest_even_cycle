@@ -1,14 +1,14 @@
 #ifndef EXTENSION_TEST_H
 #define EXTENSION_TEST_H
 
+#include "test.hh"
 #include "../src/extension.hh"
 
-class Extension_test
+class Extension_test : Test
 {
 private:
     int n;
-    int tests = 10000;
-    void end_test(int err);
+
     void test_add_inverse();
     void test_associativity();
     void test_mul();
