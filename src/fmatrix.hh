@@ -34,6 +34,11 @@ public:
     {
         return !(*this == other);
     }
+
+    void set(int row, int col, GF_element val)
+    {
+        this->m.set(row, col, val);
+    }
 };
 
 #endif

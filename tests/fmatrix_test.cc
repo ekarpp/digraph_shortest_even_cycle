@@ -40,8 +40,8 @@ void FMatrix_test::test_addition()
         FMatrix sum = this->random_matrix();
         for (int i = 0; i < this->dim; i++)
             for (int j = 0; j < this->dim; j++)
-                sum[i][j] = a[i][j] + b[i][j];
-        //FMatrix c = a + b;
+                sum.set(i, j, a[i][j] + b[i][j]);
+
         if (sum != a + b)
             err++;
     }

@@ -102,6 +102,12 @@ public:
     {
         return !(*this == other);
     }
+
+    /* set m[row][col] = val. use this to avoid const issues with [] op */
+    void set(int row, int col, E val)
+    {
+        this->m[row][col] = val;
+    }
 };
 
 #endif
