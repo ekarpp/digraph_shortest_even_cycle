@@ -64,8 +64,11 @@ public:
     Extension_element(const int64_2_t repr);
     Extension_element(const Extension_element& e);
     Extension_element operator+(const Extension_element &other) const;
+    Extension_element &operator+=(const Extension_element &other);
     Extension_element operator-(const Extension_element &other) const;
+    Extension_element &operator-=(const Extension_element &other);
     Extension_element operator*(const Extension_element &other) const;
+    Extension_element &operator*=(const Extension_element &other);
     bool operator==(const Extension_element &other) const;
 
     bool is_even() const

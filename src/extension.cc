@@ -114,12 +114,24 @@ Extension_element Extension_element::operator+(const Extension_element &other) c
     );
 }
 
+Extension_element &Extension_element::operator+=(const Extension_element &other)
+{
+    this->repr = global::E.add(this->repr, other.get_repr());
+    return *this;
+}
+
 Extension_element Extension_element::operator-(const Extension_element &other) const
 {
     /* turn other to the additive inverse and then just add */
     return Extension_element(
         global::E.add(this->repr, global::E.negate(other.get_repr()))
     );
+}
+
+Extension_element &Extension_element::operator-=(const Extension_element &other)
+{
+    this->repr = global::E.add(this->repr, global::E.negate(other.get_repr()));
+    return *this;
 }
 
 GF_element Extension_element::project() const
