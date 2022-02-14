@@ -123,6 +123,11 @@ GF_element::GF_element(const int64_t n)
     return;
 }
 
+GF_element::GF_element(const GF_element &e)
+{
+    this->repr = e.get_repr();
+}
+
 GF_element GF_element::operator+(const GF_element &other) const
 {
     return GF_element(this->repr ^ other.get_repr());

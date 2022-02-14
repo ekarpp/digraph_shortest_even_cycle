@@ -42,6 +42,7 @@ private:
 public:
     GF_element() { }
     GF_element(const int64_t n);
+    GF_element(const GF_element &e);
     GF_element operator+(const GF_element &other) const;
     GF_element &operator+=(const GF_element &other);
     GF_element operator*(const GF_element &other) const;

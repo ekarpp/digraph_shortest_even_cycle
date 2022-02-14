@@ -96,6 +96,11 @@ Extension_element::Extension_element(const int64_t lo, const int64_t hi)
     return;
 }
 
+Extension_element::Extension_element(const Extension_element &e)
+{
+    this->repr = { e.get_hi(), e.get_lo() };
+}
+
 Extension_element::Extension_element(const int64_2_t repr)
 {
     this->repr = repr;
