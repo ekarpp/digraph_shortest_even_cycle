@@ -48,6 +48,26 @@ void Matrix_test::test_addition()
     end_test(err);
 }
 
+void Matrix_test::test_subtraction()
+{
+    cout << "subtraction" << endl;
+    int err = 0;
+    for (int i = 0; i < this->tests; i++)
+    {
+        FMatrix a = this->random_matrix();
+        FMatrix b = this->random_matrix();
+
+        FMatrix diff = this->random_matrix();
+        for (int x = 0; x < this->dim; x++)
+            for (int y = 0; y < this->dim; y++)
+                diff.set(x, y, a[x][y] - b[x][y]);
+
+        if (diff != a - b)
+            err++;
+    }
+    end_test(err);
+}
+
 void Matrix_test::test_multiplication()
 {
     cout << "multiplication" << endl;

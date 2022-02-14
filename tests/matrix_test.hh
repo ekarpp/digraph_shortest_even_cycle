@@ -11,6 +11,7 @@ private:
     int dim;
 
     void test_addition();
+    void test_subtraction();
     void test_multiplication();
 
     FMatrix random_matrix();
@@ -18,6 +19,7 @@ private:
     void run()
     {
         test_addition();
+        test_subtraction();
         test_multiplication();
     }
 
