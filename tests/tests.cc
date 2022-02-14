@@ -6,6 +6,8 @@
 #include "extension_test.hh"
 
 util::rand64bit global::randgen;
+Extension global::E;
+GF2n global::F;
 
 using namespace std;
 
@@ -20,8 +22,14 @@ int main(int argc, char** argv)
     cout << "seed: " << seed << endl;
     global::randgen.init(seed);
 
-    Extension_test e(stoi(argv[1]));
-    GF_test f(stoi(argv[1]));
+    int n = stoi(argv[1]);
+    int64_t p = util::irred_poly(n);
+
+    global::E.init(n, p);
+    global::F.init(n, p);
+
+    Extension_test e(n);
+    GF_test f(n);
 
     return 0;
 }

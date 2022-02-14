@@ -5,14 +5,13 @@
 #include "../src/util.hh"
 #include "../src/global.hh"
 
-Extension global::E;
 using namespace std;
 
 
 Extension_test::Extension_test(int deg)
 {
     this->n = deg;
-    global::E.init(this->n, util::irred_poly(this->n));
+
     cout << "-----------------" << endl;
     cout << "TESTING EXTENSION" << endl;
     cout << "-----------------" << endl << endl;

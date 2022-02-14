@@ -7,12 +7,11 @@
 #include "../src/extension.hh"
 
 using namespace std;
-GF2n global::F;
 
 GF_test::GF_test(int deg)
 {
     this->n = deg;
-    global::F.init(this->n, util::irred_poly(this->n));
+
     cout << "----------" << endl;
     cout << "TESTING GF" << endl;
     cout << "----------" << endl << endl;
