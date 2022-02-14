@@ -9,24 +9,26 @@
 template <typename E>
 class Matrix
 {
-    using _et = E;
-
 private:
-    std::vector<std::vector<_et>> m;
+    std::vector<std::vector<E>> m;
     int n;
-    _et one;
+    E one;
 
 public:
-    Matrix(int n, _et one, std::vector<std::vector<_et>> &m)
+    Matrix(int n, E one, std::vector<std::vector<E>> &matrix)
     {
         this->n = n;
         this->one = one;
-        this->m(n, std::vector<_et>(n));
+        std::vector<std::vector<E>> v(n, std::vector<E>(n));
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                v[i][j] = matrix[i][j];
+        this->m = v;
     }
 
     Matrix &operator+(const Matrix &other)
     {
-        std::vector<std::vector<_et>> sum(n, std::vector<_et>(n));
+        std::vector<std::vector<E>> sum(n, std::vector<E>(n));
 
         for (int i = 0; i < this->n; i++)
             for (int j = 0; j < this->n; i++)
@@ -37,7 +39,7 @@ public:
 
     Matrix &operator-(const Matrix &other)
     {
-        std::vector<std::vector<_et>> sum(n, std::vector<_et>(n));
+        std::vector<std::vector<E>> sum(n, std::vector<E>(n));
 
         for (int i = 0; i < this->n; i++)
             for (int j = 0; j < this->n; i++)
@@ -48,7 +50,7 @@ public:
 
     Matrix &operator*(const Matrix &other)
     {
-        std::vector<std::vector<_et>> prod(n, std::vector<_et>(n));
+        std::vector<std::vector<E>> prod(n, std::vector<E>(n));
 
         for (int i = 0; i < this->n; i++)
         {
@@ -63,7 +65,7 @@ public:
         return Matrix(this->n, this->one, prod);
     }
 
-    std::vector<_et> &operator[](int i)
+    std::vector<E> &operator[](int i)
     {
         /* todo: error check, append zeros? */
         return this->m[i];

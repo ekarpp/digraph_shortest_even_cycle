@@ -6,6 +6,7 @@
 #include "src/global.hh"
 #include "src/graph.hh"
 #include "src/util.hh"
+#include "src/fmatrix.hh"
 
 using namespace std;
 
@@ -30,6 +31,10 @@ int main(int argc, char **argv)
     int64_t poly = util::irred_poly(d);
     global::F.init(d, poly);
     global::E.init(d, poly);
+
+    vector<vector<GF_element>> v(1, vector<GF_element>(1, global::F.one()));
+    FMatrix m(1, global::F.one(), v);
+
 
     return 0;
 }

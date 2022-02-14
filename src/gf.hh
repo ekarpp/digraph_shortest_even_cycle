@@ -40,6 +40,7 @@ private:
     int64_t repr;
 
 public:
+    GF_element() { GF_element(0); }
     GF_element(const int64_t n);
     GF_element operator+(const GF_element &other);
     GF_element operator*(const GF_element &other);
