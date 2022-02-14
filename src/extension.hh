@@ -59,6 +59,7 @@ private:
     int64_2_t repr;
 
 public:
+    Extension_element() { };
     Extension_element(const int64_t lo, const int64_t hi);
     Extension_element(const int64_2_t repr);
     Extension_element operator+(const Extension_element &other);
