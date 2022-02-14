@@ -60,7 +60,7 @@ public:
         return *this + other;
     }
 
-    GF_element operator-=(const GF_element &other)
+    GF_element &operator-=(const GF_element &other)
     {
         this->repr ^= other.get_repr();
         return *this;
