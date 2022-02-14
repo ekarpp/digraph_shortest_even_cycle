@@ -22,7 +22,7 @@ public:
 
     const Matrix<GF_element> &get_m() const { return this->m; }
 
-    std::vector<GF_element> operator[](int i)
+    std::vector<GF_element> operator[](int i) const
     {
         return this->m[i];
     }
