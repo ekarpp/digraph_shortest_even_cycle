@@ -5,6 +5,10 @@
 
 #include "extension.hh"
 #include "matrix.hh"
+#include "fmatrix.hh"
+
+/* forward declare */
+class FMatrix;
 
 class EMatrix
 {
@@ -19,6 +23,7 @@ public:
     EMatrix operator+(const EMatrix &other) const;
     EMatrix operator-(const EMatrix &other) const;
     EMatrix operator*(const EMatrix &other) const;
+    FMatrix project() const;
 
     const Matrix<Extension_element> &get_m() const { return this->m; }
 

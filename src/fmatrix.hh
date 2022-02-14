@@ -4,7 +4,11 @@
 #include <vector>
 
 #include "gf.hh"
+#include "ematrix.hh"
 #include "matrix.hh"
+
+/* forward declare */
+class EMatrix;
 
 class FMatrix
 {
@@ -19,6 +23,8 @@ public:
     FMatrix operator+(const FMatrix &other) const;
     FMatrix operator-(const FMatrix &other) const;
     FMatrix operator*(const FMatrix &other) const;
+
+    EMatrix lift() const;
 
     const Matrix<GF_element> &get_m() const { return this->m; }
 
