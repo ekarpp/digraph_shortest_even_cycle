@@ -37,18 +37,18 @@ private:
 public:
     Extension() {};
     void init(const int n, const int64_t mod);
-    Extension_element zero();
+    Extension_element zero() const;
     Extension_element one() const;
-    Extension_element random();
+    Extension_element random() const;
 
-    int64_2_t rem(int64_2_t a);
-    inline int64_2_t add(int64_2_t a, int64_2_t b);
-    inline int64_2_t mul_const(int a, int64_2_t b);
-    inline int64_2_t negate(int64_2_t a);
+    int64_2_t rem(int64_2_t a) const;
+    int64_2_t add(int64_2_t a, int64_2_t b) const;
+    int64_2_t mul_const(int a, int64_2_t b) const;
+    int64_2_t negate(int64_2_t a) const;
 
-    int get_n() { return this->n; }
-    int64_t get_mod() { return this->mod; }
-    int64_t get_mask() { return this->mask; }
+    int get_n() const { return this->n; }
+    int64_t get_mod() const { return this->mod; }
+    int64_t get_mask() const { return this->mask; }
 
 };
 
@@ -62,12 +62,12 @@ public:
     Extension_element() { };
     Extension_element(const int64_t lo, const int64_t hi);
     Extension_element(const int64_2_t repr);
-    Extension_element operator+(const Extension_element &other);
-    Extension_element operator-(const Extension_element &other);
-    Extension_element operator*(const Extension_element &other);
-    bool operator==(const Extension_element &other);
+    Extension_element operator+(const Extension_element &other) const;
+    Extension_element operator-(const Extension_element &other) const;
+    Extension_element operator*(const Extension_element &other) const;
+    bool operator==(const Extension_element &other) const;
 
-    bool is_even()
+    bool is_even() const
     {
         return this->repr.lo == 0x0;
     }
@@ -76,12 +76,13 @@ public:
      * thus we can just move the hi to low
      * maybe even just return gf element straight away
      * as this (probably?) gets anyways done after div2 */
-    Extension_element div2()
+    /* modify instead of returning new? */
+    Extension_element div2() const
     {
         return Extension_element(this->repr.hi, 0x0);
     }
 
-    GF_element project();
+    GF_element project() const;
 
     int64_t get_lo() const { return this->repr.lo; }
     int64_t get_hi() const { return this->repr.hi; }
@@ -94,7 +95,7 @@ public:
         return *this;
     }
 
-    bool operator!=(const Extension_element &other)
+    bool operator!=(const Extension_element &other) const
     {
         return !(*this == other);
     }

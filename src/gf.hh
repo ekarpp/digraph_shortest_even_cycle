@@ -24,7 +24,7 @@ public:
     void init(const int n, const int64_t mod);
     GF_element zero() const;
     GF_element one() const;
-    GF_element random();
+    GF_element random() const;
     int64_t rem(int64_t a) const;
     int64_t ext_euclid(int64_t a) const;
     int64_t clmul(int64_t a, int64_t) const;
@@ -42,17 +42,17 @@ private:
 public:
     GF_element() { }
     GF_element(const int64_t n);
-    GF_element operator+(const GF_element &other);
-    GF_element operator*(const GF_element &other);
-    GF_element operator/(const GF_element &other);
-    bool operator==(const GF_element &other);
+    GF_element operator+(const GF_element &other) const;
+    GF_element operator*(const GF_element &other) const;
+    GF_element operator/(const GF_element &other) const;
+    bool operator==(const GF_element &other) const;
 
     GF_element inv() const;
-    Extension_element lift();
+    Extension_element lift() const;
 
     int64_t get_repr() const { return this->repr; }
 
-    GF_element operator-(const GF_element &other)
+    GF_element operator-(const GF_element &other) const
     {
         return *this + other;
     }
@@ -63,7 +63,7 @@ public:
         return *this;
     }
 
-    bool operator!=(const GF_element &other)
+    bool operator!=(const GF_element &other) const
     {
         return !(*this == other);
     }

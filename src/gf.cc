@@ -27,7 +27,7 @@ GF_element GF2n::one() const
 }
 
 /* this can create zero, is it a problem? */
-GF_element GF2n::random()
+GF_element GF2n::random() const
 {
     return GF_element(global::randgen() & this->mask);
 }
@@ -123,12 +123,12 @@ GF_element::GF_element(const int64_t n)
     return;
 }
 
-GF_element GF_element::operator+(const GF_element &other)
+GF_element GF_element::operator+(const GF_element &other) const
 {
     return GF_element(this->repr ^ other.get_repr());
 }
 
-GF_element GF_element::operator*(const GF_element &other)
+GF_element GF_element::operator*(const GF_element &other) const
 {
     const int64_t prod = global::F.clmul(
         this->repr,
@@ -145,17 +145,17 @@ GF_element GF_element::inv() const
     return GF_element(global::F.ext_euclid(this->repr));
 }
 
-GF_element GF_element::operator/(const GF_element &other)
+GF_element GF_element::operator/(const GF_element &other) const
 {
     return *this * other.inv();
 }
 
-bool GF_element::operator==(const GF_element &other)
+bool GF_element::operator==(const GF_element &other) const
 {
     return this->repr == other.get_repr();
 }
 
-Extension_element GF_element::lift()
+Extension_element GF_element::lift() const
 {
     return Extension_element(this->repr, 0b0);
 }

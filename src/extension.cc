@@ -13,7 +13,7 @@ void Extension::init(const int n, const int64_t mod)
     return;
 }
 
-Extension_element Extension::zero()
+Extension_element Extension::zero() const
 {
     return Extension_element(0b0, 0b0);
 }
@@ -23,7 +23,7 @@ Extension_element Extension::one() const
     return Extension_element(0b1, 0b0);
 }
 
-Extension_element Extension::random()
+Extension_element Extension::random() const
 {
     return Extension_element(
         global::randgen() & this->mask,
@@ -31,7 +31,7 @@ Extension_element Extension::random()
     );
 }
 
-int64_2_t Extension::rem(int64_2_t a)
+int64_2_t Extension::rem(int64_2_t a) const
 {
     while (a.lo > this->mask || a.hi > this->mask)
     {
@@ -45,13 +45,13 @@ int64_2_t Extension::rem(int64_2_t a)
     return a;
 }
 
-inline int64_2_t Extension::add(int64_2_t a, int64_2_t b)
+int64_2_t Extension::add(int64_2_t a, int64_2_t b) const
 {
     int64_t carry = a.lo & b.lo;
     return { carry ^ a.hi ^ b.hi, a.lo ^ b.lo };
 }
 
-inline int64_2_t Extension::negate(int64_2_t a)
+int64_2_t Extension::negate(int64_2_t a) const
 {
     return {
         a.lo ^ a.hi,
@@ -60,7 +60,7 @@ inline int64_2_t Extension::negate(int64_2_t a)
 }
 
 /* multiplication by constant, 0 <= a < 4 */
-inline int64_2_t Extension::mul_const(int a, int64_2_t b)
+int64_2_t Extension::mul_const(int a, int64_2_t b) const
 {
     int64_2_t c = { 0, 0 };
     /* form repeating polynomial and then
@@ -102,14 +102,14 @@ Extension_element::Extension_element(const int64_2_t repr)
     return;
 }
 
-Extension_element Extension_element::operator+(const Extension_element &other)
+Extension_element Extension_element::operator+(const Extension_element &other) const
 {
     return Extension_element(
         global::E.add(this->repr, other.get_repr())
     );
 }
 
-Extension_element Extension_element::operator-(const Extension_element &other)
+Extension_element Extension_element::operator-(const Extension_element &other) const
 {
     /* turn other to the additive inverse and then just add */
     return Extension_element(
@@ -117,12 +117,12 @@ Extension_element Extension_element::operator-(const Extension_element &other)
     );
 }
 
-GF_element Extension_element::project()
+GF_element Extension_element::project() const
 {
     return GF_element(this->repr.lo);
 }
 
-Extension_element Extension_element::operator*(const Extension_element &other)
+Extension_element Extension_element::operator*(const Extension_element &other) const
 {
     /* this is horrible all around
      * how to make better?
@@ -146,7 +146,7 @@ Extension_element Extension_element::operator*(const Extension_element &other)
     return Extension_element(global::E.rem(c));
 }
 
-bool Extension_element::operator==(const Extension_element &other)
+bool Extension_element::operator==(const Extension_element &other) const
 {
     return this->repr.lo == other.get_lo() && this->repr.hi == other.get_hi();
 }
