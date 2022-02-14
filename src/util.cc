@@ -5,6 +5,7 @@
 #include "util.hh"
 #include "extension.hh"
 #include "gf.hh"
+#include "global.hh"
 
 using namespace std;
 
@@ -18,15 +19,15 @@ namespace util
     int64_t irred_poly(int deg)
     {
         // assert(deg > 2)
-        bitset<64> p;
-        p[deg] = true;
-        srand(1);
+        int64_t mask = 1ll << (deg + 1);
+        mask--;
 
         while (true)
         {
+            bitset<64> p(global::randgen() & mask);
+            p[deg] = true;
+
             int i;
-            for (i = 0; i < deg; i++)
-                p[i] = rand() & 1;
             for (i = 1; i <= deg >> 1; i++)
             {
                 if (!gcd1(i, p))
@@ -34,10 +35,8 @@ namespace util
             }
 
             if (i < deg)
-                break;
+                return p.to_ullong();
         }
-
-        return p.to_ullong();
     }
 
     /* is gcd of x^(2^i) - x and p one (in Z2[x])*/
