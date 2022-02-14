@@ -19,15 +19,6 @@ GF_test::GF_test(int deg)
     this->run();
 }
 
-void GF_test::end_test(int err)
-{
-    if (err)
-        cout << err << " errors";
-    else
-        cout << "CLEAR";
-    cout << endl << endl;
-}
-
 void GF_test::test_add_inverse()
 {
     cout << "add inverse" << endl;

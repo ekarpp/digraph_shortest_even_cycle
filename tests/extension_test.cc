@@ -19,15 +19,6 @@ Extension_test::Extension_test(int deg)
     this->run();
 }
 
-void Extension_test::end_test(int err)
-{
-    if (err)
-        cout << err << " errors";
-    else
-        cout << "CLEAR";
-    cout << endl << endl;
-}
-
 void Extension_test::test_add_inverse()
 {
     cout << "add inverse" << endl;
