@@ -20,3 +20,13 @@ FMatrix FMatrix::operator+(const FMatrix &other) const
 {
     return FMatrix(this->m + other.get_m());
 }
+
+FMatrix FMatrix::operator-(const FMatrix &other) const
+{
+    return FMatrix(this->m - other.get_m());
+}
+
+FMatrix FMatrix::operator*(const FMatrix &other) const
+{
+    return FMatrix(this->m * other.get_m());
+}

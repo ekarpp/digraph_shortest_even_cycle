@@ -38,9 +38,9 @@ void Matrix_test::test_addition()
         FMatrix b = this->random_matrix();
 
         FMatrix sum = this->random_matrix();
-        for (int i = 0; i < this->dim; i++)
-            for (int j = 0; j < this->dim; j++)
-                sum.set(i, j, a[i][j] + b[i][j]);
+        for (int x = 0; x < this->dim; x++)
+            for (int y = 0; y < this->dim; y++)
+                sum.set(x, y, a[x][y] + b[x][y]);
 
         if (sum != a + b)
             err++;
@@ -50,5 +50,27 @@ void Matrix_test::test_addition()
 
 void Matrix_test::test_multiplication()
 {
+    cout << "multiplication" << endl;
+    int err = 0;
+    for (int i = 0; i < this->tests; i++)
+    {
+        FMatrix a = this->random_matrix();
+        FMatrix b = this->random_matrix();
 
+        FMatrix prod = this->random_matrix();
+        for (int x = 0; x < this->dim; x++)
+        {
+            for (int y = 0; y < this->dim; y++)
+            {
+                GF_element sum = global::F.zero();
+                for (int j = 0; j < this->dim; j++)
+                    sum += a[x][j] * b[j][y];
+                prod.set(x, y, sum);
+            }
+        }
+
+        if (prod != a*b)
+            err++;
+    }
+    end_test(err);
 }

@@ -18,6 +18,7 @@ private:
     void run()
     {
         test_addition();
+        test_multiplication();
     }
 
 public:

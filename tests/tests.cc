@@ -4,7 +4,7 @@
 #include "../src/util.hh"
 #include "gf_test.hh"
 #include "extension_test.hh"
-#include "fmatrix_test.hh"
+#include "matrix_test.hh"
 
 util::rand64bit global::randgen;
 Extension global::E;

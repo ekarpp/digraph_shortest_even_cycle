@@ -67,9 +67,9 @@ public:
         {
             for (int j = 0; j < this->n; j++)
             {
-                prod[i][j] = this->one;
+                prod[i][j] = this->one - this->one;
                 for (int k = 0; k < this->n; k++)
-                    prod[i][j] = prod[i][j] + this->m[i][j] * other[i][j];
+                    prod[i][j] += this->m[i][k] * other[k][j];
             }
         }
 

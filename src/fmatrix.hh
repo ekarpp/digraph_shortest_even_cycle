@@ -17,6 +17,8 @@ public:
     FMatrix(Matrix<GF_element> m);
 
     FMatrix operator+(const FMatrix &other) const;
+    FMatrix operator-(const FMatrix &other) const;
+    FMatrix operator*(const FMatrix &other) const;
 
     const Matrix<GF_element> &get_m() const { return this->m; }
 
