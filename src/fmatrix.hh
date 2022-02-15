@@ -38,13 +38,22 @@ public:
      * L has ones on diagonal, thus L and U can be stored in one matrix. */
     std::vector<int> lup(int depth);
 
-    /* uses lup(). calls it on copy of the object it is on called on */
-    GF_element det() const;
+    /* uses lup(). modifies the object it is called on. */
+    GF_element det();
+
+    /* det of the matrix we get when r1 is multiplied by monomials
+     * (1,r,..,r^(n-1)) and r2 by monomials (r^(n-1),..,r,1) */
+    void pdet(int r1, int r2) const;
 
     /* returns a copy of this */
     FMatrix copy() const;
 
     const Matrix<GF_element> &get_m() const { return this->m; }
+
+    void mul(int row, int col, GF_element v)
+    {
+        this->m.mul(row, col, v);
+    }
 
     GF_element operator()(int row, int col) const
     {

@@ -126,20 +126,49 @@ vector<int> FMatrix::lup(int depth)
     return P;
 }
 
-GF_element FMatrix::det() const
+GF_element FMatrix::det()
 {
-    FMatrix LU = this->copy();
-    vector<int> P = LU.lup(0);
+    vector<int> P = this->lup(0);
     GF_element det = global::F.one();
     /* PA = LU => det(A) = det(P^T)det(L)det(U)
      * in current implementation L has diagonal of one
      * thus det(L) = 1. det(U) is the product of its diagonal
      * elements. det(P)=det(P^T) is the sgn of P. */
     for (int i = 0; i < this->n; i++)
-        det *= LU(i,i);
+        det *= this->operator()(i,i);
     /* we are in characteristic two, thus -x = x and no need to check
      * sgn of P */
     return det;
+}
+
+/* uses random sampling and la grange interpolation
+ * to get the polynomial determinant. */
+void FMatrix::pdet(int r1, int r2) const
+{
+    /* determinant has deg <= 2*n - 2 */
+    vector<GF_element> gamma(2*this->n - 1);
+    vector<GF_element> delta(2*this->n - 1);
+    uint64_t v = global::F.rem(global::randgen());
+
+    for (int i = 0; i < 2*this->n - 1; i++)
+    {
+        const GF_element e(v);
+        gamma[i] = e;
+        /* lazy way to ensure gammas are distinct */
+        v = global::F.rem(v + 2);
+
+        FMatrix A = this->copy();
+        GF_element prod = e;
+        for (int col = 1; col < this->n; col++)
+        {
+            A.mul(r1, col, prod);
+            A.mul(r2, this->n - 1 - col, prod);
+            prod *= e;
+        }
+        delta[i] = A.det();
+    }
+
+    /* la grange */
 }
 
 FMatrix FMatrix::copy() const
