@@ -1,3 +1,4 @@
+/* Copyright 2022 Eetu Karppinen. Subject to the MIT license. */
 #ifndef EMATRIX_H
 #define EMATRIX_H
 

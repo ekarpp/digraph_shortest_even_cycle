@@ -1,3 +1,4 @@
+/* Copyright 2022 Eetu Karppinen. Subject to the MIT license. */
 #include <iostream>
 
 #include "gf_test.hh"

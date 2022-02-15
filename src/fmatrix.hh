@@ -1,3 +1,4 @@
+/* Copyright 2022 Eetu Karppinen. Subject to the MIT license. */
 #ifndef FMATRIX_H
 #define FMATRIX_H
 

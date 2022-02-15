@@ -1,3 +1,4 @@
+/* Copyright 2022 Eetu Karppinen. Subject to the MIT license. */
 #ifndef MATRIX_TEST_H
 #define MATRIX_TEST_H
 
