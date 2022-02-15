@@ -23,7 +23,7 @@ void GF_test::test_add_inverse()
 {
     cout << "add inverse" << endl;
     int err = 0;
-    int64_t i = 0;
+    uint64_t i = 0;
     while (i <= global::F.get_mask())
     {
         GF_element e(i);
@@ -54,7 +54,7 @@ void GF_test::test_mul_id()
 {
     cout << "mul with id" << endl;
     int err = 0;
-    int64_t i = 0;
+    uint64_t i = 0;
     while (i <= global::F.get_mask())
     {
         GF_element e(i);
@@ -69,7 +69,7 @@ void GF_test::test_mul_inverse()
 {
     cout << "mul with inverse" << endl;
     int err = 0;
-    int64_t i = 1;
+    uint64_t i = 1;
     while (i <= global::F.get_mask())
     {
         GF_element e(i);
@@ -84,7 +84,7 @@ void GF_test::test_lift_project()
 {
     cout << "lift project" << endl;
     int err = 0;
-    int64_t i = 0;
+    uint64_t i = 0;
     while (i <= global::F.get_mask())
     {
         GF_element e(i);

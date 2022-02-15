@@ -30,9 +30,9 @@ int main(int argc, char** argv)
     global::E.init(n, p);
     global::F.init(n, p);
 
-    //Extension_test e(n);
-    //GF_test f(n);
-    //Matrix_test m(5);
+    Extension_test e(n);
+    GF_test f(n);
+    Matrix_test m(5);
     FMatrix_test fm(5);
 
     return 0;

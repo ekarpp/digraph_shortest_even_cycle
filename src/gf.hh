@@ -14,34 +14,34 @@ class GF2n
 {
 private:
     /* largest possible element in the field */
-    int64_t mask;
+    uint64_t mask;
     int n;
-    int64_t mod;
-    int64_t quo(int64_t a, int64_t b) const;
+    uint64_t mod;
+    uint64_t quo(uint64_t a, uint64_t b) const;
 
 public:
     GF2n() {};
-    void init(const int n, const int64_t mod);
+    void init(const int n, const uint64_t mod);
     GF_element zero() const;
     GF_element one() const;
     GF_element random() const;
-    int64_t rem(int64_t a) const;
-    int64_t ext_euclid(int64_t a) const;
-    int64_t clmul(int64_t a, int64_t) const;
+    uint64_t rem(uint64_t a) const;
+    uint64_t ext_euclid(uint64_t a) const;
+    uint64_t clmul(uint64_t a, uint64_t) const;
 
     int get_n() const { return this->n; }
-    int64_t get_mod() const { return this->mod; }
-    int64_t get_mask() const { return this->mask; }
+    uint64_t get_mod() const { return this->mod; }
+    uint64_t get_mask() const { return this->mask; }
 };
 
 class GF_element
 {
 private:
-    int64_t repr;
+    uint64_t repr;
 
 public:
     GF_element() { }
-    GF_element(const int64_t n);
+    GF_element(const uint64_t n);
     GF_element(const GF_element &e);
     GF_element operator+(const GF_element &other) const;
     GF_element &operator+=(const GF_element &other);
@@ -54,7 +54,7 @@ public:
     GF_element inv() const;
     Extension_element lift() const;
 
-    int64_t get_repr() const { return this->repr; }
+    uint64_t get_repr() const { return this->repr; }
 
     GF_element operator-(const GF_element &other) const
     {

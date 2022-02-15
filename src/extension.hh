@@ -14,10 +14,10 @@ class Extension_element;
  * similarly for hi
  */
 /* vectorize with AVX? */
-struct int64_2_t
+struct uint64_2_t
 {
-    int64_t hi;
-    int64_t lo;
+    uint64_t hi;
+    uint64_t lo;
 };
 
 /* Extension of GF(2^n) to the ring E(4^n).
@@ -28,28 +28,28 @@ class Extension
 {
 private:
     int n;
-    int64_t mod;
-    int64_t mask;
+    uint64_t mod;
+    uint64_t mask;
     /* lookuptable that returns for each non-negative integer < 4
      * the polynomial where each coefficient is that integer */
-    int64_2_t lookup[4];
+    uint64_2_t lookup[4];
 
 public:
     Extension() {};
-    void init(const int n, const int64_t mod);
+    void init(const int n, const uint64_t mod);
     Extension_element zero() const;
     Extension_element one() const;
     Extension_element random() const;
 
-    int64_2_t rem(int64_2_t a) const;
-    int64_2_t add(int64_2_t a, int64_2_t b) const;
-    int64_2_t mul_const(int a, int64_2_t b) const;
-    int64_2_t mul(int64_2_t a, int64_2_t b) const;
-    int64_2_t negate(int64_2_t a) const;
+    uint64_2_t rem(uint64_2_t a) const;
+    uint64_2_t add(uint64_2_t a, uint64_2_t b) const;
+    uint64_2_t mul_const(int a, uint64_2_t b) const;
+    uint64_2_t mul(uint64_2_t a, uint64_2_t b) const;
+    uint64_2_t negate(uint64_2_t a) const;
 
     int get_n() const { return this->n; }
-    int64_t get_mod() const { return this->mod; }
-    int64_t get_mask() const { return this->mask; }
+    uint64_t get_mod() const { return this->mod; }
+    uint64_t get_mask() const { return this->mask; }
 
 };
 
@@ -57,12 +57,12 @@ public:
 class Extension_element
 {
 private:
-    int64_2_t repr;
+    uint64_2_t repr;
 
 public:
     Extension_element() { };
-    Extension_element(const int64_t lo, const int64_t hi);
-    Extension_element(const int64_2_t repr);
+    Extension_element(const uint64_t lo, const uint64_t hi);
+    Extension_element(const uint64_2_t repr);
     Extension_element(const Extension_element& e);
     Extension_element operator+(const Extension_element &other) const;
     Extension_element &operator+=(const Extension_element &other);
@@ -89,9 +89,9 @@ public:
 
     GF_element project() const;
 
-    int64_t get_lo() const { return this->repr.lo; }
-    int64_t get_hi() const { return this->repr.hi; }
-    int64_2_t get_repr() const { return this->repr; }
+    uint64_t get_lo() const { return this->repr.lo; }
+    uint64_t get_hi() const { return this->repr.hi; }
+    uint64_2_t get_repr() const { return this->repr; }
 
     Extension_element &operator=(const Extension_element &other)
     {
