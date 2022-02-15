@@ -2,12 +2,10 @@ hello
 
 # TODO
 * one variable polynomials with coeff from F
-  * eval
-* PMatrix
-  * eval
+  * needed only for la grange interpolation
 * la grange interpolation
 * permutation sgn computation?
 * FMatrix mul diag
-* FMatrix to PMatrix
-* FMatrix det
-  * PMatrix det
+* ~~FMatrix det~~
+* PMatrix det
+  * make this in FMatrix, sample random things, multiply the two rows by monomial and grange interpolate
