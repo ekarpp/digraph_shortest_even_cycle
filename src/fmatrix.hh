@@ -35,6 +35,16 @@ public:
         return this->m[i];
     }
 
+    GF_element operator()(int row, int col) const
+    {
+        /* append identity matrix in case out of bounds.
+         * potentially dangerous */
+        if (row >= this->n || col >= this->n)
+            return (row == col) ? global::F.one() : global::F.zero();
+
+        return this->m(row,col);
+    }
+
     bool operator==(const FMatrix &other) const
     {
         return this->m == other.get_m();

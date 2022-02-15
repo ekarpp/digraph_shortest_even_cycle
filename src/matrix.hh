@@ -13,6 +13,7 @@ private:
     std::vector<std::vector<E>> m;
     int n;
     E one;
+    E zero;
 
 public:
     Matrix() {}
@@ -21,6 +22,7 @@ public:
     {
         this->n = n;
         this->one = one;
+        this->zero = one - one;
         std::vector<std::vector<E>> v(n, std::vector<E>(n));
         for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
@@ -67,7 +69,7 @@ public:
         {
             for (int j = 0; j < this->n; j++)
             {
-                prod[i][j] = this->one - this->one;
+                prod[i][j] = this->zero;
                 for (int k = 0; k < this->n; k++)
                     prod[i][j] += this->m[i][k] * other[k][j];
             }
@@ -76,11 +78,15 @@ public:
         return Matrix(this->n, this->one, prod);
     }
 
-    /*  figure out the const here */
     std::vector<E> operator[](int i) const
     {
-        /* todo: error check, append zeros? */
+        /* do error checking in child classes */
         return this->m[i];
+    }
+
+    E operator()(int row, int col) const
+    {
+        return this->m[row][col];
     }
 
     int get_n() const { return this->n; }
