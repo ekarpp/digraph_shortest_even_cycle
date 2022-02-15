@@ -12,7 +12,7 @@ digraph-tests: tests.o util.o gf.o gf_test.o extension.o extension_test.o fmatri
 	$(CXX) $^ -o $@
 
 clean:
-	rm $(BIN) *.o
+	rm -f $(BIN) *.o
 
 test: digraph-tests
 	./digraph-tests -egfm -d20 -n15 -t1000
