@@ -15,7 +15,7 @@ public:
             std::cout << err << " error";
         else
             std::cout << "CLEAR";
-        std::cout << std::endl << std::endl;
+        std::cout << std::endl;
     }
 };
 

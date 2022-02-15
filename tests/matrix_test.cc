@@ -14,7 +14,7 @@ Matrix_test::Matrix_test(int dim)
 
     cout << "--------------" << endl;
     cout << "TESTING MATRIX" << endl;
-    cout << "--------------" << endl << endl;
+    cout << "--------------" << endl;
 
     this->run();
 }
