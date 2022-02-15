@@ -51,8 +51,10 @@ EMatrix FMatrix::lift() const
 /* PA = LU, L lower triangular with ones on diagonal
  * and U upper triangular. P permutation matrix as vector.
  * P[i] telss which row replaces row i.
-   modifies the object it is called on to L and U in single matrix. */
-/* CRASHES ON SINGULAR MATRICES */
+ * modifies the object it is called on to L and U in single matrix. */
+/* CRASHES ON SINGULAR MATRICES, maybe not? need to test */
+/* modified version of the recursive leading-row-column LUP algorithm
+ * presented here: https://courses.grainger.illinois.edu/cs357/fa2021/notes/ref-9-linsys.html */
 vector<int> FMatrix::lup(int depth)
 {
     int dim = this->n - depth;
@@ -136,7 +138,7 @@ GF_element FMatrix::det() const
     for (int i = 0; i < this->n; i++)
         det *= LU(i,i);
     /* we are in characteristic two, thus -x = x and no need to check
-       sgn of P */
+     * sgn of P */
     return det;
 }
 

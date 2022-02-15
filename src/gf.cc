@@ -47,7 +47,7 @@ GF_element GF2n::random() const
 /* returns r s.t. for some q,
  * a = q*field.mod + r is the division relation (in Z(2^n))
  */
-// r needs to be 128 bit for support up to GF(2^64)
+// a needs to be 128 bit for support up to GF(2^64)
 // now just GF(2^32)
 
 uint64_t GF2n::rem(uint64_t a) const
