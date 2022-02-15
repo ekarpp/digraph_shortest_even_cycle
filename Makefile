@@ -14,4 +14,7 @@ digraph-tests: tests.o util.o gf.o gf_test.o extension.o extension_test.o fmatri
 clean:
 	rm $(BIN) *.o
 
+test: digraph-tests
+	./digraph-tests -egfm -d20 -n15 -t1000
+
 include Makefile.dep
