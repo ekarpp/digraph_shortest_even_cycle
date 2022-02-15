@@ -24,7 +24,7 @@ private:
     }
 
 public:
-    Matrix_test(int dim);
+    Matrix_test(int dim, int tests);
 };
 
 #endif

@@ -19,7 +19,7 @@ private:
     FMatrix vandermonde();
 
 public:
-    FMatrix_test(int dim);
+    FMatrix_test(int dim, int tests);
 };
 
 #endif

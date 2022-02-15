@@ -8,10 +8,11 @@
 
 using namespace std;
 
-Matrix_test::Matrix_test(int dim)
+Matrix_test::Matrix_test(int dim, int tests = 0)
 {
     this->dim = dim;
-
+    if (tests)
+        this->tests = tests;
     cout << "--------------" << endl;
     cout << "TESTING MATRIX" << endl;
     cout << "--------------" << endl;

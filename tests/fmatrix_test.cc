@@ -8,8 +8,10 @@
 
 using namespace std;
 
-FMatrix_test::FMatrix_test(int dim)
+FMatrix_test::FMatrix_test(int dim, int tests = 0)
 {
+    if (tests)
+        this->tests = tests;
     this->dim = dim;
 
     cout << "---------------" << endl;
