@@ -1,5 +1,5 @@
-#ifndef FMATRIX_TEST_H
-#define FMATRIX_TEST_H
+#ifndef MATRIX_TEST_H
+#define MATRIX_TEST_H
 
 #include "../src/gf.hh"
 #include "../src/fmatrix.hh"
