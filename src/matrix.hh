@@ -82,8 +82,9 @@ public:
     {
         /* append identity matrix in case out of bounds.
          * potentially dangerous */
-        if (row >= this->n || col >= this->n)
-            return (row == col) ? this->one : this->zero;
+        /* commented for now, no use */
+        //if (row >= this->n || col >= this->n)
+        //    return (row == col) ? this->one : this->zero;
         return this->m[row*n + col];
     }
 
