@@ -5,6 +5,7 @@
 #include "gf_test.hh"
 #include "extension_test.hh"
 #include "matrix_test.hh"
+#include "fmatrix_test.hh"
 
 util::rand64bit global::randgen;
 Extension global::E;
@@ -29,9 +30,10 @@ int main(int argc, char** argv)
     global::E.init(n, p);
     global::F.init(n, p);
 
-    Extension_test e(n);
-    GF_test f(n);
-    Matrix_test m(5);
+    //Extension_test e(n);
+    //GF_test f(n);
+    //Matrix_test m(5);
+    FMatrix_test fm(3);
 
     return 0;
 }
