@@ -1,7 +1,7 @@
 #ifndef EMATRIX_H
 #define EMATRIX_H
 
-#include <vector>
+#include <valarray>
 
 #include "extension.hh"
 #include "matrix.hh"
@@ -17,7 +17,7 @@ private:
     int n;
 
 public:
-    EMatrix(int n, std::vector<std::vector<Extension_element>> m);
+    EMatrix(int n, std::valarray<Extension_element> m);
     EMatrix(Matrix<Extension_element> m);
 
     EMatrix operator+(const EMatrix &other) const;
@@ -27,9 +27,9 @@ public:
 
     const Matrix<Extension_element> &get_m() const { return this->m; }
 
-    std::vector<Extension_element> operator[](int i)
+    Extension_element operator()(int row, int col) const
     {
-        return this->m[i];
+        return this->m(row,col);
     }
 
     bool operator==(const EMatrix &other) const

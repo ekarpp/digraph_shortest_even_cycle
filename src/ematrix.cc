@@ -1,4 +1,4 @@
-#include <vector>
+#include <valarray>
 
 #include "global.hh"
 #include "ematrix.hh"
@@ -7,7 +7,7 @@
 
 using namespace std;
 
-EMatrix::EMatrix(int n, vector<vector<Extension_element>> m): m(n, global::E.one(), m)
+EMatrix::EMatrix(int n, valarray<Extension_element> m): m(n, global::E.one(), m)
 {
     this->n = n;
 }
@@ -35,13 +35,12 @@ EMatrix EMatrix::operator*(const EMatrix &other) const
 
 FMatrix EMatrix::project() const
 {
-    vector<vector<GF_element>> proj(this->n, vector<GF_element>(this->n));
+    valarray<GF_element> proj(this->n * this->n);
 
     for (int x = 0; x < this->n; x++)
     {
-        const vector<Extension_element> row = this->m[x];
         for (int y = 0; y < this->n; y++)
-            proj[x][y] = row[y].project();
+            proj[x*this->n + y] = this->operator()(x,y).project();
     }
 
     return FMatrix(this->n, proj);

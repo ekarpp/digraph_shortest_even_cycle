@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <valarray>
 
 #include "global.hh"
 #include "graph.hh"
@@ -27,19 +28,16 @@ Graph::Graph(vector<vector<int>> adjacency_list)
  */
 void Graph::sample_adjacency(vector<vector<int>> adjacency_list)
 {
-    vector<vector<GF_element>> m(
-            this->n,
-            vector<GF_element>(this->n, global::F.zero())
-    );
+    valarray<GF_element> m(global::F.zero(), this->n * this->n);
 
     for (int u = 0; u < this->n; u++)
     {
         /* loop at each vertex */
-        m[u][u] = global::F.random();
+        m[u*this->n + u] = global::F.random();
         for (uint i = 0; i < adjacency_list[u].size(); i++)
         {
             int v = adjacency_list[u][i];
-            m[u][v] = global::F.random();
+            m[u*this->n + v] = global::F.random();
         }
     }
 

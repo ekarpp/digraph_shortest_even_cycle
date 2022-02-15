@@ -1,5 +1,5 @@
 #include <iostream>
-#include <vector>
+#include <valarray>
 
 #include "matrix_test.hh"
 #include "../src/fmatrix.hh"
@@ -21,10 +21,10 @@ Matrix_test::Matrix_test(int dim)
 
 FMatrix Matrix_test::random_matrix()
 {
-    vector<vector<GF_element>> m(this->dim, vector<GF_element>(this->dim));
+    valarray<GF_element> m(this->dim * this->dim);
     for (int i = 0; i < this->dim; i++)
         for (int j = 0; j < this->dim; j++)
-            m[i][j] = global::F.random();
+            m[i*this->dim + j] = global::F.random();
     return FMatrix(this->dim, m);
 }
 

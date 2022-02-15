@@ -1,7 +1,7 @@
 #ifndef FMATRIX_H
 #define FMATRIX_H
 
-#include <vector>
+#include <valarray>
 
 #include "gf.hh"
 #include "ematrix.hh"
@@ -19,7 +19,7 @@ private:
 public:
     /* for graph.cc */
     FMatrix() {};
-    FMatrix(int n, std::vector<std::vector<GF_element>> m);
+    FMatrix(int n, std::valarray<GF_element> m);
     FMatrix(Matrix<GF_element> m);
 
     FMatrix operator+(const FMatrix &other) const;
@@ -32,7 +32,7 @@ public:
      * such that P*obj = obj.lup(). where obj.lup() contains L on the lower
      * triangle and U on the upper triangle such that P*obj = L*U. note that
      * L has ones on diagonal, thus L and U can be stored in one matrix. */
-    std::vector<int> lup();
+    std::valarray<int> lup();
 
     /* uses lup(). calls it on copy of the object it is on called on */
     GF_element det() const;
@@ -41,11 +41,6 @@ public:
     FMatrix copy() const;
 
     const Matrix<GF_element> &get_m() const { return this->m; }
-
-    std::vector<GF_element> operator[](int i) const
-    {
-        return this->m[i];
-    }
 
     GF_element operator()(int row, int col) const
     {
