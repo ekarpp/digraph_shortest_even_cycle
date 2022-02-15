@@ -16,10 +16,10 @@ namespace util
      * returns irreducible polynomial of degree deg
      * in Z2[x] encoded as a bitstring
      */
-    int64_t irred_poly(int deg)
+    uint64_t irred_poly(int deg)
     {
         // assert(deg > 2)
-        int64_t mask = 1ll << (deg + 1);
+        uint64_t mask = 1ll << (deg + 1);
         mask--;
 
         while (true)

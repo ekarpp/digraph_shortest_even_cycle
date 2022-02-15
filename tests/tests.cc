@@ -20,7 +20,7 @@ int main(int argc, char** argv)
         cout << "pls only argument, n for GF(2^n)" << endl;
         return -1;
     }
-    int64_t seed = time(nullptr);
+    uint64_t seed = time(nullptr);
     cout << "seed: " << seed << endl;
     global::randgen.init(seed);
 

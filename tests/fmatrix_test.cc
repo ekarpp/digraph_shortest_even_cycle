@@ -12,17 +12,17 @@ FMatrix_test::FMatrix_test(int dim)
 {
     this->dim = dim;
 
-    cout << "--------------" << endl;
-    cout << "TESTING MATRIX" << endl;
-    cout << "--------------" << endl;
+    cout << "---------------" << endl;
+    cout << "TESTING FMATRIX" << endl;
+    cout << "---------------" << endl;
 
     this->run();
 }
-
+#include <bitset>
 FMatrix FMatrix_test::vandermonde()
 {
     valarray<GF_element> m(this->dim * this->dim);
-    int64_t v = global::F.rem(global::randgen());
+    uint64_t v = global::F.rem(global::randgen());
 
     for (int row = 0; row < this->dim; row++)
     {

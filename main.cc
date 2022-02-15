@@ -16,7 +16,7 @@ Extension global::E;
 
 int main(int argc, char **argv)
 {
-    int64_t seed = time(nullptr);
+    uint64_t seed = time(nullptr);
     cout << "seed: " << seed << endl;
     global::randgen.init(seed);
 
@@ -30,7 +30,7 @@ int main(int argc, char **argv)
     if (d > 32)
         return -1;
 
-    int64_t poly = util::irred_poly(d);
+    uint64_t poly = util::irred_poly(d);
     global::F.init(d, poly);
     global::E.init(d, poly);
 

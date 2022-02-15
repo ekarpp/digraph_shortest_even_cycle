@@ -10,7 +10,7 @@ using namespace std;
 
 namespace util
 {
-    int64_t irred_poly(int deg);
+    uint64_t irred_poly(int deg);
     bool gcd1(int i, bitset<64> p);
 
     Extension_element tau(Extension_element sigma, Extension_element v);
@@ -22,8 +22,8 @@ namespace util
         uniform_int_distribution<uint64_t> dist;
     public:
         rand64bit() {}
-        void init(int seed) { gen = mt19937_64(seed); }
-        int64_t operator() () { return dist(gen); }
+        void init(uint64_t seed) { gen = mt19937_64(seed); }
+        uint64_t operator() () { return dist(gen); }
     };
 
 }
