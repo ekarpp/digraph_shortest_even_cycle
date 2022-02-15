@@ -48,12 +48,15 @@ GF_element GF2n::random() const
  */
 // r needs to be 128 bit for support up to GF(2^64)
 // now just GF(2^32)
+
 uint64_t GF2n::rem(uint64_t a) const
 {
     while (a > this->mask)
     {
         int shift;
-        for (shift = 0; a >> shift; shift++);
+        /* why is shift < 64 needed here? gets stuck on loop
+         * otherwise if full 64 width is used */
+        for (shift = 0; a >> shift && shift < 64; shift++);
         shift -= 1 + this->n;
         /* shift = deg(a) - deg(b) */
         a ^= (this->mod << shift);
