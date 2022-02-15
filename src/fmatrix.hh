@@ -1,6 +1,7 @@
 #ifndef FMATRIX_H
 #define FMATRIX_H
 
+#include <vector>
 #include <valarray>
 
 #include "gf.hh"
@@ -32,7 +33,7 @@ public:
      * such that P*obj = obj.lup(). where obj.lup() contains L on the lower
      * triangle and U on the upper triangle such that P*obj = L*U. note that
      * L has ones on diagonal, thus L and U can be stored in one matrix. */
-    std::valarray<int> lup();
+    std::vector<int> lup(int depth);
 
     /* uses lup(). calls it on copy of the object it is on called on */
     GF_element det() const;
@@ -61,6 +62,24 @@ public:
     {
         this->m.set(row, col, val);
     }
+
+    /* swap rows r1 and r2 starting from column idx */
+    void swap_rows(int r1, int r2, int idx = 0)
+    {
+        GF_element tmp;
+        for (int col = idx; col < this->n; col++)
+        {
+            tmp = this->m(r1, col);
+            this->set(r1, col, this->m(r2,col));
+            this->set(r2, col, tmp);
+        }
+    }
+
+    std::valarray<GF_element> slice(int start, int size, int stride) const
+    {
+        return this->m.slice(start, size, stride);
+    }
+
 };
 
 #endif

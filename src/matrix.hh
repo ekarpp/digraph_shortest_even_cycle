@@ -112,6 +112,23 @@ public:
     {
         this->m[row*n + col] = val;
     }
+
+    /* multiply element at row,col by val */
+    void mul(int row, int col, E val)
+    {
+        this->m[row*n + col] *= val;
+    }
+
+    /* subtract val from element at row,col */
+    void sub(int row, int col, E val)
+    {
+        this->m[row*n + col] -= val;
+    }
+
+    std::valarray<E> slice(int start, int size, int stride) const
+    {
+        return this->m[std::slice(start, size, stride)];
+    }
 };
 
 #endif

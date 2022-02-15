@@ -78,6 +78,11 @@ public:
         return !(*this == other);
     }
 
+    bool operator>(const GF_element &other) const
+    {
+        return this->repr > other.get_repr();
+    }
+
 };
 
 #endif
