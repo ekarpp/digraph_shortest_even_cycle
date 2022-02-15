@@ -51,11 +51,12 @@ EMatrix FMatrix::lift() const
  * and U upper triangular. P permutation matrix as vector.
  * P[i] telss which row replaces row i.
    modifies the object it is called on to L and U in single matrix. */
+/* CRASHES ON SINGULAR MATRICES */
 vector<int> FMatrix::lup(int depth)
 {
     int dim = this->n - depth;
     if (dim == 1)
-        return vector<int>(this->n, 0);
+        return vector<int> (this->n, depth);
 
     /* bad things happen if all zero, hack and use "-1" int64_t? */
     GF_element mx = global::F.zero();

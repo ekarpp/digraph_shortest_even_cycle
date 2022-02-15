@@ -26,10 +26,11 @@ FMatrix FMatrix_test::vandermonde()
 
     for (int row = 0; row < this->dim; row++)
     {
-        m[row*this->dim + 0] = global::F.one();
-        const GF_element e = GF_element(global::F.rem(v + 2));
-        GF_element prod = e;
-        for (int col = 1; col < this->dim; col++)
+        const GF_element e = GF_element(global::F.rem(v));
+        v += 2;
+        GF_element prod = global::F.one();
+
+        for (int col = 0; col < this->dim; col++)
         {
             m[row*this->dim + col] = prod;
             prod *= e;
