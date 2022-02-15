@@ -49,7 +49,7 @@ uint64_2_t Extension::rem(uint64_2_t a) const
     while (a.lo > this->mask || a.hi > this->mask)
     {
         int shift;
-        for (shift = 0; a.lo >> shift || a.hi >> shift; shift++);
+        for (shift = 0; shift < 64 && (a.lo >> shift || a.hi >> shift); shift++);
         shift -= 1 + this->n;
         /* mod has coefficients 01, thus its negation
          * is just it applied to hi and lo (see negate function) */
