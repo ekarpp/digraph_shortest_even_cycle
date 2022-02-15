@@ -1,6 +1,8 @@
 #ifndef FMATRIX_H
 #define FMATRIX_H
 
+#include <iostream>
+#include <bitset>
 #include <vector>
 #include <valarray>
 
@@ -80,6 +82,15 @@ public:
         return this->m.slice(start, size, stride);
     }
 
+    void print() const
+    {
+        for (int row = 0; row < this->n; row++)
+        {
+            for (int col = 0; col < this->n; col++)
+                std::cout << std::bitset<8>(this->m(row, col).get_repr()) << " ";
+            std::cout << std::endl;
+        }
+    }
 };
 
 #endif
