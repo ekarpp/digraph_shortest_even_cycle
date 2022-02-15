@@ -40,7 +40,7 @@ void Matrix_test::test_addition()
         FMatrix sum = this->random_matrix();
         for (int x = 0; x < this->dim; x++)
             for (int y = 0; y < this->dim; y++)
-                sum.set(x, y, a[x][y] + b[x][y]);
+                sum.set(x, y, a(x,y) + b(x,y));
 
         if (sum != a + b)
             err++;
@@ -60,7 +60,7 @@ void Matrix_test::test_subtraction()
         FMatrix diff = this->random_matrix();
         for (int x = 0; x < this->dim; x++)
             for (int y = 0; y < this->dim; y++)
-                diff.set(x, y, a[x][y] - b[x][y]);
+                diff.set(x, y, a(x,y) - b(x,y));
 
         if (diff != a - b)
             err++;
@@ -84,7 +84,7 @@ void Matrix_test::test_multiplication()
             {
                 GF_element sum = global::F.zero();
                 for (int j = 0; j < this->dim; j++)
-                    sum += a[x][j] * b[j][y];
+                    sum += a(x,j) * b(j,y);
                 prod.set(x, y, sum);
             }
         }

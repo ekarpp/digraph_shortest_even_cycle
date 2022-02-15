@@ -34,7 +34,7 @@ public:
     {
         for (int i = 0; i < this->n; i++)
             for (int j = 0; j < this->n; j++)
-                this[i][j] = this[i][j] + other[i][j];
+                this->set(i, j, this->operator()(i,j) + other(i,j));
 
         return *this;
     }
@@ -45,7 +45,7 @@ public:
 
         for (int i = 0; i < this->n; i++)
             for (int j = 0; j < this->n; j++)
-                sum[i][j] = this->m[i][j] + other[i][j];
+                sum[i][j] = this->operator()(i,j) + other(i,j);
 
         return Matrix(this->n, this->one, sum);
     }
@@ -56,7 +56,7 @@ public:
 
         for (int i = 0; i < this->n; i++)
             for (int j = 0; j < this->n; j++)
-                sum[i][j] = this->m[i][j] - other[i][j];
+                sum[i][j] = this->operator()(i,j) - other(i,j);
 
         return Matrix(this->n, this->one, sum);
     }
@@ -71,7 +71,7 @@ public:
             {
                 prod[i][j] = this->zero;
                 for (int k = 0; k < this->n; k++)
-                    prod[i][j] += this->m[i][k] * other[k][j];
+                    prod[i][j] += this->operator()(i,k) * other(k,j);
             }
         }
 
@@ -86,6 +86,10 @@ public:
 
     E operator()(int row, int col) const
     {
+        /* append identity matrix in case out of bounds.
+         * potentially dangerous */
+        if (row >= this->n || col >= this->n)
+            return (row == col) ? this->one : this->zero;
         return this->m[row][col];
     }
 
@@ -98,7 +102,7 @@ public:
 
         for (int i = 0; i < this->n; i++)
             for (int j = 0; j < this->n; j++)
-                if (this->m[i][j] != other[i][j])
+                if (this->operator()(i,j) != other(i,j))
                     return false;
 
         return true;
