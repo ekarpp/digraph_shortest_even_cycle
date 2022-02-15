@@ -26,8 +26,8 @@ FMatrix FMatrix_test::vandermonde()
 
     for (int row = 0; row < this->dim; row++)
     {
-        const GF_element e = GF_element(global::F.rem(v));
-        v += 2;
+        const GF_element e = GF_element(v);
+        v = global::F.rem(v + 2);
         GF_element prod = global::F.one();
 
         for (int col = 0; col < this->dim; col++)
@@ -47,11 +47,10 @@ void FMatrix_test::test_determinant()
     for (int t = 0; t < this->tests; t++)
     {
         FMatrix vander = this->vandermonde();
-
         GF_element det = global::F.one();
 
         for (int i = 0; i < this->dim; i++)
-            for (int j = i; j < this->dim; j++)
+            for (int j = i+1; j < this->dim; j++)
                 det *= vander(j, 1) - vander(i, 1);
 
         if (det != vander.det())

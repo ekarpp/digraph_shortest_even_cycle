@@ -33,7 +33,7 @@ int main(int argc, char** argv)
     //Extension_test e(n);
     //GF_test f(n);
     //Matrix_test m(5);
-    FMatrix_test fm(3);
+    FMatrix_test fm(5);
 
     return 0;
 }

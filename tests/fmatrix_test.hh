@@ -8,6 +8,7 @@ class FMatrix_test : Test
 {
 private:
     int dim;
+    int tests = 1;
 
     void test_determinant();
 
