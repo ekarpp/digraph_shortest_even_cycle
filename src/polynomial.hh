@@ -3,6 +3,7 @@
 #define POLYNOMIAL_H
 
 #include <vector>
+#include <iostream>
 
 #include "gf.hh"
 
@@ -35,12 +36,21 @@ public:
     {
         GF_element val = this->coeffs[0];
         GF_element prod = x;
-        for (int i = 1; i <= this-> deg; i++)
+        for (int i = 1; i <= this->deg; i++)
         {
             val += prod * this->coeffs[i];
             prod *= x;
         }
         return val;
+    }
+
+    void print() const
+    {
+        for (int i = 0; i <= this->deg; i++)
+        {
+            std::cout << i << ": ";
+            this->coeffs[i].print();
+        }
     }
 };
 

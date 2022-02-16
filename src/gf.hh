@@ -3,6 +3,8 @@
 #define GF_H
 
 #include <stdint.h>
+#include <bitset>
+#include <iostream>
 
 #include "extension.hh"
 
@@ -84,6 +86,10 @@ public:
         return this->repr > other.get_repr();
     }
 
+    void print() const
+    {
+        std::cout << std::bitset<8>(this->repr) << std::endl;
+    }
 };
 
 #endif
