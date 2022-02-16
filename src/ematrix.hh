@@ -28,6 +28,10 @@ public:
 
     const Matrix<Extension_element> &get_m() const { return this->m; }
 
+    /* returns Per(this) - Det(this) as described in chapter 3
+     * of the paper*/
+    Extension_element per_m_det();
+
     Extension_element operator()(int row, int col) const
     {
         return this->m(row,col);

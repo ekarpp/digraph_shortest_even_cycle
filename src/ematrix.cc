@@ -46,3 +46,10 @@ FMatrix EMatrix::project() const
 
     return FMatrix(this->n, proj);
 }
+
+/* returns Per(this) - Det(this) as described in chapter 3
+ * of the paper*/
+Extension_element EMatrix::per_m_det()
+{
+    return global::E.zero();
+}

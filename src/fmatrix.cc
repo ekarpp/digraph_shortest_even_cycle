@@ -205,5 +205,6 @@ FMatrix FMatrix::copy() const
 GF_element FMatrix::pcc(GF_element e) const
 {
     EMatrix E = this->mul_diag(e).lift();
-    return e;
+    Extension_element elem = E.per_m_det();
+    return elem.div2().project();
 }
