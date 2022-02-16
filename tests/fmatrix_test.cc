@@ -21,7 +21,7 @@ FMatrix_test::FMatrix_test(int dim, int tests = 0)
 
     this->run();
 }
-#include <bitset>
+
 FMatrix FMatrix_test::vandermonde()
 {
     valarray<GF_element> m(this->dim * this->dim);
