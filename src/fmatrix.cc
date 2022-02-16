@@ -201,3 +201,9 @@ FMatrix FMatrix::copy() const
 
     return FMatrix(this->n, m);
 }
+
+GF_element FMatrix::pcc(GF_element e) const
+{
+    EMatrix E = this->mul_diag(e).lift();
+    return e;
+}

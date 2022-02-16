@@ -31,6 +31,10 @@ public:
     FMatrix operator-(const FMatrix &other) const;
     FMatrix operator*(const FMatrix &other) const;
 
+    /* return pcc_{n-1} of the matrix we get when we
+     * multiply the diagonal of this matrix by e */
+    GF_element pcc(GF_element e) const;
+
     EMatrix lift() const;
 
     /* multiply diagonal by e. merge this with lift, so
