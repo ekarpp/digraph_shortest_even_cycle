@@ -29,6 +29,19 @@ public:
     {
         this->coeffs[i] = val;
     }
+
+    /* eval at point x. only used for testing */
+    GF_element eval(GF_element x)
+    {
+        GF_element val = this->coeffs[0];
+        GF_element prod = x;
+        for (int i = 1; i <= this-> deg; i++)
+        {
+            val += prod * this->coeffs[i];
+            prod *= x;
+        }
+        return val;
+    }
 };
 
 #endif
