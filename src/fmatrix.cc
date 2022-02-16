@@ -6,6 +6,7 @@
 #include "fmatrix.hh"
 #include "ematrix.hh"
 #include "extension.hh"
+#include "util.hh"
 
 using namespace std;
 
@@ -143,7 +144,7 @@ GF_element FMatrix::det()
 
 /* uses random sampling and la grange interpolation
  * to get the polynomial determinant. */
-void FMatrix::pdet(int r1, int r2) const
+Polynomial FMatrix::pdet(int r1, int r2) const
 {
     /* determinant has deg <= 2*n - 2 */
     vector<GF_element> gamma(2*this->n - 1);
@@ -169,6 +170,7 @@ void FMatrix::pdet(int r1, int r2) const
     }
 
     /* la grange */
+    return util::poly_interpolation(gamma, delta);
 }
 
 FMatrix FMatrix::copy() const

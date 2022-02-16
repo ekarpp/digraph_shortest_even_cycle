@@ -8,6 +8,7 @@
 #include "extension.hh"
 #include "gf.hh"
 #include "global.hh"
+#include "polynomial.hh"
 
 using namespace std;
 
@@ -17,20 +18,24 @@ namespace util
     /* la grange interpolation with gamma and delta
      * note that we are in characteristic 2 and thus
      * - = + */
-    void poly_interpolation(
+    Polynomial poly_interpolation(
         const vector<GF_element> &gamma,
         const vector<GF_element> &delta
     )
     {
         // assert(gamma.size() == delta.size())
         int n = gamma.size();
-        /* init main poly */
+        Polynomial ret(n);
+
         for (int i = 0; i < n; i++)
         {
 
             int start = (i == 0) ? 1 : 0;
             int deg = n - 1;
             /* init poly with coeff 1 deg n-1 */
+            Polynomial tmp(deg);
+            tmp(deg, global::F.one());
+
             GF_element coeff = gamma[start];
             GF_element prod = gamma[start];
             GF_element quotient = gamma[i] + gamma[start];
@@ -45,18 +50,23 @@ namespace util
             {
                 if (i == j)
                     continue;
-                /* add to poly coeff with deg */
+                tmp(deg, coeff);
+
                 deg--;
                 coeff *= gamma[j];
                 quotient *= gamma[i] + gamma[j];
                 prod *= gamma[j];
             }
             /* add to poly prod with deg 0 */
+            tmp(0, prod);
             quotient = quotient.inv();
             quotient *= delta[i];
-            /* mul poly by quotient */
-            /* sum poly to main poly */
+
+            tmp *= quotient;
+            ret += tmp;
         }
+
+        return ret;
     }
 
     /* Ben-Or's irreducible polynomial generator.

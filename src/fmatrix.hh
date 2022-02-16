@@ -10,6 +10,7 @@
 #include "gf.hh"
 #include "ematrix.hh"
 #include "matrix.hh"
+#include "polynomial.hh"
 
 /* forward declare */
 class EMatrix;
@@ -43,7 +44,7 @@ public:
 
     /* det of the matrix we get when r1 is multiplied by monomials
      * (1,r,..,r^(n-1)) and r2 by monomials (r^(n-1),..,r,1) */
-    void pdet(int r1, int r2) const;
+    Polynomial pdet(int r1, int r2) const;
 
     /* returns a copy of this */
     FMatrix copy() const;

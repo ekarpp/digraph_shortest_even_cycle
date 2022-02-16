@@ -8,6 +8,7 @@
 
 #include "extension.hh"
 #include "gf.hh"
+#include "polynomial.hh"
 
 using namespace std;
 
@@ -16,7 +17,7 @@ namespace util
     uint64_t irred_poly(int deg);
     bool gcd1(int i, bitset<64> p);
 
-    void poly_interpolation(
+    Polynomial poly_interpolation(
         const vector<GF_element> &gamma,
         const vector<GF_element> &delta
     );
