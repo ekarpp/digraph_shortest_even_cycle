@@ -63,8 +63,6 @@ namespace util
             tmp(deg, coeff);
             deg--;
 
-            // int start = (i == 0) ? 1 : 0;
-
             for (int j = 2; j < n; j++)
             {
                 if (i == j)
@@ -79,7 +77,6 @@ namespace util
             tmp *= delta[i] / quotient;
             ret += tmp;
         }
-
         return ret;
     }
 
