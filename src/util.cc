@@ -12,7 +12,6 @@
 
 using namespace std;
 
-
 namespace util
 {
     /* la grange interpolation with gamma and delta
@@ -30,39 +29,51 @@ namespace util
 
         for (int i = 0; i < n; i++)
         {
+            GF_element quotient = global::F.one();
+            GF_element prod = global::F.one();
+            for (int j = 0; j < n; j++)
+            {
+                if (i == j)
+                    continue;
+                quotient *= gamma[i] + gamma[j];
+                prod *= gamma[j];
+            }
 
-            int start = (i == 0) ? 1 : 0;
             int deg = n - 1;
             /* init poly with coeff 1 deg n-1 */
             Polynomial tmp(deg);
             tmp(deg, global::F.one());
             deg--;
 
-            GF_element coeff = gamma[start];
-            GF_element prod = gamma[start];
-            GF_element quotient = gamma[i] + gamma[start];
-            start++;
-            if (i == start)
-                start++;
-            coeff += gamma[start];
+            GF_element coeff;
+
+            switch(i)
+            {
+            case 0:
+                coeff = gamma[1] + gamma[2];
+                break;
+            case 1:
+                coeff = gamma[0] + gamma[2];
+                break;
+            default:
+                coeff = gamma[0] + gamma[1];
+                break;
+            }
+
             tmp(deg, coeff);
             deg--;
 
-            prod *= gamma[start];
-            quotient *= gamma[i] + gamma[start];
+            // int start = (i == 0) ? 1 : 0;
 
-            for (int j = start + 1; j < n; j++)
+            for (int j = 2; j < n; j++)
             {
                 if (i == j)
                     continue;
-
                 coeff *= gamma[j];
                 tmp(deg, coeff);
                 deg--;
-                quotient *= gamma[i] + gamma[j];
-                prod *= gamma[j];
             }
-            /* add to poly prod with deg 0 */
+
             tmp(0, prod);
 
             tmp *= delta[i] / quotient;
