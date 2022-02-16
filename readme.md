@@ -8,4 +8,4 @@ Implementation of the algorithm presented in chapter 4.2 of [The Shortest Even C
 * ~~FMatrix mul diag~~
 * ~~FMatrix det~~
 * ~~FMatrix pdet~~
-* per_m_det in EMatrix
+* ~~per_m_det in EMatrix~~
