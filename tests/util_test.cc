@@ -38,10 +38,10 @@ void Util_test::test_interpolation()
         for (int i = 0; i < n; i++)
         {
             gamma[i] = GF_element(g);
-            g = global::F.rem(g + 3);
+            g = global::F.rem(g + 1);
 
             delta[i] = GF_element(d);
-            d = global::F.rem(d + 3);
+            d = global::F.rem(d + 1);
         }
 
         Polynomial p = util::poly_interpolation(gamma, delta);
