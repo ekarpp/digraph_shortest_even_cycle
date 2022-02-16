@@ -39,7 +39,6 @@ int main(int argc, char **argv)
     Graph G(vec);
 
     Solver s;
-    s.solve(G);
 
     return 0;
 }

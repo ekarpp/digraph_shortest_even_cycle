@@ -9,7 +9,7 @@ class Solver
 public:
     Solver() {}
 
-    int solve(Graph G);
+    int shortest_even_cycle(Graph G);
 };
 
 #endif
