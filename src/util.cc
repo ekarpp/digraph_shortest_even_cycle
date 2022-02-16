@@ -2,6 +2,7 @@
 #include <bitset>
 #include <cmath>
 #include <set>
+#include <vector>
 
 #include "util.hh"
 #include "extension.hh"
@@ -13,6 +14,51 @@ using namespace std;
 
 namespace util
 {
+    /* la grange interpolation with gamma and delta
+     * note that we are in characteristic 2 and thus
+     * - = + */
+    void poly_interpolation(
+        const vector<GF_element> &gamma,
+        const vector<GF_element> &delta
+    )
+    {
+        // assert(gamma.size() == delta.size())
+        int n = gamma.size();
+        /* init main poly */
+        for (int i = 0; i < n; i++)
+        {
+
+            int start = (i == 0) ? 1 : 0;
+            int deg = n - 1;
+            /* init poly with coeff 1 deg n-1 */
+            GF_element coeff = gamma[start];
+            GF_element prod = gamma[start];
+            GF_element quotient = gamma[i] + gamma[start];
+            start++;
+            if (i == start)
+                start++;
+            coeff += gamma[start];
+            prod *= gamma[start];
+            quotient *= gamma[i] + gamma[start];
+            deg--;
+            for (int j = start + 1; j < n; j++)
+            {
+                if (i == j)
+                    continue;
+                /* add to poly coeff with deg */
+                deg--;
+                coeff *= gamma[j];
+                quotient *= gamma[i] + gamma[j];
+                prod *= gamma[j];
+            }
+            /* add to poly prod with deg 0 */
+            quotient = quotient.inv();
+            quotient *= delta[i];
+            /* mul poly by quotient */
+            /* sum poly to main poly */
+        }
+    }
+
     /* Ben-Or's irreducible polynomial generator.
      * returns irreducible polynomial of degree deg
      * in Z2[x] encoded as a bitstring
@@ -45,6 +91,8 @@ namespace util
     {
         /* use set to represent polynomials for conveninece of
          * the methods and to save space as we have degree 2^i */
+        /* better to use circular linked list if its created
+         * for polynomial */
         set<int64_t> r;
         r.insert(1 << i);
         r.insert(1);
