@@ -2,6 +2,9 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <getopt.h>
+#include <fstream>
+#include <sstream>
 
 #include "src/gf.hh"
 #include "src/global.hh"
@@ -18,16 +21,61 @@ Extension global::E;
 
 int main(int argc, char **argv)
 {
+    if (argc == 1)
+    {
+        cout << "provide path to graph file with -f" << endl;
+        cout << "line i (starting at zero) in graph file" << endl;
+        cout << "tells to which nodes there is an edge to" << endl;
+        return 0;
+    }
+
+    string fname = "";
+    int opt;
+
+    while ((opt = getopt(argc, argv, "f:")) != -1)
+    {
+        switch (opt)
+        {
+        case 'f':
+            fname = optarg;
+            break;
+        case '?':
+            cout << "call with no arguments for help" << endl;
+            return -1;
+        }
+    }
+
+    string line;
+    ifstream file(fname);
+
+    if (!file.is_open())
+    {
+        cout << "unable to open file: " << fname << endl;
+        return -1;
+    }
+
+    vector<vector<int>> graph;
+    int u = 0;
+    while (getline(file, line))
+    {
+        /* comment */
+        if (line[0] == '#')
+            continue;
+        istringstream iss(line);
+        int v;
+        vector<int> vec;
+        while (iss >> v)
+            vec.push_back(v);
+        graph.push_back(vec);
+        u++;
+    }
+    file.close();
+
     uint64_t seed = time(nullptr);
     cout << "seed: " << seed << endl;
     global::randgen.init(seed);
 
-    vector<vector<int>> vec = {
-        {1},
-        {0}
-    };
-
-    int d = 5 * ceil(log(vec.size()) / log(2));
+    int d = 5 * ceil(log(graph.size()) / log(2));
     /* modz2 and gfmul only support upto 32 */
     if (d > 32)
         return -1;
@@ -36,7 +84,7 @@ int main(int argc, char **argv)
     global::F.init(d, poly);
     global::E.init(d, poly);
 
-    Graph G(vec);
+    Graph G(graph);
 
     Solver s;
 
