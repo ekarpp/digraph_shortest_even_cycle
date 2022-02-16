@@ -9,13 +9,13 @@ all: $(BIN)
 digraph: main.o $(OBJ)
 	$(CXX) $^ -o $@
 
-digraph-tests: tests.o $(OBJ) gf_test.o extension_test.o matrix_test.o fmatrix_test.o
+digraph-tests: tests.o $(OBJ) gf_test.o extension_test.o matrix_test.o fmatrix_test.o util_test.o
 	$(CXX) $^ -o $@
 
 clean:
 	rm -f $(BIN) *.o
 
 test: digraph-tests
-	./digraph-tests -egfm -d20 -n15 -t1000
+	./digraph-tests -egfmu -d20 -n15 -t1000
 
 include Makefile.dep

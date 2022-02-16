@@ -23,3 +23,5 @@ ematrix.o: ematrix.cc ematrix.hh
 fmatrix_test.o: fmatrix_test.cc fmatrix_test.hh
 
 polynomial.o: polynomial.cc polynomial.hh
+
+util_test.o: util_test.cc util_test.hh

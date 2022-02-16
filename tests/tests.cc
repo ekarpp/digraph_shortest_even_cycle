@@ -8,6 +8,7 @@
 #include "extension_test.hh"
 #include "matrix_test.hh"
 #include "fmatrix_test.hh"
+#include "util_test.hh"
 
 util::rand64bit global::randgen;
 Extension global::E;
@@ -23,6 +24,7 @@ int main(int argc, char** argv)
         cout << "-g for GF tests" << endl;
         cout << "-f for FMatrix tests" << endl;
         cout << "-m for Matrix tests" << endl;
+        cout << "-u for util tests" << endl;
         cout << "-d $int dimension of matrix" << endl;
         cout << "-n $int degree of modulo polynomial" << endl;
         cout << "-t $int how many times random tests are done" << endl;
@@ -33,14 +35,18 @@ int main(int argc, char** argv)
     bool gft = false;
     bool mt = false;
     bool fmt = false;
+    bool ut = false;
     int n = 10;
     int dim = 10;
     int tests = 10000;
     int opt;
-    while ((opt = getopt(argc, argv, "egfmd:n:t:")) != -1)
+    while ((opt = getopt(argc, argv, "uegfmd:n:t:")) != -1)
     {
         switch (opt)
         {
+        case 'u':
+            ut = true;
+            break;
         case 'n':
             n = stoi(optarg);
             break;
@@ -82,6 +88,8 @@ int main(int argc, char** argv)
         Matrix_test m(dim, tests);
     if (fmt)
         FMatrix_test fm(dim, tests);
+    if (ut)
+        Util_test u(tests);
 
     return 0;
 }
