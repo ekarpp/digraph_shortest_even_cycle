@@ -49,6 +49,24 @@ EMatrix FMatrix::lift() const
     return EMatrix(this->n, lifted);
 }
 
+FMatrix FMatrix::mul_diag(GF_element e) const
+{
+    valarray<GF_element> m(this->n * this->n);
+
+    for (int row = 0; row < this->n; row++)
+    {
+        for (int col = 0; col < this->n; col++)
+        {
+            if (row == col)
+                m[row*this->n + col] = this->operator()(row,col) * e;
+            else
+                m[row*this->n + col] = this->operator()(row,col);
+        }
+    }
+
+    return FMatrix(this->n, m);
+}
+
 /* PA = LU, L lower triangular with ones on diagonal
  * and U upper triangular. P permutation matrix as vector.
  * P[i] telss which row replaces row i.

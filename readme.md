@@ -5,6 +5,6 @@ Implementation of the algorithm presented in chapter 4.2 of [The Shortest Even C
 * ~~la grange interpolation~~
 * n distinct random gf elements?
 * permutation sgn computation?
-* FMatrix mul diag
+* ~~FMatrix mul diag~~
 * ~~FMatrix det~~
 * ~~FMatrix pdet~~
