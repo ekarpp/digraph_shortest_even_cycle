@@ -40,5 +40,7 @@ int main(int argc, char **argv)
 
     Solver s;
 
+    cout << s.shortest_even_cycle(G) << endl;
+
     return 0;
 }

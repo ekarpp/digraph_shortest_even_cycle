@@ -26,11 +26,15 @@ public:
     EMatrix operator*(const EMatrix &other) const;
     FMatrix project() const;
 
+    EMatrix copy() const;
+
     const Matrix<Extension_element> &get_m() const { return this->m; }
 
     /* returns Per(this) - Det(this) as described in chapter 3
      * of the paper*/
     Extension_element per_m_det();
+
+    Extension_element row_op(int i1, int j);
 
     Extension_element operator()(int row, int col) const
     {
