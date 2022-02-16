@@ -22,7 +22,7 @@ GF_test::GF_test(int deg)
 
 void GF_test::test_add_inverse()
 {
-    cout << "add inverse" << endl;
+    cout << "add inverse: ";
     int err = 0;
     uint64_t i = 0;
     while (i <= global::F.get_mask())
@@ -38,7 +38,7 @@ void GF_test::test_add_inverse()
 
 void GF_test::test_associativity()
 {
-    cout << "test associativity" << endl;
+    cout << "test associativity: ";
     int err = 0;
     for (int i = 0; i < 10000; i++)
     {
@@ -53,7 +53,7 @@ void GF_test::test_associativity()
 
 void GF_test::test_mul_id()
 {
-    cout << "mul with id" << endl;
+    cout << "mul with id: ";
     int err = 0;
     uint64_t i = 0;
     while (i <= global::F.get_mask())
@@ -68,7 +68,7 @@ void GF_test::test_mul_id()
 
 void GF_test::test_mul_inverse()
 {
-    cout << "mul with inverse" << endl;
+    cout << "mul with inverse: ";
     int err = 0;
     uint64_t i = 1;
     while (i <= global::F.get_mask())
@@ -83,7 +83,7 @@ void GF_test::test_mul_inverse()
 
 void GF_test::test_lift_project()
 {
-    cout << "lift project" << endl;
+    cout << "lift project: ";
     int err = 0;
     uint64_t i = 0;
     while (i <= global::F.get_mask())

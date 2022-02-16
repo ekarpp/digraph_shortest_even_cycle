@@ -45,7 +45,7 @@ FMatrix FMatrix_test::vandermonde()
 
 void FMatrix_test::test_determinant()
 {
-    cout << "determinant" << endl;
+    cout << "determinant: ";
     int err = 0;
     for (int t = 0; t < this->tests; t++)
     {

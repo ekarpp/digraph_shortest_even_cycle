@@ -32,7 +32,7 @@ FMatrix Matrix_test::random_matrix()
 
 void Matrix_test::test_addition()
 {
-    cout << "addition" << endl;
+    cout << "addition: ";
     int err = 0;
     for (int i = 0; i < this->tests; i++)
     {
@@ -52,7 +52,7 @@ void Matrix_test::test_addition()
 
 void Matrix_test::test_subtraction()
 {
-    cout << "subtraction" << endl;
+    cout << "subtraction: ";
     int err = 0;
     for (int i = 0; i < this->tests; i++)
     {
@@ -72,7 +72,7 @@ void Matrix_test::test_subtraction()
 
 void Matrix_test::test_multiplication()
 {
-    cout << "multiplication" << endl;
+    cout << "multiplication: ";
     int err = 0;
     for (int i = 0; i < this->tests; i++)
     {

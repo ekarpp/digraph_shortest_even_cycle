@@ -22,7 +22,7 @@ Extension_test::Extension_test(int deg)
 
 void Extension_test::test_add_inverse()
 {
-    cout << "add inverse" << endl;
+    cout << "add inverse: ";
     int err = 0;
     for (int i = 0; i < this->tests; i++)
     {
@@ -35,7 +35,7 @@ void Extension_test::test_add_inverse()
 
 void Extension_test::test_associativity()
 {
-    cout << "test associativity" << endl;
+    cout << "test associativity: ";
     int err = 0;
     for (int i = 0; i < this->tests; i++)
     {
@@ -50,7 +50,7 @@ void Extension_test::test_associativity()
 
 void Extension_test::test_mul()
 {
-    cout << "test mul" << endl;
+    cout << "test mul: ";
     int err = 0;
     for (int i = 0; i < this->tests; i++)
     {
@@ -68,7 +68,7 @@ void Extension_test::test_mul()
 
 void Extension_test::test_even_tau()
 {
-    cout << "test even tau" << endl;
+    cout << "test even tau: ";
     int err = 0;
     for (int i = 0; i < this->tests; i++)
     {
@@ -86,7 +86,7 @@ void Extension_test::test_even_tau()
 
 void Extension_test::test_is_even()
 {
-    cout << "test is even" << endl;
+    cout << "test is even: ";
     int err = 0;
     for (int i = 0; i < this->tests; i++)
     {
