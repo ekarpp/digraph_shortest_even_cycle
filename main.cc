@@ -8,6 +8,7 @@
 #include "src/graph.hh"
 #include "src/util.hh"
 #include "src/fmatrix.hh"
+#include "src/solver.hh"
 
 using namespace std;
 
@@ -37,6 +38,8 @@ int main(int argc, char **argv)
 
     Graph G(vec);
 
+    Solver s;
+    s.solve(G);
 
     return 0;
 }
