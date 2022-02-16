@@ -2,13 +2,14 @@ CXX := g++
 CXXFLAGS := -g -std=c++1z -O3 -Wall -Wextra -march=native
 VPATH = src:tests
 BIN := digraph digraph-tests
+OBJ := graph.o util.o gf.o extension.o fmatrix.o ematrix.o polynomial.o
 
 all: $(BIN)
 
-digraph: main.o graph.o util.o gf.o extension.o fmatrix.o ematrix.o polynomial.o
+digraph: main.o $(OBJ)
 	$(CXX) $^ -o $@
 
-digraph-tests: tests.o util.o gf.o gf_test.o extension.o extension_test.o fmatrix.o matrix_test.o ematrix.o fmatrix_test.o polynomial.o
+digraph-tests: tests.o $(OBJ) gf_test.o extension_test.o matrix_test.o fmatrix_test.o
 	$(CXX) $^ -o $@
 
 clean:
