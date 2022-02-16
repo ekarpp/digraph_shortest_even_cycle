@@ -24,8 +24,9 @@ namespace util
     )
     {
         // assert(gamma.size() == delta.size())
+        // assert(n > 2)
         int n = gamma.size();
-        Polynomial ret(n);
+        Polynomial ret(n - 1);
 
         for (int i = 0; i < n; i++)
         {
@@ -35,6 +36,7 @@ namespace util
             /* init poly with coeff 1 deg n-1 */
             Polynomial tmp(deg);
             tmp(deg, global::F.one());
+            deg--;
 
             GF_element coeff = gamma[start];
             GF_element prod = gamma[start];
@@ -43,26 +45,27 @@ namespace util
             if (i == start)
                 start++;
             coeff += gamma[start];
+            tmp(deg, coeff);
+            deg--;
+
             prod *= gamma[start];
             quotient *= gamma[i] + gamma[start];
-            deg--;
+
             for (int j = start + 1; j < n; j++)
             {
                 if (i == j)
                     continue;
-                tmp(deg, coeff);
 
-                deg--;
                 coeff *= gamma[j];
+                tmp(deg, coeff);
+                deg--;
                 quotient *= gamma[i] + gamma[j];
                 prod *= gamma[j];
             }
             /* add to poly prod with deg 0 */
             tmp(0, prod);
-            quotient = quotient.inv();
-            quotient *= delta[i];
 
-            tmp *= quotient;
+            tmp *= delta[i] / quotient;
             ret += tmp;
         }
 
