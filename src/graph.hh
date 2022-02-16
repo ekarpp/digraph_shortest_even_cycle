@@ -18,6 +18,7 @@ private:
 public:
     Graph(vector<vector<int>> adjacency_list);
 
-    int get_n() { return n; }
+    int get_n() const { return n; }
+    FMatrix &get_A() { return A; }
 };
 #endif
