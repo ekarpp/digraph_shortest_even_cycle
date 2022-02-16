@@ -10,11 +10,11 @@
 
 using namespace std;
 
-Util_test::Util_test(int tests = 0)
+Util_test::Util_test(int n, int tests = 0)
 {
     if (tests)
         this->tests = tests;
-
+    this->n = n;
     cout << "------------" << endl;
     cout << "TESTING UTIL" << endl;
     cout << "------------" << endl;
@@ -26,7 +26,6 @@ void Util_test::test_interpolation()
 {
     cout << "polynomial interpolation: ";
     int err = 0;
-    int n = 3;
     for (int t = 0; t < this->tests; t++)
     {
         uint64_t g = global::F.rem(global::randgen());

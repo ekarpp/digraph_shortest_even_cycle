@@ -89,7 +89,7 @@ int main(int argc, char** argv)
     if (fmt)
         FMatrix_test fm(dim, tests);
     if (ut)
-        Util_test u(tests);
+        Util_test u(n, tests);
 
     return 0;
 }

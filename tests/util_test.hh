@@ -7,6 +7,8 @@
 class Util_test : Test
 {
 private:
+    int n;
+
     void test_interpolation();
 
     void run()
@@ -15,7 +17,7 @@ private:
     }
 
 public:
-    Util_test(int tests);
+    Util_test(int n, int tests);
 };
 
 #endif
