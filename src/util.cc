@@ -29,52 +29,29 @@ namespace util
 
         for (int i = 0; i < n; i++)
         {
-            GF_element quotient = global::F.one();
+
+
             GF_element prod = global::F.one();
+            for (int j = 0; j < n; j++)
+                if (i != j)
+                    prod *= gamma[i] + gamma[j];
+
+            prod = delta[i] / prod;
+
+            /* init poly with deg n - 1 */
+            Polynomial tmp(n-1);
+            tmp(0, prod);
+
             for (int j = 0; j < n; j++)
             {
                 if (i == j)
                     continue;
-                quotient *= gamma[i] + gamma[j];
-                prod *= gamma[j];
+                for (int k = n - 1; k > 0; k--)
+                {
+                    tmp(k, tmp[k] + tmp[k-1]);
+                    tmp(k-1, tmp[k-1] * gamma[j]);
+                }
             }
-
-            int deg = n - 1;
-            /* init poly with coeff 1 deg n-1 */
-            Polynomial tmp(deg);
-            tmp(deg, global::F.one());
-            deg--;
-
-            GF_element coeff;
-
-            switch(i)
-            {
-            case 0:
-                coeff = gamma[1] + gamma[2];
-                break;
-            case 1:
-                coeff = gamma[0] + gamma[2];
-                break;
-            default:
-                coeff = gamma[0] + gamma[1];
-                break;
-            }
-
-            tmp(deg, coeff);
-            deg--;
-
-            for (int j = 2; j < n; j++)
-            {
-                if (i == j)
-                    continue;
-                coeff *= gamma[j];
-                tmp(deg, coeff);
-                deg--;
-            }
-
-            tmp(0, prod);
-
-            tmp *= delta[i] / quotient;
             ret += tmp;
         }
         return ret;
