@@ -2,7 +2,8 @@ Implementation of the algorithm presented in chapter 4.2 of [The Shortest Even C
 
 # TODO
 * ~~one variable polynomials with coeff from F~~
-* la grange interpolation
+* ~~la grange interpolation~~
+* n distinct random gf elements?
 * permutation sgn computation?
 * FMatrix mul diag
 * ~~FMatrix det~~
