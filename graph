@@ -1,5 +1,8 @@
 # seed 1645041409 with this file and something strange happens
 # lines can be commented with a starting #
 # no whitespace before # !!
+# next line tells edges that start at vertex 0
 1
+# this line tells edges that start at vertex 1
 0
+# etc ...
