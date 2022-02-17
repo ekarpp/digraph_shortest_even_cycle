@@ -6,12 +6,12 @@
 #include <fstream>
 #include <sstream>
 
-#include "src/gf.hh"
-#include "src/global.hh"
-#include "src/graph.hh"
-#include "src/util.hh"
-#include "src/fmatrix.hh"
-#include "src/solver.hh"
+#include "gf.hh"
+#include "global.hh"
+#include "graph.hh"
+#include "util.hh"
+#include "fmatrix.hh"
+#include "solver.hh"
 
 using namespace std;
 
