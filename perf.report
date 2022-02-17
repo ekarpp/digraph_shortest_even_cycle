@@ -1,0 +1,129 @@
+# ========
+# captured on    : Thu Feb 17 13:55:45 2022
+# header version : 1
+# data offset    : 280
+# data size      : 4382232
+# feat offset    : 4382512
+# hostname : seed
+# os release : 5.15.0-2-amd64
+# perf version : 5.15.15
+# arch : x86_64
+# nrcpus online : 4
+# nrcpus avail : 4
+# cpudesc : Intel(R) Core(TM) i5-6600K CPU @ 3.50GHz
+# cpuid : GenuineIntel,6,94,3
+# total memory : 16264512 kB
+# cmdline : /usr/bin/perf_5.15 record ./digraph -f graphs/c64 
+# event : name = cycles, , id = { 9, 10, 11, 12 }, size = 128, { sample_period, sample_freq } = 4000, sample_type = IP|TID|TIME|PERIOD, read_format = ID, disabled = 1, inherit = 1, mmap = 1, comm = 1, freq = 1, enable_on_exec = 1, task = 1, precise_ip = 3, sample_id_all = 1, exclude_guest = 1, mmap2 = 1, comm_exec = 1, ksymbol = 1, bpf_event = 1
+# CPU_TOPOLOGY info available, use -I to display
+# NUMA_TOPOLOGY info available, use -I to display
+# pmu mappings: intel_pt = 8, software = 1, power = 18, uprobe = 7, uncore_imc = 10, cpu = 4, cstate_core = 16, uncore_cbox_2 = 13, breakpoint = 5, uncore_cbox_0 = 11, tracepoint = 2, cstate_pkg = 17, uncore_arb = 15, kprobe = 6, i915 = 19, msr = 9, uncore_cbox_3 = 14, uncore_cbox_1 = 12
+# CACHE info available, use -I to display
+# time of first sample : 2219836.973059
+# time of last sample : 2219864.245378
+# sample duration :  27272.319 ms
+# MEM_TOPOLOGY info available, use -I to display
+# bpf_prog_info 628: bpf_prog_e0428d4db95f3ed4 addr 0xffffffffc017d96c size 307
+# bpf_prog_info 629: bpf_prog_6deef7357e7b4530 addr 0xffffffffc017f734 size 54
+# bpf_prog_info 630: bpf_prog_6deef7357e7b4530 addr 0xffffffffc05f6ea0 size 54
+# bpf_prog_info 631: bpf_prog_3650d9673c54ce30 addr 0xffffffffc05f8340 size 309
+# bpf_prog_info 632: bpf_prog_6deef7357e7b4530 addr 0xffffffffc09f6bb8 size 54
+# bpf_prog_info 633: bpf_prog_6deef7357e7b4530 addr 0xffffffffc136a318 size 54
+# bpf_prog_info 634: bpf_prog_8470ed2b25b99116 addr 0xffffffffc136c138 size 447
+# bpf_prog_info 635: bpf_prog_6deef7357e7b4530 addr 0xffffffffc1394618 size 54
+# bpf_prog_info 636: bpf_prog_6deef7357e7b4530 addr 0xffffffffc1396c20 size 54
+# cpu pmu capabilities: branches=32, max_precise=3, pmu_name=skylake
+# missing features: TRACING_DATA BRANCH_STACK GROUP_DESC AUXTRACE STAT CLOCKID DIR_FORMAT COMPRESSED CLOCK_DATA HYBRID_TOPOLOGY HYBRID_CPU_PMU_CAPS 
+# ========
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 109K of event 'cycles'
+# Event count (approx.): 106031060889
+#
+# Overhead  Command  Shared Object        Symbol                                    
+# ........  .......  ...................  ..........................................
+#
+    82.12%  digraph  digraph              [.] GF_element::operator*
+     7.44%  digraph  digraph              [.] FMatrix::lup
+     3.65%  digraph  digraph              [.] GF_element::GF_element
+     2.52%  digraph  digraph              [.] GF_element::operator*=
+     1.97%  digraph  digraph              [.] util::poly_interpolation
+     1.27%  digraph  digraph              [.] GF_element::inv
+     0.43%  digraph  digraph              [.] GF_element::operator+
+     0.29%  digraph  digraph              [.] FMatrix::copy
+     0.05%  digraph  digraph              [.] util::gcd1
+     0.04%  digraph  digraph              [.] GF_element::operator/
+     0.03%  digraph  libc-2.33.so         [.] __memmove_avx_unaligned_erms
+     0.02%  digraph  libc-2.33.so         [.] malloc
+     0.02%  digraph  libc-2.33.so         [.] _int_free
+     0.01%  digraph  digraph              [.] FMatrix::pdet
+     0.01%  digraph  libc-2.33.so         [.] cfree@GLIBC_2.2.5
+     0.01%  digraph  libstdc++.so.6.0.29  [.] std::_Rb_tree_rebalance_for_erase
+     0.01%  digraph  libc-2.33.so         [.] _int_malloc
+     0.01%  digraph  libstdc++.so.6.0.29  [.] std::_Rb_tree_increment
+     0.01%  digraph  libstdc++.so.6.0.29  [.] std::_Rb_tree_insert_and_rebalance
+     0.01%  digraph  libstdc++.so.6.0.29  [.] std::_Rb_tree_decrement
+     0.01%  digraph  digraph              [.] GF_element::operator+=
+     0.00%  digraph  digraph              [.] Polynomial::operator+=
+     0.00%  digraph  digraph              [.] FMatrix::det
+     0.00%  digraph  digraph              [.] std::_Rb_tree_decrement@plt
+     0.00%  digraph  [kernel.kallsyms]    [k] 0xffffffff972e6389
+     0.00%  digraph  digraph              [.] Extension_element::Extension_element
+     0.00%  digraph  digraph              [.] EMatrix::project
+     0.00%  digraph  [e1000e]             [k] e1000_irq_enable
+     0.00%  digraph  libstdc++.so.6.0.29  [.] operator new
+     0.00%  digraph  libstdc++.so.6.0.29  [.] operator delete
+     0.00%  digraph  digraph              [.] FMatrix::lift
+     0.00%  digraph  digraph              [.] EMatrix::EMatrix
+     0.00%  digraph  digraph              [.] EMatrix::copy
+     0.00%  digraph  [kernel.kallsyms]    [k] 0xffffffff97801087
+     0.00%  digraph  digraph              [.] Extension_element::Extension_element
+     0.00%  digraph  digraph              [.] FMatrix::mul_diag
+     0.00%  digraph  [e1000e]             [k] e1000_intr_msi
+     0.00%  digraph  [e1000e]             [k] e1000_alloc_rx_buffers
+     0.00%  digraph  libc-2.33.so         [.] unlink_chunk.constprop.0
+     0.00%  digraph  digraph              [.] std::_Rb_tree_rebalance_for_erase@plt
+     0.00%  digraph  libstdc++.so.6.0.29  [.] std::_Rb_tree_decrement
+     0.00%  digraph  digraph              [.] std::_Rb_tree_insert_and_rebalance@plt
+     0.00%  digraph  [kernel.kallsyms]    [k] 0xffffffff970a6c8f
+     0.00%  digraph  [kernel.kallsyms]    [k] 0xffffffff96eee840
+     0.00%  digraph  [e1000e]             [k] e1000_clean_tx_irq
+     0.00%  digraph  digraph              [.] GF_element::lift
+     0.00%  digraph  digraph              [.] Polynomial::Polynomial
+     0.00%  digraph  [kernel.kallsyms]    [k] 0xffffffff970d295e
+     0.00%  digraph  [kernel.kallsyms]    [k] 0xffffffff9770f8be
+     0.00%  digraph  [nft_compat]         [k] nft_match_eval
+     0.00%  digraph  [kernel.kallsyms]    [k] 0xffffffff972e31e7
+     0.00%  digraph  [kernel.kallsyms]    [k] 0xffffffff97800cc0
+     0.00%  digraph  [nf_conntrack]       [k] hash_conntrack_raw
+     0.00%  digraph  [kernel.kallsyms]    [k] 0xffffffff970cf110
+     0.00%  digraph  [kernel.kallsyms]    [k] 0xffffffff97086b09
+     0.00%  digraph  [kernel.kallsyms]    [k] 0xffffffff97079d80
+     0.00%  digraph  [kernel.kallsyms]    [k] 0xffffffff972a1269
+     0.00%  digraph  digraph              [.] FMatrix::FMatrix
+     0.00%  digraph  [kernel.kallsyms]    [k] 0xffffffff96e769b4
+     0.00%  digraph  [kernel.kallsyms]    [k] 0xffffffff975c9bf0
+     0.00%  digraph  [kernel.kallsyms]    [k] 0xffffffff9706e630
+     0.00%  digraph  [kernel.kallsyms]    [k] 0xffffffff97036420
+     0.00%  digraph  [nf_conntrack]       [k] nf_conntrack_tcp_packet
+     0.00%  digraph  [kernel.kallsyms]    [k] 0xffffffff971c87d0
+     0.00%  digraph  digraph              [.] Extension_element::operator*
+     0.00%  digraph  digraph              [.] Extension_element::project
+     0.00%  digraph  [kernel.kallsyms]    [k] 0xffffffff96ecf031
+     0.00%  digraph  [e1000e]             [k] e1000e_poll
+     0.00%  digraph  digraph              [.] operator new@plt
+     0.00%  digraph  [kernel.kallsyms]    [k] 0xffffffff96ecf12d
+     0.00%  digraph  [kernel.kallsyms]    [k] 0xffffffff96ee5cb3
+     0.00%  digraph  digraph              [.] memcpy@plt
+     0.00%  digraph  digraph              [.] operator delete@plt
+     0.00%  digraph  [kernel.kallsyms]    [k] 0xffffffff97073665
+     0.00%  perf-ex  [kernel.kallsyms]    [k] 0xffffffff9780156d
+     0.00%  perf-ex  [kernel.kallsyms]    [k] 0xffffffff96e6b816
+     0.00%  perf-ex  [kernel.kallsyms]    [k] 0xffffffff96e6b814
+
+
+#
+# (Tip: For memory address profiling, try: perf mem record / perf mem report)
+#
