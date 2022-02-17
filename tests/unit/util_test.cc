@@ -3,10 +3,10 @@
 #include <vector>
 
 #include "util_test.hh"
-#include "../src/gf.hh"
-#include "../src/polynomial.hh"
-#include "../src/util.hh"
-#include "../src/global.hh"
+#include "../../src/gf.hh"
+#include "../../src/polynomial.hh"
+#include "../../src/util.hh"
+#include "../../src/global.hh"
 
 using namespace std;
 

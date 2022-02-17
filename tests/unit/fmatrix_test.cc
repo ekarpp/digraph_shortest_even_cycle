@@ -3,9 +3,9 @@
 #include <valarray>
 
 #include "fmatrix_test.hh"
-#include "../src/global.hh"
-#include "../src/fmatrix.hh"
-#include "../src/gf.hh"
+#include "../../src/global.hh"
+#include "../../src/fmatrix.hh"
+#include "../../src/gf.hh"
 
 using namespace std;
 

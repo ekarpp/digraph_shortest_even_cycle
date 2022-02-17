@@ -3,7 +3,7 @@
 #define FMATRIX_TEST_H
 
 #include "test.hh"
-#include "../src/fmatrix.hh"
+#include "../../src/fmatrix.hh"
 
 class FMatrix_test : Test
 {

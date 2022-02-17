@@ -1,6 +1,6 @@
 CXX := g++
 CXXFLAGS := -g -std=c++1z -O3 -Wall -Wextra -march=native
-VPATH = src:tests
+VPATH = src:tests/unit
 BIN := digraph digraph-tests
 OBJ := graph.o util.o gf.o extension.o fmatrix.o ematrix.o polynomial.o solver.o
 

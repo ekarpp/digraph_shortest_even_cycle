@@ -2,8 +2,8 @@
 #include <iostream>
 #include <getopt.h>
 
-#include "../src/global.hh"
-#include "../src/util.hh"
+#include "../../src/global.hh"
+#include "../../src/util.hh"
 #include "gf_test.hh"
 #include "extension_test.hh"
 #include "matrix_test.hh"
@@ -40,7 +40,7 @@ int main(int argc, char** argv)
     int dim = 10;
     int tests = 10000;
     int opt;
-    while ((opt = getopt(argc, argv, "uegfmd:n:t:")) != -1)
+    while ((opt = getopt(argc, argv, "suegfmd:n:t:")) != -1)
     {
         switch (opt)
         {

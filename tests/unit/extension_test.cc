@@ -2,9 +2,9 @@
 #include <iostream>
 
 #include "extension_test.hh"
-#include "../src/extension.hh"
-#include "../src/util.hh"
-#include "../src/global.hh"
+#include "../../src/extension.hh"
+#include "../../src/util.hh"
+#include "../../src/global.hh"
 
 using namespace std;
 

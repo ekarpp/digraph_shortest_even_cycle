@@ -3,7 +3,7 @@
 #define EXTENSION_TEST_H
 
 #include "test.hh"
-#include "../src/extension.hh"
+#include "../../src/extension.hh"
 
 class Extension_test : Test
 {

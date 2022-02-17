@@ -3,7 +3,7 @@
 #define GF_TEST_H
 
 #include "test.hh"
-#include "../src/gf.hh"
+#include "../../src/gf.hh"
 
 class GF_test : Test
 {

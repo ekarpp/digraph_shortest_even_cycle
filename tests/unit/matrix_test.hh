@@ -2,8 +2,8 @@
 #ifndef MATRIX_TEST_H
 #define MATRIX_TEST_H
 
-#include "../src/gf.hh"
-#include "../src/fmatrix.hh"
+#include "../../src/gf.hh"
+#include "../../src/fmatrix.hh"
 #include "test.hh"
 
 class Matrix_test : Test
