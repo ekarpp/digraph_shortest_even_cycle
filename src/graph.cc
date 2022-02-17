@@ -15,6 +15,8 @@ Graph::Graph(vector<vector<int>> adjacency_list)
     this->sample_adjacency(adjacency_list);
 
     cout << "created graph of " << n << " vertices:" << endl;
+    /* write this to file ?? */
+    /*
     for (uint i = 0; i < adjacency_list.size(); i++)
     {
         cout << i << ": ";
@@ -22,6 +24,7 @@ Graph::Graph(vector<vector<int>> adjacency_list)
             cout << adjacency_list[i][j] << " ";
         cout << endl;
     }
+    */
 }
 
 /* samples the adjacency matrix with random edge weights from F
