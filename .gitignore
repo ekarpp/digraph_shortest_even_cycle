@@ -1,3 +1,4 @@
 *.o
 digraph
 digraph-tests
+digraph-scale

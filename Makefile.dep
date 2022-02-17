@@ -27,3 +27,5 @@ polynomial.o: polynomial.cc polynomial.hh
 util_test.o: util_test.cc util_test.hh
 
 solver.o: solver.cc solver.hh
+
+scale.o: scale.cc
