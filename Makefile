@@ -16,9 +16,18 @@ digraph-scale: scale.o $(OBJ)
 	$(CXX) $^ -o $@
 
 clean:
-	rm -f $(BIN) *.o
+	rm -f $(BIN) *.o *.s *.asm1 *.asm2
 
 test: digraph-tests
 	./digraph-tests -egfmu -d20 -n15 -t1000
+
+%.s: %.cc
+	$(CXX) -S $(CXXFLAGS) -fverbose-asm $^
+
+%.asm1: %.s
+	c++filt < $^ > $@
+
+%.asm2: %.o
+	objdump -d -S $^ > $@
 
 include Makefile.dep
