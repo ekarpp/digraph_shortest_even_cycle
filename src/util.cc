@@ -15,12 +15,15 @@ using namespace std;
 namespace util
 {
 
+    /* returns floor(log_2(a)) - 1 */
     int log2(uint64_t a)
     {
+        /*
         int deg;
-        /* why deg < 64 here? */
+         why deg < 64 here?
         for (deg = 0; a >> deg && deg < 64; deg++);
-        return deg - 1;
+        */
+        return 63 - __builtin_clzl(a);
     }
 
     /* la grange interpolation with gamma and delta
