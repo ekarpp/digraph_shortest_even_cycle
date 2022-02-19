@@ -14,6 +14,15 @@ using namespace std;
 
 namespace util
 {
+
+    int log2(uint64_t a)
+    {
+        int deg;
+        /* why deg < 64 here? */
+        for (deg = 0; a >> deg && deg < 64; deg++);
+        return deg - 1;
+    }
+
     /* la grange interpolation with gamma and delta
      * note that we are in characteristic 2 and thus
      * - = + */

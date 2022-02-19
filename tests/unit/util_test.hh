@@ -11,9 +11,12 @@ private:
 
     void test_interpolation();
 
+    void test_log2();
+
     void run()
     {
         test_interpolation();
+        test_log2();
     }
 
 public:

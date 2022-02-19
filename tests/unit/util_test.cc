@@ -56,3 +56,18 @@ void Util_test::test_interpolation()
     }
     end_test(err);
 }
+
+void Util_test::test_log2()
+{
+    cout << "log2: ";
+    int err = 0;
+    for (int t = 0; t < this->tests; t++)
+    {
+        int shift = global::randgen() % 64;
+        uint64_t bit = 1ll << shift;
+
+        if (shift != util::log2(bit))
+            err++;
+    }
+    end_test(err);
+}
