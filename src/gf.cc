@@ -54,17 +54,8 @@ uint64_t GF2n::rem(uint64_t a) const
 {
     while (a > this->mask)
     {
-        int shift = 64;
-        uint64_t bit = 1ll << 63;
-        /* this and the subtraction after this are the biggest bottlenecks
-         * how to optimize these? binary search? how to compute log_2 of 64 bit int fast?
-         * https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogObvious */
-        while (bit > a)
-        {
-            shift--;
-            bit >>= 1;
-        }
-        shift -= 1 + this->n;
+        /* move to inline function */
+        int shift = 63 - __builtin_clzl(a) - this->n;
         /* shift = deg(a) - deg(b) */
         a ^= (this->mod << shift);
     }
