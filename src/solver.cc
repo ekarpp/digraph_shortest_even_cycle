@@ -1,5 +1,6 @@
 /* Copyright 2022 Eetu Karppinen. Subject to the MIT license. */
 #include <vector>
+#include <iostream>
 
 #include "global.hh"
 #include "solver.hh"
@@ -27,7 +28,10 @@ int Solver::shortest_even_cycle(Graph G)
     }
 
     for (int l = 0; l <= G.get_n(); l++)
+    {
         delta[l] = G.get_A().pcc(gamma[l]);
+        cout << l+1 << "/" << G.get_n()+1 << endl;
+    }
 
     Polynomial p = util::poly_interpolation(gamma, delta);
 
