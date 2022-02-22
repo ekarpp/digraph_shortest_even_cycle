@@ -12,7 +12,7 @@ void Extension::init(const int n, const uint64_t mod)
 {
     this->n = n;
     this->mod = mod;
-    this->mask = (1 << this->n) - 1;
+    this->mask = (1ll << this->n) - 1;
 
     cout << "initialized E(4^" << n << ") with modulus: ";
     for (int i = n; i >= 0; i--)
