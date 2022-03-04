@@ -10,6 +10,8 @@ public:
     Solver() {}
 
     int shortest_even_cycle(Graph G);
+
+    int shortest_even_cycle_brute(Graph G);
 };
 
 #endif

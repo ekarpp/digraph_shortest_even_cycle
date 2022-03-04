@@ -12,13 +12,17 @@ class Graph
 {
 private:
     int n;
-    void sample_adjacency(vector<vector<int>> adjacency_list);
+    vector<vector<int>> adj;
     FMatrix A;
 
+    void sample_adjacency();
+
 public:
-    Graph(vector<vector<int>> adjacency_list);
+    Graph(vector<vector<int>> &adjacency_list);
 
     int get_n() const { return n; }
     FMatrix &get_A() { return A; }
+
+    void dfs_cycle(int start, int *len) const;
 };
 #endif

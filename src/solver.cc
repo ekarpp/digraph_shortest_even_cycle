@@ -41,3 +41,17 @@ int Solver::shortest_even_cycle(Graph G)
 
     return -1;
 }
+
+/* brute force approach with DFS to find the
+ * shortest even cycle in G. returns the length
+ * of the shortest even cycle or -1 if no such
+ * cycle exists */
+int Solver::shortest_even_cycle_brute(Graph G)
+{
+    int len = G.get_n() + 1;
+
+    for (int v = 0; v < G.get_n(); v++)
+        G.dfs_cycle(v, &len);
+
+    return (len == G.get_n() + 1) ? -1 : len;
+}
