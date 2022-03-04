@@ -2,7 +2,6 @@
 #include <iostream>
 #include <vector>
 #include <valarray>
-#include <stack>
 
 #include "global.hh"
 #include "graph.hh"
@@ -54,32 +53,23 @@ void Graph::sample_adjacency()
 /* goes through all cycles that contain vertex start
  * and updates len accordingly.
  * len contains the length of the shortest found so far */
-void Graph::dfs_cycle(int start, int *len) const
+void Graph::dfs_cycle(int start,
+                      int depth,
+                      int v,
+                      vector<bool> &visited,
+                      int *len) const
 {
-    int depth = 0;
-    valarray<bool> visited(false, this->n);
-
-    stack<int> S;
-    S.push(start);
-
-    while (!S.empty())
+    visited[v] = true;
+    vector<int> nbors = this->adj[v];
+    for (uint i = 0; i < nbors.size(); i++)
     {
-        int v = S.top();
-        S.pop();
-
-        if (visited[v])
-        {
-            if (v == start && depth % 2 == 0 && depth < *len)
-                *len = depth;
-            depth--;
-        }
+        int u = nbors[i];
+        if (!visited[u])
+            this->dfs_cycle(start, depth + 1, u, visited, len);
         else
         {
-            visited[v] = true;
-            depth++;
-            vector<int> nbors = this->adj[v];
-            for (uint i = 0; i < nbors.size(); i++)
-                S.push(nbors[i]);
+            if (u == start && depth % 2 == 0 && depth < *len)
+                *len = depth;
         }
     }
 }

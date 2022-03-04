@@ -51,7 +51,10 @@ int Solver::shortest_even_cycle_brute(Graph G)
     int len = G.get_n() + 1;
 
     for (int v = 0; v < G.get_n(); v++)
-        G.dfs_cycle(v, &len);
+    {
+        vector<bool> visited(G.get_n(), false);
+        G.dfs_cycle(v, 1, v, visited, &len);
+    }
 
     return (len == G.get_n() + 1) ? -1 : len;
 }
