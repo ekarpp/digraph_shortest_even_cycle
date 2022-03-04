@@ -9,7 +9,7 @@ class Solver
 public:
     Solver() {}
 
-    int shortest_even_cycle(Graph G);
+    int shortest_even_cycle(Graph G, bool out = true);
 
     int shortest_even_cycle_brute(Graph G);
 };

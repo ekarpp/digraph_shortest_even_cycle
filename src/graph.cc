@@ -9,13 +9,14 @@
 
 using namespace std;
 
-Graph::Graph(vector<vector<int>> &adjacency_list)
+Graph::Graph(vector<vector<int>> &adjacency_list, bool out)
 {
     this->n = adjacency_list.size();
     this->adj = adjacency_list;
     this->sample_adjacency();
 
-    cout << "created graph of " << this->n << " vertices:" << endl;
+    if (out)
+        cout << "created graph of " << this->n << " vertices:" << endl;
     /* write this to file ?? */
     /*
     for (uint i = 0; i < adjacency_list.size(); i++)

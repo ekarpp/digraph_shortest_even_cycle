@@ -16,7 +16,7 @@ private:
     void sample_adjacency();
 
 public:
-    Graph(std::vector<std::vector<int>> &adjacency_list);
+    Graph(std::vector<std::vector<int>> &adjacency_list, bool out = true);
 
     int get_n() const { return n; }
     FMatrix &get_A() { return A; }

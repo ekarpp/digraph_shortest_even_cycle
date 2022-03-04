@@ -9,6 +9,7 @@
 #include "matrix_test.hh"
 #include "fmatrix_test.hh"
 #include "util_test.hh"
+#include "solver_test.hh"
 
 util::rand64bit global::randgen;
 Extension global::E;
@@ -25,6 +26,7 @@ int main(int argc, char** argv)
         cout << "-f for FMatrix tests" << endl;
         cout << "-m for Matrix tests" << endl;
         cout << "-u for util tests" << endl;
+        cout << "-s for solver tests" << endl;
         cout << "-d $int dimension of matrix" << endl;
         cout << "-n $int degree of modulo polynomial" << endl;
         cout << "-t $int how many times random tests are done" << endl;
@@ -36,6 +38,7 @@ int main(int argc, char** argv)
     bool mt = false;
     bool fmt = false;
     bool ut = false;
+    bool st = false;
     int n = 10;
     int dim = 10;
     int tests = 10000;
@@ -52,6 +55,9 @@ int main(int argc, char** argv)
             break;
         case 'd':
             dim = stoi(optarg);
+            break;
+        case 's':
+            st = true;
             break;
         case 'e':
             et = true;
@@ -90,6 +96,8 @@ int main(int argc, char** argv)
         FMatrix_test fm(dim, tests);
     if (ut)
         Util_test u(n, tests);
+    if (st)
+        Solver_test s(n, tests);
 
     return 0;
 }
