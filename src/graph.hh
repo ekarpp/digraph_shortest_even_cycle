@@ -6,19 +6,17 @@
 #include "gf.hh"
 #include "fmatrix.hh"
 
-using namespace std;
-
 class Graph
 {
 private:
     int n;
-    vector<vector<int>> adj;
+    std::vector<std::vector<int>> adj;
     FMatrix A;
 
     void sample_adjacency();
 
 public:
-    Graph(vector<vector<int>> &adjacency_list);
+    Graph(std::vector<std::vector<int>> &adjacency_list);
 
     int get_n() const { return n; }
     FMatrix &get_A() { return A; }
