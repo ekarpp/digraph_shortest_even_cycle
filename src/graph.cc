@@ -73,4 +73,5 @@ void Graph::dfs_cycle(int start,
                 *len = depth;
         }
     }
+    visited[v] = false;
 }

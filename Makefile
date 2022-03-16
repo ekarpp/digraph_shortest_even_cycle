@@ -19,7 +19,10 @@ clean:
 	rm -f $(BIN) *.o *.s *.asm1 *.asm2
 
 test: digraph-tests
-	./digraph-tests -egfmus -d20 -n15 -t1000
+	./digraph-tests -egfmu -d20 -n15 -t1000
+
+test-solver: digraph-tests
+	./digraph-tests -s -n11 -t10
 
 %.s: %.cc
 	$(CXX) -S $(CXXFLAGS) -fverbose-asm $^
