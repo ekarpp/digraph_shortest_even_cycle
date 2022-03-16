@@ -43,7 +43,10 @@ void Graph::sample_adjacency()
         for (uint i = 0; i < this->adj[u].size(); i++)
         {
             int v = this->adj[u][i];
-            m[u*this->n + v] = global::F.random();
+            GF_element w = global::F.random();
+            while (w == global::F.zero())
+                w = global::F.random();
+            m[u*this->n + v] = w;
         }
     }
 
