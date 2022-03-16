@@ -80,10 +80,10 @@ vector<int> FMatrix::lup(int depth)
         return vector<int> (this->n, depth);
 
     GF_element mx = global::F.zero();
-    int mxi = -1;
+    int mxi = depth;
     for (int i = depth; i < this->n; i++)
     {
-        if (this->operator()(i,depth) >= mx)
+        if (this->operator()(i,depth) > mx)
         {
             mxi = i;
             mx = this->operator()(i,depth);
