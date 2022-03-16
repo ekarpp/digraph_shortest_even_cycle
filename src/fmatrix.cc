@@ -71,7 +71,6 @@ FMatrix FMatrix::mul_diag(GF_element e) const
  * and U upper triangular. P permutation matrix as vector.
  * P[i] telss which row replaces row i.
  * modifies the object it is called on to L and U in single matrix. */
-/* CRASHES ON SINGULAR MATRICES, maybe not? need to test */
 /* modified version of the recursive leading-row-column LUP algorithm
  * presented here: https://courses.grainger.illinois.edu/cs357/fa2021/notes/ref-9-linsys.html */
 vector<int> FMatrix::lup(int depth)
@@ -80,12 +79,11 @@ vector<int> FMatrix::lup(int depth)
     if (dim == 1)
         return vector<int> (this->n, depth);
 
-    /* bad things happen if all zero, hack and use "-1" int64_t? */
     GF_element mx = global::F.zero();
     int mxi = -1;
     for (int i = depth; i < this->n; i++)
     {
-        if (this->operator()(i,depth) > mx)
+        if (this->operator()(i,depth) >= mx)
         {
             mxi = i;
             mx = this->operator()(i,depth);

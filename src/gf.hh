@@ -86,6 +86,11 @@ public:
         return this->repr > other.get_repr();
     }
 
+    bool operator>=(const GF_element &other) const
+    {
+        return this->repr >= other.get_repr();
+    }
+
     void print() const
     {
         std::cout << std::bitset<8>(this->repr) << std::endl;
