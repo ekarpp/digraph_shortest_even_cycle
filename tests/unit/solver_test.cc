@@ -12,7 +12,6 @@ Solver_test::Solver_test(int n, int tests = 0)
 {
     if (tests)
         this->tests = tests;
-    this->tests = 10;
     this->n = n;
     cout << "--------------" << endl;
     cout << "TESTING SOLVER" << endl;
@@ -45,5 +44,6 @@ void Solver_test::test_solver()
         if (s.shortest_even_cycle(G, false) != s.shortest_even_cycle_brute(G))
             err++;
     }
-    end_test(err);
+    cout << err << " out of " << this->tests << " failed (";
+    cout << (float) err / this->tests * 100 << "%)" << endl;
 }
