@@ -77,7 +77,7 @@ Extension_element EMatrix::per_m_det()
     for (int j = 0; j < this->n; j++)
     {
         int i1;
-        for (i1 = 0; j < this->n; j++)
+        for (i1 = 0; i1 < this->n; i1++)
         {
             if (rows[i1])
                 continue;
@@ -130,7 +130,8 @@ Extension_element EMatrix::per_m_det()
                 swaps++;
         }
         acc += per;
-
+        /* each swap gets registered twice, thus divide by two */
+        swaps /= 2;
         /* permutation sign */
         /* can just skip this and not just add per to acc */
         if (swaps % 2 == 1)
