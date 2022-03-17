@@ -2,6 +2,7 @@
 #ifndef EMATRIX_H
 #define EMATRIX_H
 
+#include <iostream>
 #include <valarray>
 
 #include "extension.hh"
@@ -54,6 +55,16 @@ public:
     void set(int row, int col, Extension_element val)
     {
         this->m.set(row, col, val);
+    }
+
+    void print() const
+    {
+        for (int row = 0; row < this->n; row++)
+        {
+            for (int col = 0; col < this->n; col++)
+                this->m(row, col).print();
+            std::cout << std::endl;
+        }
     }
 };
 

@@ -2,6 +2,7 @@
 #ifndef EXTENSION_H
 #define EXTENSION_H
 
+#include <iostream>
 #include <stdint.h>
 
 #include "gf.hh"
@@ -104,6 +105,18 @@ public:
     bool operator!=(const Extension_element &other) const
     {
         return !(*this == other);
+    }
+
+    void print() const
+    {
+        for (int i = 8; i >= 0; i--)
+        {
+            uint64_t v = (this->repr.hi >> i) & 1;
+            v <<= 1;
+            v |= (this->repr.lo >> i) & 1;
+            std::cout << v;
+        }
+        std::cout << " ";
     }
 };
 
