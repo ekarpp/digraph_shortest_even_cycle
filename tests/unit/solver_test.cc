@@ -34,7 +34,7 @@ void Solver_test::test_solver()
             {
                 if (u == v)
                     continue;
-                if (global::randgen() & 1)
+                if ((global::randgen() & 0b11) == 0x0)
                     adj[u].push_back(v);
             }
         }

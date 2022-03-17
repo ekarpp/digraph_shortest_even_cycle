@@ -22,7 +22,7 @@ test: digraph-tests
 	./digraph-tests -egfmux -d20 -n15 -t1000
 
 test-solver: digraph-tests
-	./digraph-tests -s -n11 -t100
+	./digraph-tests -s -n10 -t100
 
 %.s: %.cc
 	$(CXX) -S $(CXXFLAGS) -fverbose-asm $^
