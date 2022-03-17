@@ -10,7 +10,7 @@
 class EMatrix_test : Test
 {
 private:
-    int dim = 2;
+    int dim = 5;
 
     void test_per_det();
 
