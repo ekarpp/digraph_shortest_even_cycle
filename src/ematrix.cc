@@ -70,7 +70,7 @@ Extension_element EMatrix::per_m_det()
     valarray<bool> rows(false, this->n);
     /* odd elements at (odd[i], i). if odd[i] = -1 then
      * column i has only even elements at unmarked rows */
-    valarray<int> odd(this->n);
+    vector<int> odd;
     /* columns that have only even elements at unmarked rows */
     list<int> cols;
 
@@ -86,13 +86,13 @@ Extension_element EMatrix::per_m_det()
             {
                 acc += this->row_op(i1, j);
                 rows[i1] = true;
-                odd[j] = i1;
+                odd.push_back(i1);
                 break;
             }
         }
         if (i1 == this->n)
         {
-            odd[j] = -1;
+            odd.push_back(-1);
             cols.push_front(j);
         }
     }
@@ -121,7 +121,7 @@ Extension_element EMatrix::per_m_det()
         int swaps = 0;
         valarray<bool> swapped(false, this->n);
         Extension_element per = global::E.one();
-        for (int col = 0; col < this->n; col++)
+        for (int col = 0; col < (int) odd.size(); col++)
         {
             int row = odd[col];
             per *= this->operator()(row, col);
