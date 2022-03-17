@@ -31,3 +31,5 @@ solver.o: solver.cc solver.hh
 scale.o: scale.cc
 
 solver_test.o: solver_test.cc solver_test.hh
+
+ematrix_test.o: ematrix_test.cc ematrix_test.hh

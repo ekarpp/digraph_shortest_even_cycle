@@ -10,6 +10,7 @@
 #include "fmatrix_test.hh"
 #include "util_test.hh"
 #include "solver_test.hh"
+#include "ematrix_test.hh"
 
 util::rand64bit global::randgen;
 Extension global::E;
@@ -25,6 +26,7 @@ int main(int argc, char** argv)
         cout << "-g for GF tests" << endl;
         cout << "-f for FMatrix tests" << endl;
         cout << "-m for Matrix tests" << endl;
+        cout << "-x for EMatrix tests" << endl;
         cout << "-u for util tests" << endl;
         cout << "-s for solver tests" << endl;
         cout << "-d $int dimension of matrix" << endl;
@@ -37,16 +39,20 @@ int main(int argc, char** argv)
     bool gft = false;
     bool mt = false;
     bool fmt = false;
+    bool emt = false;
     bool ut = false;
     bool st = false;
     int n = 10;
     int dim = 10;
     int tests = 10000;
     int opt;
-    while ((opt = getopt(argc, argv, "suegfmd:n:t:")) != -1)
+    while ((opt = getopt(argc, argv, "xsuegfmd:n:t:")) != -1)
     {
         switch (opt)
         {
+        case 'x':
+            emt = true;
+            break;
         case 'u':
             ut = true;
             break;
@@ -98,6 +104,8 @@ int main(int argc, char** argv)
         Util_test u(n, tests);
     if (st)
         Solver_test s(n, tests);
+    if (emt)
+        EMatrix_test em(tests);
 
     return 0;
 }
