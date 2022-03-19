@@ -12,12 +12,16 @@ private:
 
     void test_determinant();
 
+    void test_det_singular();
+
     void run()
     {
         test_determinant();
+        test_det_singular();
     }
 
     FMatrix vandermonde();
+    FMatrix random();
 
 public:
     FMatrix_test(int dim, int tests);

@@ -43,6 +43,17 @@ FMatrix FMatrix_test::vandermonde()
     return FMatrix(this->dim, m);
 }
 
+FMatrix FMatrix_test::random()
+{
+    valarray<GF_element> m(this->dim * this->dim);
+
+    for (int row = 0; row < this->dim; row++)
+        for (int col = 0; col < this->dim; col++)
+            m[row*this->dim + col] = global::F.random();
+
+    return FMatrix(this->dim, m);
+}
+
 void FMatrix_test::test_determinant()
 {
     cout << "determinant: ";
@@ -57,6 +68,28 @@ void FMatrix_test::test_determinant()
                 det *= vander(j, 1) - vander(i, 1);
 
         if (det != vander.det())
+            err++;
+    }
+    end_test(err);
+}
+
+void FMatrix_test::test_det_singular()
+{
+    cout << "determinant on singular matrices: ";
+    int err = 0;
+    for (int t = 0; t < this->tests; t++)
+    {
+        FMatrix m = this->random();
+        int r1 = global::randgen() % this->dim;
+        int r2 = global::randgen() % this->dim;
+        while (r1 == r2)
+            r2 = global::randgen() % this->dim;
+
+        /* make it singular */
+        for (int col = 0; col < this->dim; col++)
+            m.set(r1, col, m(r2, col));
+
+        if (m.det() != global::F.zero())
             err++;
     }
     end_test(err);
