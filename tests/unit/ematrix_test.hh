@@ -13,15 +13,18 @@ private:
     int dim = 5;
 
     void test_per_det();
+    void test_per_det_singular();
 
     void run()
     {
         test_per_det();
+        test_per_det_singular();
     }
 
     EMatrix random();
-    Extension_element term(std::valarray<int> &perm, EMatrix &m);
+    Extension_element term(std::valarray<int> &perm, const EMatrix &m);
     void swap(int i1, int i2, std::valarray<int> &perm);
+    Extension_element per_m_det_heap(const EMatrix &m);
 
 public:
     EMatrix_test(int tests);
