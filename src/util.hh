@@ -19,6 +19,8 @@ namespace util
     uint64_t irred_poly(int deg);
     bool gcd1(int i, bitset<64> p);
 
+    std::vector<GF_element> distinct_elements(int n);
+
     Polynomial poly_interpolation(
         const vector<GF_element> &gamma,
         const vector<GF_element> &delta

@@ -163,24 +163,18 @@ GF_element FMatrix::det()
 Polynomial FMatrix::pdet(int r1, int r2) const
 {
     /* determinant has deg <= 2*n - 2 */
-    vector<GF_element> gamma(2*this->n - 1);
+    vector<GF_element> gamma = util::distinct_elements(2*this->n - 1);
     vector<GF_element> delta(2*this->n - 1);
-    uint64_t v = global::F.rem(global::randgen());
 
     for (int i = 0; i < 2*this->n - 1; i++)
     {
-        const GF_element e(v);
-        gamma[i] = e;
-        /* lazy way to ensure gammas are distinct */
-        v = global::F.rem(v + 2);
-
         FMatrix A = this->copy();
-        GF_element prod = e;
+        GF_element prod = gamma[i];
         for (int col = 1; col < this->n; col++)
         {
             A.mul(r1, col, prod);
             A.mul(r2, this->n - 1 - col, prod);
-            prod *= e;
+            prod *= gamma[i];
         }
         delta[i] = A.det();
     }

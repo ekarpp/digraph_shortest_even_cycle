@@ -69,6 +69,24 @@ namespace util
         return ret;
     }
 
+
+    /* returns n distinct random elements from
+     * global::F. (use LSFR?) */
+    vector<GF_element> distinct_elements(int n)
+    {
+        vector<GF_element> vec(n);
+        set<uint64_t> have;
+        for (int i = 0; i < n; i++)
+        {
+            GF_element e = global::F.random();
+            while (have.count(e.get_repr()) == 1)
+                e = global::F.random();
+            vec[i] = e;
+            have.insert(e.get_repr());
+        }
+        return vec;
+    }
+
     /* Ben-Or's irreducible polynomial generator.
      * returns irreducible polynomial of degree deg
      * in Z2[x] encoded as a bitstring

@@ -15,17 +15,8 @@ using namespace std;
  * if no even cycle exists, returns -1 */
 int Solver::shortest_even_cycle(Graph G, bool out)
 {
-    vector<GF_element> gamma(G.get_n() + 1);
+    vector<GF_element> gamma = util::distinct_elements(G.get_n() + 1);
     vector<GF_element> delta(G.get_n() + 1);
-
-    uint64_t v = 0x1;
-
-    for (int i = 0; i <= G.get_n(); i++)
-    {
-        gamma[i] = GF_element(v);
-        /* lazy, fix later */
-        v = global::F.rem(v + 3);
-    }
 
     for (int l = 0; l <= G.get_n(); l++)
     {
