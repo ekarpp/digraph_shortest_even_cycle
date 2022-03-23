@@ -121,6 +121,20 @@ public:
         this->m[row*n + col] *= val;
     }
 
+    /* multiply row by val */
+    void mul_row(int row, E val)
+    {
+        for (int col = 0; col < this->n; col++)
+            this->m[row*n + col] *= val;
+    }
+
+    /* subtract v times r1 from r2 */
+    void row_op(int r1, int r2, GF_element v)
+    {
+        for (int col = 0; col < this->n; col++)
+            this->m[r2*n + col] -= v*this->operator()(r1,col);
+    }
+
     /* subtract val from element at row,col */
     void sub(int row, int col, E val)
     {

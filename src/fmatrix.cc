@@ -73,6 +73,7 @@ FMatrix FMatrix::mul_diag(GF_element e) const
  * modifies the object it is called on to L and U in single matrix. */
 /* modified version of the recursive leading-row-column LUP algorithm
  * presented here: https://courses.grainger.illinois.edu/cs357/fa2021/notes/ref-9-linsys.html */
+/* not currently in use */
 vector<int> FMatrix::lup(int depth)
 {
     int dim = this->n - depth;
@@ -143,18 +144,36 @@ vector<int> FMatrix::lup(int depth)
     return P;
 }
 
+/* simple gaussian elimination with pivoting.
+ * we are in characteristic two so pivoting does
+ * not affect the determinant. */
 GF_element FMatrix::det()
 {
-    vector<int> P = this->lup(0);
     GF_element det = global::F.one();
-    /* PA = LU => det(A) = det(P^T)det(L)det(U)
-     * in current implementation L has diagonal of one
-     * thus det(L) = 1. det(U) is the product of its diagonal
-     * elements. det(P)=det(P^T) is the sgn of P. */
-    for (int i = 0; i < this->n; i++)
-        det *= this->operator()(i,i);
-    /* we are in characteristic two, thus -x = x and no need to check
-     * sgn of P */
+    for (int col = 0; col < this->n; col++)
+    {
+        /* pivot */
+        GF_element mx = this->operator()(col,col);
+        int mxi = col;
+        for (int row = col + 1; row < this->n; row++)
+        {
+            if (this->operator()(row,col) > mx)
+            {
+                mx = this->operator()(row,col);
+                mxi = row;
+            }
+        }
+        if (mxi != col)
+            this->swap_rows(mxi, col);
+
+        if (mx == global::F.zero())
+            return global::F.zero();
+        det *= mx;
+        mx = mx.inv();
+        this->mul_row(col, mx);
+        for (int row = col+1; row < this->n; row++)
+            this->row_op(col, row, this->operator()(row,col));
+    }
     return det;
 }
 

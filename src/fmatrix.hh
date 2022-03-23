@@ -65,6 +65,17 @@ public:
         this->m.mul(row, col, v);
     }
 
+    void mul_row(int row, GF_element v)
+    {
+        this->m.mul_row(row, v);
+    }
+
+    /* subtract v times r1 from r2 */
+    void row_op(int r1, int r2, GF_element v)
+    {
+        this->m.row_op(r1, r2, v);
+    }
+
     GF_element operator()(int row, int col) const
     {
         return this->m(row,col);
