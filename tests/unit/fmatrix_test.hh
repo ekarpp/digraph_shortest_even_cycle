@@ -2,6 +2,8 @@
 #ifndef FMATRIX_TEST_H
 #define FMATRIX_TEST_H
 
+#include <valarray>
+
 #include "test.hh"
 #include "../../src/fmatrix.hh"
 
@@ -10,18 +12,23 @@ class FMatrix_test : Test
 private:
     int dim;
 
-    void test_determinant();
+    GF_element det_heap(const FMatrix &m);
+    GF_element term(std::valarray<int> &perm, const FMatrix &m);
+    void swap(int i1, int i2, std::valarray<int> &perm);
 
+    void test_determinant_vandermonde();
     void test_det_singular();
+    void test_determinant_random();
 
     void run()
     {
-        test_determinant();
+        test_determinant_vandermonde();
+        test_determinant_random();
         test_det_singular();
     }
 
     FMatrix vandermonde();
-    FMatrix random();
+    FMatrix random(int n);
 
 public:
     FMatrix_test(int dim, int tests);

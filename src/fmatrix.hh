@@ -60,6 +60,8 @@ public:
 
     const Matrix<GF_element> &get_m() const { return this->m; }
 
+    int get_n() const { return this->n; }
+
     void mul(int row, int col, GF_element v)
     {
         this->m.mul(row, col, v);
