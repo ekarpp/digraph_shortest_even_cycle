@@ -42,13 +42,8 @@ public:
      * called after this */
     FMatrix mul_diag(GF_element e) const;
 
-    /* returns a permutation matrix P and modifies the object called on
-     * such that P*obj = obj.lup(). where obj.lup() contains L on the lower
-     * triangle and U on the upper triangle such that P*obj = L*U. note that
-     * L has ones on diagonal, thus L and U can be stored in one matrix. */
-    std::vector<int> lup(int depth);
-
-    /* uses lup(). modifies the object it is called on. */
+    /* uses gaussian elimination with pivoting.
+     * modifies the object it is called on. */
     GF_element det();
 
     /* det of the matrix we get when r1 is multiplied by monomials
