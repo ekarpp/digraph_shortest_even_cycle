@@ -2,6 +2,7 @@
 *.asm1
 *.asm2
 *.o
+*.data
 digraph
 digraph-tests
 digraph-scale
