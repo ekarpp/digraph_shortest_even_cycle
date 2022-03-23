@@ -5,5 +5,5 @@ Implementation of the algorithm presented in chapter 4.2 of [The Shortest Even C
 * use gaussian elimination instead of LUP for determinant
 * only support GF(2^32) and GF(2^64)? (speed ups in e.g. modulus)
 * AVX in GF?
-* implement fast modulus for GF ([see here](https://dl.acm.org/doi/10.1016/j.ipl.2010.04.011))
+* ~implement fast modulus for GF ([see here](https://dl.acm.org/doi/10.1016/j.ipl.2010.04.011))~
 * further profiling after fast modulus for GF

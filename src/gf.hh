@@ -22,6 +22,9 @@ private:
     uint64_t mod;
     uint64_t quo(uint64_t a, uint64_t b) const;
 
+    uint64_t q_plus;
+    uint64_t mod_ast;
+
 public:
     GF2n() {};
     void init(const int n, const uint64_t mod);

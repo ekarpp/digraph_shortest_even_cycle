@@ -15,6 +15,10 @@ void GF2n::init(const int n, const uint64_t mod)
     this->mod = mod;
     this->mask = (1ll << this->n) - 1;
 
+    // 4.2 in https://dl.acm.org/doi/10.1016/j.ipl.2010.04.011
+    this->q_plus = this->quo(1ull << (2*this->n), mod);
+    this->mod_ast = this->mask & mod;
+
     cout << "initialized GF(2^" << n << ") with modulus: ";
     for (int i = n; i >= 0; i--)
     {
@@ -49,17 +53,19 @@ GF_element GF2n::random() const
  */
 // a needs to be 128 bit for support up to GF(2^64)
 // now just GF(2^32)
-
+// 4.2 in https://dl.acm.org/doi/10.1016/j.ipl.2010.04.011
 uint64_t GF2n::rem(uint64_t a) const
 {
-    while (a > this->mask)
-    {
-        /* move to inline function */
-        int shift = 63 - __builtin_clzl(a) - this->n;
-        /* shift = deg(a) - deg(b) */
-        a ^= (this->mod << shift);
-    }
-    return a;
+    uint64_t lo = a & this->mask;
+    uint64_t hi = (a & (~this->mask)) >> this->n;
+
+    uint64_t rem = this->clmul(hi, this->q_plus);
+    rem &= ~this->mask;
+    rem >>= this->n;
+    rem = this->clmul(rem, this->mod_ast);
+    rem &= this->mask;
+    rem ^= lo;
+    return rem;
 }
 
 /* returns q s.t. for some r,
