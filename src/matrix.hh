@@ -79,7 +79,7 @@ public:
         return Matrix(this->n, this->one, prod);
     }
 
-    E operator()(int row, int col) const
+    const E &operator()(int row, int col) const
     {
         /* append identity matrix in case out of bounds.
          * potentially dangerous */

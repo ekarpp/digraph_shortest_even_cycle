@@ -73,7 +73,7 @@ public:
         this->m.row_op(r1, r2, v);
     }
 
-    GF_element operator()(int row, int col) const
+    const GF_element &operator()(int row, int col) const
     {
         return this->m(row,col);
     }

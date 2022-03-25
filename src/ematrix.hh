@@ -37,7 +37,7 @@ public:
 
     Extension_element row_op(int i1, int j);
 
-    Extension_element operator()(int row, int col) const
+    const Extension_element &operator()(int row, int col) const
     {
         return this->m(row,col);
     }
