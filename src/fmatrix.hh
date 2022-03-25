@@ -33,14 +33,14 @@ public:
 
     /* return pcc_{n-1} of the matrix we get when we
      * multiply the diagonal of this matrix by e */
-    GF_element pcc(GF_element e) const;
+    GF_element pcc(const GF_element &e) const;
 
     EMatrix lift() const;
 
     /* multiply diagonal by e. merge this with lift, so
      * that only one new copy is created? lift gets always
      * called after this */
-    FMatrix mul_diag(GF_element e) const;
+    FMatrix mul_diag(const GF_element &e) const;
 
     /* uses gaussian elimination with pivoting.
      * modifies the object it is called on. */

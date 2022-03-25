@@ -49,7 +49,7 @@ EMatrix FMatrix::lift() const
     return EMatrix(this->n, lifted);
 }
 
-FMatrix FMatrix::mul_diag(GF_element e) const
+FMatrix FMatrix::mul_diag(const GF_element &e) const
 {
     valarray<GF_element> m(this->n * this->n);
 
@@ -136,7 +136,7 @@ FMatrix FMatrix::copy() const
     return FMatrix(this->n, m);
 }
 
-GF_element FMatrix::pcc(GF_element e) const
+GF_element FMatrix::pcc(const GF_element &e) const
 {
     EMatrix E = this->mul_diag(e).lift();
     Extension_element elem = E.per_m_det();
