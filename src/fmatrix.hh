@@ -57,12 +57,12 @@ public:
 
     int get_n() const { return this->n; }
 
-    void mul(int row, int col, GF_element v)
+    void mul(int row, int col, const GF_element &v)
     {
         this->m.mul(row, col, v);
     }
 
-    void mul_row(int row, GF_element v)
+    void mul_row(int row, const GF_element &v)
     {
         this->m.mul_row(row, v);
     }
