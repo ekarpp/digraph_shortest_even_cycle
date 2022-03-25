@@ -74,14 +74,11 @@ uint64_t GF2n::rem(uint64_t a) const
 uint64_t GF2n::quo(uint64_t a, uint64_t b) const
 {
     uint64_t q = 0b0;
-    int degb;
-    for (degb = 0; b >> degb; degb++);
-    degb--;
+    int degb = util::log2(b);
     while (a >= b)
     {
-        int shift;
-        for (shift = 0; a >> shift; shift++);
-        shift -= 1 + degb;
+        int shift = util::log2(a);
+        shift -= degb;
         /* shift = deg(a) - deg(b) */
         q ^= (1ll << shift);
         a ^= (b << shift);
