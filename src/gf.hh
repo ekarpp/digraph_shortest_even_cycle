@@ -32,6 +32,7 @@ public:
     GF_element one() const;
     GF_element random() const;
     uint64_t rem(uint64_t a) const;
+    uint64_t ext_euclid(uint64_t a) const;
     uint64_t clmul(uint64_t a, uint64_t) const;
 
     int get_n() const { return this->n; }

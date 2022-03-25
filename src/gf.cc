@@ -105,6 +105,34 @@ uint64_t GF2n::clmul(uint64_t a, uint64_t b) const
     return lo;
 }
 
+/* returns s s.t. for some t: s*a + t*field.mod = gcd(field.mod, a)
+ * <=> s*a + t*field.mod = 1 taking mod field.mod we get
+ * s*a = 1 mod field.mod and thus a^-1 = s mod field.mod*/
+uint64_t GF2n::ext_euclid(uint64_t a) const
+{
+    // assert(a != 0)
+    uint64_t s = 0x1;
+    uint64_t s_next = 0x0;
+    uint64_t r = a;
+    uint64_t r_next = this->mod;
+    uint64_t tmp;
+
+    while (r_next != 0x0)
+    {
+        uint64_t q = this->quo(r, r_next);
+        tmp = r ^ this->clmul(q, r_next);
+        r = r_next;
+        r_next = tmp;
+
+        tmp = s ^ this->clmul(q, s_next);
+        s = s_next;
+        s_next = tmp;
+    }
+
+    return s;
+}
+
+
 /* GF element */
 
 GF_element::GF_element(const uint64_t n)
@@ -153,24 +181,9 @@ GF_element &GF_element::operator*=(const GF_element &other)
     return *this;
 }
 
-
-/* invert elements with Fermat's little theorem
- * and binary exponentiation.
- * From FLT we have: a^{p-1} = 1 mod p
- * <=> a^{p-2} = a^{-1} mod p.
- * with binary exponentiation:
- * a^{p-2} = a^2 a^{2^2} ... a^{2^{p-1}} */
 GF_element GF_element::inv() const
 {
-    GF_element inv = GF_element(*this);
-
-    for (int i = 0; i < global::F.get_n() - 2; i++)
-    {
-        inv *= inv;
-        inv *= *this;
-    }
-    inv *= inv;
-    return inv;
+    return GF_element(global::F.ext_euclid(this->repr));
 }
 
 GF_element GF_element::operator/(const GF_element &other) const
@@ -180,10 +193,10 @@ GF_element GF_element::operator/(const GF_element &other) const
 
 GF_element &GF_element::operator/=(const GF_element &other)
 {
-    GF_element inv = other.inv();
+    const uint64_t inv = global::F.ext_euclid(other.get_repr());
     const uint64_t prod = global::F.clmul(
         this->repr,
-        inv.get_repr()
+        inv
     );
 
     this->repr = global::F.rem(prod);
