@@ -1,6 +1,5 @@
 /* Copyright 2022 Eetu Karppinen. Subject to the MIT license. */
 #include <stdint.h>
-#include <immintrin.h>
 #include <iostream>
 
 #include "extension.hh"
