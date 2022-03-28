@@ -4,10 +4,11 @@
 #include "gf.hh"
 #include "global.hh"
 #include "extension.hh"
+#include "util.hh"
 
+using namespace std;
 
 /* Extension */
-
 void Extension::init(const int n, const uint64_t mod)
 {
     this->n = n;
@@ -123,70 +124,7 @@ uint64_2_t Extension::mul(uint64_2_t a, uint64_2_t b) const
 }
 
 /* Extension element */
-Extension_element::Extension_element(const uint64_t lo, const uint64_t hi)
-{
-    this->repr = { hi, lo };
-    return;
-}
-
-Extension_element::Extension_element(const Extension_element &e)
-{
-    this->repr = { e.get_hi(), e.get_lo() };
-}
-
-Extension_element::Extension_element(const uint64_2_t repr)
-{
-    this->repr = repr;
-    return;
-}
-
-Extension_element Extension_element::operator+(const Extension_element &other) const
-{
-    return Extension_element(
-        global::E.add(this->repr, other.get_repr())
-    );
-}
-
-Extension_element &Extension_element::operator+=(const Extension_element &other)
-{
-    this->repr = global::E.add(this->repr, other.get_repr());
-    return *this;
-}
-
-Extension_element Extension_element::operator-(const Extension_element &other) const
-{
-    /* turn other to the additive inverse and then just add */
-    return Extension_element(
-        global::E.add(this->repr, global::E.negate(other.get_repr()))
-    );
-}
-
-Extension_element &Extension_element::operator-=(const Extension_element &other)
-{
-    this->repr = global::E.add(this->repr, global::E.negate(other.get_repr()));
-    return *this;
-}
-
 GF_element Extension_element::project() const
 {
     return GF_element(this->repr.lo);
-}
-
-Extension_element Extension_element::operator*(const Extension_element &other) const
-{
-    uint64_2_t prod = global::E.mul(this->repr, other.get_repr());
-    /* use rem in initializer? same for GF */
-    return Extension_element(global::E.rem(prod));
-}
-
-Extension_element &Extension_element::operator*=(const Extension_element &other)
-{
-    uint64_2_t prod = global::E.mul(this->repr, other.get_repr());
-    this->repr = global::E.rem(prod);
-    return *this;
-}
-
-bool Extension_element::operator==(const Extension_element &other) const
-{
-    return this->repr.lo == other.get_lo() && this->repr.hi == other.get_hi();
 }

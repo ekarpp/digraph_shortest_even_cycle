@@ -6,9 +6,11 @@
 #include "extension.hh"
 #include "gf.hh"
 #include "global.hh"
+#include "util.hh"
+
+using namespace std;
 
 /* GF */
-
 void GF2n::init(const int n, const uint64_t mod)
 {
     this->n = n;
@@ -129,82 +131,7 @@ uint64_t GF2n::ext_euclid(uint64_t a) const
     return s;
 }
 
-
-/* GF element */
-
-GF_element::GF_element(const uint64_t n)
-{
-    this->repr = n;
-    return;
-}
-
-GF_element::GF_element(const GF_element &e)
-{
-    this->repr = e.get_repr();
-}
-
-GF_element GF_element::operator+(const GF_element &other) const
-{
-    return GF_element(this->repr ^ other.get_repr());
-}
-
-GF_element &GF_element::operator+=(const GF_element &other)
-{
-    this->repr ^= other.get_repr();
-    return *this;
-}
-
-GF_element GF_element::operator*(const GF_element &other) const
-{
-    const uint64_t prod = global::F.clmul(
-        this->repr,
-        other.get_repr()
-    );
-
-    return GF_element(
-        global::F.rem(prod)
-    );
-}
-
-GF_element &GF_element::operator*=(const GF_element &other)
-{
-    const uint64_t prod = global::F.clmul(
-        this->repr,
-        other.get_repr()
-    );
-
-    this->repr = global::F.rem(prod);
-
-    return *this;
-}
-
-GF_element GF_element::inv() const
-{
-    return GF_element(global::F.ext_euclid(this->repr));
-}
-
-GF_element GF_element::operator/(const GF_element &other) const
-{
-    return *this * other.inv();
-}
-
-GF_element &GF_element::operator/=(const GF_element &other)
-{
-    const uint64_t inv = global::F.ext_euclid(other.get_repr());
-    const uint64_t prod = global::F.clmul(
-        this->repr,
-        inv
-    );
-
-    this->repr = global::F.rem(prod);
-    return *this;
-}
-
-bool GF_element::operator==(const GF_element &other) const
-{
-    return this->repr == other.get_repr();
-}
-
+/* TODO: solve forward declaration issue and move to .hh */
 Extension_element GF_element::lift() const
 {
     return Extension_element(this->repr, 0b0);

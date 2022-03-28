@@ -2,9 +2,24 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-#include "util.hh"
-#include "gf.hh"
-#include "extension.hh"
+#include <random>
+
+class GF2n;
+class Extension;
+
+namespace util
+{
+    class rand64bit
+    {
+    private:
+        std::mt19937_64 gen;
+        std::uniform_int_distribution<uint64_t> dist;
+    public:
+        rand64bit() {}
+        void init(uint64_t seed) { gen = std::mt19937_64(seed); }
+        uint64_t operator() () { return this->dist(gen); }
+    };
+}
 
 namespace global
 {

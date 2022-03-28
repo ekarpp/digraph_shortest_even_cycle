@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "extension.hh"
+#include "global.hh"
 
 /* forward declare */
 class GF_element;
@@ -47,18 +48,78 @@ private:
 
 public:
     GF_element() { }
-    GF_element(const uint64_t n);
-    GF_element(const GF_element &e);
-    GF_element operator+(const GF_element &other) const;
-    GF_element &operator+=(const GF_element &other);
-    GF_element operator*(const GF_element &other) const;
-    GF_element &operator*=(const GF_element &other);
-    GF_element operator/(const GF_element &other) const;
-    GF_element &operator/=(const GF_element &other);
-    bool operator==(const GF_element &other) const;
 
-    GF_element inv() const;
-    Extension_element lift() const;
+    GF_element(const uint64_t n)
+    {
+        this->repr = n;
+    }
+
+    GF_element(const GF_element &e)
+    {
+        this->repr = e.get_repr();
+    }
+
+    GF_element operator+(const GF_element &other) const
+    {
+        return GF_element(this->repr ^ other.get_repr());
+    }
+
+    GF_element &operator+=(const GF_element &other)
+    {
+        this->repr ^= other.get_repr();
+        return *this;
+    }
+
+    GF_element operator*(const GF_element &other) const
+    {
+        const uint64_t prod = global::F.clmul(
+            this->repr,
+            other.get_repr()
+        );
+
+        return GF_element(
+            global::F.rem(prod)
+        );
+    }
+
+    GF_element &operator*=(const GF_element &other)
+    {
+        const uint64_t prod = global::F.clmul(
+            this->repr,
+            other.get_repr()
+        );
+
+        this->repr = global::F.rem(prod);
+
+        return *this;
+    }
+
+    GF_element inv() const
+    {
+        return GF_element(global::F.ext_euclid(this->repr));
+    }
+
+    GF_element operator/(const GF_element &other) const
+    {
+        return *this * other.inv();
+    }
+
+    GF_element &operator/=(const GF_element &other)
+    {
+        const uint64_t inv = global::F.ext_euclid(other.get_repr());
+        const uint64_t prod = global::F.clmul(
+            this->repr,
+            inv
+            );
+
+        this->repr = global::F.rem(prod);
+        return *this;
+    }
+
+    bool operator==(const GF_element &other) const
+    {
+        return this->repr == other.get_repr();
+    }
 
     uint64_t get_repr() const { return this->repr; }
 
@@ -78,6 +139,8 @@ public:
         this->repr = other.get_repr();
         return *this;
     }
+
+    Extension_element lift() const;
 
     bool operator!=(const GF_element &other) const
     {
