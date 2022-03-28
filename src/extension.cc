@@ -50,9 +50,8 @@ uint64_2_t Extension::rem(uint64_2_t a) const
 {
     while (a.lo > this->mask || a.hi > this->mask)
     {
-        int shift;
-        for (shift = 0; shift < 64 && (a.lo >> shift || a.hi >> shift); shift++);
-        shift -= 1 + this->n;
+        int shift = 63 - min(__builtin_clzl(a.lo), __builtin_clzl(a.hi));
+        shift -= this->n;
         /* mod has coefficients modulo 2, thus its negation
          * is just it applied to hi and lo (see negate function) */
         a = this->add(a, { this->mod << shift, this->mod << shift });
