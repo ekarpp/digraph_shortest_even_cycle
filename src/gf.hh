@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <bitset>
 #include <iostream>
+#include <immintrin.h>
 
 #include "extension.hh"
 #include "global.hh"
@@ -21,7 +22,24 @@ private:
     uint64_t mask;
     int n;
     uint64_t mod;
-    uint64_t quo(uint64_t a, uint64_t b) const;
+
+    /* returns q s.t. for some r,
+     * a = q*b + r is the division relation
+     */
+    uint64_t quo(uint64_t a, uint64_t b) const
+    {
+        uint64_t q = 0b0;
+        int degb = 63 - __builtin_clzl(b);
+        while (a >= b)
+        {
+            int shift = 63 - __builtin_clzl(a);
+            shift -= degb;
+            /* shift = deg(a) - deg(b) */
+            q ^= (1ll << shift);
+            a ^= (b << shift);
+        }
+        return q;
+    }
 
     uint64_t q_plus;
     uint64_t mod_ast;
@@ -32,9 +50,70 @@ public:
     GF_element zero() const;
     GF_element one() const;
     GF_element random() const;
-    uint64_t rem(uint64_t a) const;
-    uint64_t ext_euclid(uint64_t a) const;
-    uint64_t clmul(uint64_t a, uint64_t) const;
+
+    /* a needs to be 128 bit for support up to GF(2^64)
+     * now just GF(2^32)
+     * 4.2 in https://dl.acm.org/doi/10.1016/j.ipl.2010.04.011
+     */
+    /* returns r s.t. for some q,
+     * a = q*field.mod + r is the division relation (in Z(2^n))
+     */
+    uint64_t rem(uint64_t a) const
+    {
+        uint64_t lo = a & this->mask;
+        uint64_t hi = (a & (~this->mask)) >> this->n;
+
+        uint64_t rem = this->clmul(hi, this->q_plus);
+        rem &= ~this->mask;
+        rem >>= this->n;
+        rem = this->clmul(rem, this->mod_ast);
+        rem &= this->mask;
+        rem ^= lo;
+        return rem;
+    }
+
+    /* returns s s.t. for some t: s*a + t*field.mod = gcd(field.mod, a)
+     * <=> s*a + t*field.mod = 1 taking mod field.mod we get
+     * s*a = 1 mod field.mod and thus a^-1 = s mod field.mod*/
+    uint64_t ext_euclid(uint64_t a) const
+    {
+        // assert(a != 0)
+        uint64_t s = 0x1;
+        uint64_t s_next = 0x0;
+        uint64_t r = a;
+        uint64_t r_next = this->mod;
+        uint64_t tmp;
+
+        while (r_next != 0x0)
+        {
+            uint64_t q = this->quo(r, r_next);
+            tmp = r ^ this->clmul(q, r_next);
+            r = r_next;
+            r_next = tmp;
+
+            tmp = s ^ this->clmul(q, s_next);
+            s = s_next;
+            s_next = tmp;
+        }
+
+        return s;
+    }
+
+    /* carryless multiplication of a and b, polynomial multiplicatoin that is
+     * done with Intel CLMUL
+     */
+    uint64_t clmul(uint64_t a, uint64_t b) const
+    {
+        const __m128i prod = _mm_clmulepi64_si128(
+            _mm_set_epi64x(0, a),
+            _mm_set_epi64x(0, b),
+            0x0
+        );
+
+        uint64_t lo = _mm_extract_epi64(prod, 0x0);
+        /* discard hi, only support up to 32 bit */
+        return lo;
+    }
 
     int get_n() const { return this->n; }
     uint64_t get_mod() const { return this->mod; }
