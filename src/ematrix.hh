@@ -6,7 +6,6 @@
 #include <valarray>
 
 #include "extension.hh"
-#include "matrix.hh"
 #include "fmatrix.hh"
 
 /* forward declare */
@@ -15,21 +14,15 @@ class FMatrix;
 class EMatrix
 {
 private:
-    Matrix<Extension_element> m;
+    std::valarray<Extension_element> m;
     int n;
 
 public:
-    EMatrix(int n, std::valarray<Extension_element> m);
-    EMatrix(Matrix<Extension_element> m);
+    EMatrix(int n, std::valarray<Extension_element> matrix);
 
-    EMatrix operator+(const EMatrix &other) const;
-    EMatrix operator-(const EMatrix &other) const;
-    EMatrix operator*(const EMatrix &other) const;
     FMatrix project() const;
 
     EMatrix copy() const;
-
-    const Matrix<Extension_element> &get_m() const { return this->m; }
 
     /* returns Per(this) - Det(this) as described in chapter 3
      * of the paper*/
@@ -37,14 +30,24 @@ public:
 
     Extension_element row_op(int i1, int j);
 
+    int get_n() const { return this->n; }
+
     const Extension_element &operator()(int row, int col) const
     {
-        return this->m(row,col);
+        return this->m[row*this->n + col];
     }
 
     bool operator==(const EMatrix &other) const
     {
-        return this->m == other.get_m();
+        if (this->n != other.get_n())
+            return false;
+
+        for (int i = 0; i < this->n; i++)
+            for (int j = 0; j < this->n; j++)
+                if (this->operator()(i,j) != other(i,j))
+                    return false;
+
+        return true;
     }
 
     bool operator!=(const EMatrix &other) const
@@ -54,7 +57,7 @@ public:
 
     void set(int row, int col, Extension_element val)
     {
-        this->m.set(row, col, val);
+        this->m[row*this->n + col] = val;
     }
 
     void print() const
@@ -62,7 +65,7 @@ public:
         for (int row = 0; row < this->n; row++)
         {
             for (int col = 0; col < this->n; col++)
-                this->m(row, col).print();
+                this->operator()(row, col).print();
             std::cout << std::endl;
         }
     }

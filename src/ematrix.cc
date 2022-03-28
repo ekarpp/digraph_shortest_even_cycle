@@ -10,30 +10,12 @@
 
 using namespace std;
 
-EMatrix::EMatrix(int n, valarray<Extension_element> m): m(n, global::E.one(), m)
+EMatrix::EMatrix(int n, valarray<Extension_element> matrix): m(n*n)
 {
     this->n = n;
-}
-
-EMatrix::EMatrix(Matrix<Extension_element> m)
-{
-    this->n = m.get_n();
-    this->m = m;
-}
-
-EMatrix EMatrix::operator+(const EMatrix &other) const
-{
-    return EMatrix(this->m + other.get_m());
-}
-
-EMatrix EMatrix::operator-(const EMatrix &other) const
-{
-    return EMatrix(this->m - other.get_m());
-}
-
-EMatrix EMatrix::operator*(const EMatrix &other) const
-{
-    return EMatrix(this->m * other.get_m());
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            m[i*n + j] = matrix[i*n + j];
 }
 
 EMatrix EMatrix::copy() const
@@ -42,7 +24,7 @@ EMatrix EMatrix::copy() const
 
     for (int row = 0; row < this->n; row++)
         for (int col = 0; col < this->n; col++)
-            m[row*this->n + col] = this->m(row, col);
+            m[row*this->n + col] = this->operator()(row, col);
 
     return EMatrix(this->n, m);
 }

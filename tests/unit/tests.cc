@@ -6,7 +6,6 @@
 #include "../../src/util.hh"
 #include "gf_test.hh"
 #include "extension_test.hh"
-#include "matrix_test.hh"
 #include "fmatrix_test.hh"
 #include "util_test.hh"
 #include "solver_test.hh"
@@ -25,7 +24,6 @@ int main(int argc, char** argv)
         cout << "-e for extension tests" << endl;
         cout << "-g for GF tests" << endl;
         cout << "-f for FMatrix tests" << endl;
-        cout << "-m for Matrix tests" << endl;
         cout << "-x for EMatrix tests" << endl;
         cout << "-u for util tests" << endl;
         cout << "-s for solver tests" << endl;
@@ -37,7 +35,6 @@ int main(int argc, char** argv)
 
     bool et = false;
     bool gft = false;
-    bool mt = false;
     bool fmt = false;
     bool emt = false;
     bool ut = false;
@@ -74,9 +71,6 @@ int main(int argc, char** argv)
         case 'f':
             fmt = true;
             break;
-        case 'm':
-            mt = true;
-            break;
         case 't':
             tests = stoi(optarg);
             break;
@@ -96,8 +90,6 @@ int main(int argc, char** argv)
         Extension_test e(n);
     if (gft)
         GF_test f(n);
-    if (mt)
-        Matrix_test m(dim, tests);
     if (fmt)
         FMatrix_test fm(dim, tests);
     if (ut)

@@ -9,7 +9,6 @@
 
 #include "gf.hh"
 #include "ematrix.hh"
-#include "matrix.hh"
 #include "polynomial.hh"
 
 /* forward declare */
@@ -18,18 +17,13 @@ class EMatrix;
 class FMatrix
 {
 private:
-    Matrix<GF_element> m;
+    std::valarray<GF_element> m;
     int n;
 
 public:
     /* for graph.cc */
     FMatrix() {};
-    FMatrix(int n, std::valarray<GF_element> m);
-    FMatrix(Matrix<GF_element> m);
-
-    FMatrix operator+(const FMatrix &other) const;
-    FMatrix operator-(const FMatrix &other) const;
-    FMatrix operator*(const FMatrix &other) const;
+    FMatrix(int n, std::valarray<GF_element> matrix);
 
     /* return pcc_{n-1} of the matrix we get when we
      * multiply the diagonal of this matrix by e */
@@ -53,34 +47,44 @@ public:
     /* returns a copy of this */
     FMatrix copy() const;
 
-    const Matrix<GF_element> &get_m() const { return this->m; }
+    const std::valarray<GF_element> &get_m() const { return this->m; }
 
     int get_n() const { return this->n; }
 
     void mul(int row, int col, const GF_element &v)
     {
-        this->m.mul(row, col, v);
+        this->m[row*this->n + col] *= v;
     }
 
     void mul_row(int row, const GF_element &v)
     {
-        this->m.mul_row(row, v);
+        for (int col = 0; col < this->n; col++)
+            this->m[row*this->n + col] *= v;
     }
 
     /* subtract v times r1 from r2 */
     void row_op(int r1, int r2, GF_element v)
     {
-        this->m.row_op(r1, r2, v);
+        for (int col = 0; col < this->n; col++)
+            this->m[r2*this->n + col] -= v*this->operator()(r1,col);
     }
 
     const GF_element &operator()(int row, int col) const
     {
-        return this->m(row,col);
+        return this->m[row*this->n + col];
     }
 
     bool operator==(const FMatrix &other) const
     {
-        return this->m == other.get_m();
+        if (this->n != other.get_n())
+            return false;
+
+        for (int i = 0; i < this->n; i++)
+            for (int j = 0; j < this->n; j++)
+                if (this->operator()(i,j) != other(i,j))
+                    return false;
+
+        return true;
     }
 
     bool operator!=(const FMatrix &other) const
@@ -90,7 +94,7 @@ public:
 
     void set(int row, int col, GF_element val)
     {
-        this->m.set(row, col, val);
+        this->m[row*this->n + col] = val;
     }
 
     /* swap rows r1 and r2 starting from column idx */
@@ -99,15 +103,10 @@ public:
         GF_element tmp;
         for (int col = idx; col < this->n; col++)
         {
-            tmp = this->m(r1, col);
-            this->set(r1, col, this->m(r2,col));
+            tmp = this->operator()(r1, col);
+            this->set(r1, col, this->operator()(r2,col));
             this->set(r2, col, tmp);
         }
-    }
-
-    std::valarray<GF_element> slice(int start, int size, int stride) const
-    {
-        return this->m.slice(start, size, stride);
     }
 
     void print() const
@@ -115,7 +114,7 @@ public:
         for (int row = 0; row < this->n; row++)
         {
             for (int col = 0; col < this->n; col++)
-                std::cout << std::bitset<8>(this->m(row, col).get_repr()) << " ";
+                std::cout << std::bitset<8>(this->operator()(row, col).get_repr()) << " ";
             std::cout << std::endl;
         }
     }

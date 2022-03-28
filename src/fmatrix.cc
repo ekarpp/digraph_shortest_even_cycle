@@ -10,30 +10,12 @@
 
 using namespace std;
 
-FMatrix::FMatrix(int n, valarray<GF_element> m): m(n, global::F.one(), m)
+FMatrix::FMatrix(int n, valarray<GF_element> matrix): m(n*n)
 {
     this->n = n;
-}
-
-FMatrix::FMatrix(Matrix<GF_element> m)
-{
-    this->n = m.get_n();
-    this->m = m;
-}
-
-FMatrix FMatrix::operator+(const FMatrix &other) const
-{
-    return FMatrix(this->m + other.get_m());
-}
-
-FMatrix FMatrix::operator-(const FMatrix &other) const
-{
-    return FMatrix(this->m - other.get_m());
-}
-
-FMatrix FMatrix::operator*(const FMatrix &other) const
-{
-    return FMatrix(this->m * other.get_m());
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            m[i*n + j] = matrix[i*n + j];
 }
 
 EMatrix FMatrix::lift() const
@@ -131,7 +113,7 @@ FMatrix FMatrix::copy() const
 
     for (int row = 0; row < this->n; row++)
         for (int col = 0; col < this->n; col++)
-            m[row*n + col] = this->m(row,col);
+            m[row*n + col] = this->operator()(row,col);
 
     return FMatrix(this->n, m);
 }
