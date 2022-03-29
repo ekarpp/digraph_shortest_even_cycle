@@ -1,7 +1,7 @@
 CXX := g++
 CXXFLAGS := -g -std=c++1z -O3 -Wall -Wextra -march=native
 VPATH = src:tests/unit:tests/perf
-BIN := digraph digraph-tests digraph-scale
+BIN := digraph digraph-tests digraph-scale gf-perf extension-perf
 OBJ := graph.o util.o gf.o extension.o fmatrix.o ematrix.o polynomial.o solver.o
 
 all: $(BIN)
@@ -13,6 +13,12 @@ digraph-tests: tests.o $(OBJ) gf_test.o extension_test.o fmatrix_test.o util_tes
 	$(CXX) $^ -o $@
 
 digraph-scale: scale.o $(OBJ)
+	$(CXX) $^ -o $@
+
+gf-perf: gf_perf.o $(OBJ)
+	$(CXX) $^ -o $@
+
+extension-perf: extension_perf.o $(OBJ)
 	$(CXX) $^ -o $@
 
 clean:

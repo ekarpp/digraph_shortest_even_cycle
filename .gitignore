@@ -6,3 +6,5 @@
 digraph
 digraph-tests
 digraph-scale
+extension-perf
+gf-perf

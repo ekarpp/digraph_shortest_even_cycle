@@ -31,3 +31,7 @@ scale.o: scale.cc
 solver_test.o: solver_test.cc solver_test.hh
 
 ematrix_test.o: ematrix_test.cc ematrix_test.hh
+
+gf_perf.o: gf_perf.cc
+
+extension_perf.o: extension_perf.cc
