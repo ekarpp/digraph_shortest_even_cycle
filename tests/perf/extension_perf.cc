@@ -3,6 +3,7 @@
 #include <vector>
 #include <cmath>
 #include <chrono>
+#include <getopt.h>
 
 #include "../../src/global.hh"
 #include "../../src/extension.hh"
@@ -16,12 +17,37 @@ Extension global::E;
 
 int main(int argc, char **argv)
 {
+    if (argc == 1)
+    {
+        cout << "-s $int for seed" << endl;
+        cout << "-t $int for amount of tests" << endl;
+        cout << "-d $int for 2^d, d<32" << endl;
+        return 0;
+    }
     uint64_t seed = time(nullptr);
+
+    uint64_t t = 1;
+    int d = 16;
+    int opt;
+    while ((opt = getopt(argc, argv, "d:s:t:")) != -1)
+    {
+        switch (opt)
+        {
+        case 'd':
+            d = stoi(optarg);
+            break;
+        case 's':
+            seed = stoi(optarg);
+            break;
+        case 't':
+            t = stoi(optarg);
+            break;
+        }
+    }
+
     cout << "seed: " << seed << endl;
     global::randgen.init(seed);
 
-    uint64_t t = stoi(argv[argc - 1]);
-    int d = 31;
     uint64_t mod = util::irred_poly(d);
     global::E.init(d, mod);
 
