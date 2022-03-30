@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <stdint.h>
+#include <immintrin.h>
 
 #include "gf.hh"
 #include "global.hh"
@@ -47,10 +48,11 @@ public:
     uint64_2_t mul(uint64_2_t a, uint64_2_t b) const;
     uint64_2_t negate(uint64_2_t a) const;
 
+    uint64_2_t fast_mul(uint64_2_t a, uint64_2_t b) const;
+
     int get_n() const { return this->n; }
     uint64_t get_mod() const { return this->mod; }
     uint64_t get_mask() const { return this->mask; }
-
 };
 
 

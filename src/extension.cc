@@ -73,53 +73,32 @@ uint64_2_t Extension::negate(uint64_2_t a) const
     };
 }
 
-/* multiplication by constant, 0 <= a < 4 */
-uint64_2_t Extension::mul_const(int a, uint64_2_t b) const
-{
-    uint64_2_t c = { 0, 0 };
-    /* form repeating polynomial and then
-     * multiply each coefficient */
-    if (a & 0b1)
-        c.lo = this->mask;
-    if (a & 0b10)
-        c.hi = this->mask;
-
-    /* lo bit if multiplication is simply and */
-    uint64_t lo = c.lo & b.lo;
-    /* boolean formula for the hi bit for multiplication
-     * of two mod 4 integers. solved by writing the truth
-     * table and then forming DNF and simplifying it
-     * formula for a*b: (hi_a & lo_b & ~hi_b) |
-     * (hi_a & lo_b & ~lo_a) | (lo_a & hi_b & ~lo_b) |
-     * (lo_a & hi_b & ~hi_a)
-     */
-    uint64_t hi = c.hi & b.lo & (b.hi ^ this->mask);
-    hi |= c.hi & b.lo & (c.lo ^ this->mask);
-    hi |= c.lo & b.hi & (b.lo ^ this->mask);
-    hi |= c.lo & b.hi & (c.hi ^ this->mask);
-
-    return { hi, lo };
-}
-
 uint64_2_t Extension::mul(uint64_2_t a, uint64_2_t b) const
 {
-    /* this is horrible all around
-     * how to make better?
-     * (optimiza boolean formula with XOR?,
-     * lookuptable for repeating constants?) */
-    uint64_2_t c = { 0, 0 };
+    /* clean this up */
+    __m128i aa = _mm_set_epi64x(a.hi, a.lo);
+    __m128i bb = _mm_set_epi64x(b.hi, b.lo);
 
+    __m128i alobhi = _mm_clmulepi64_si128(aa, bb, 0x01);
+    __m128i ahiblo = _mm_clmulepi64_si128(aa, bb, 0x10);
+
+    uint64_t hi1 = _mm_extract_epi64(ahiblo, 0x0);
+    uint64_t hi2 = _mm_extract_epi64(alobhi, 0x0);
+
+    uint64_t hi = 0;
+    uint64_t lo = 0;
+
+    /* handle product of lo and lo */
     for (int i = 0; i <= global::E.get_n(); i++)
     {
-        int hi = (a.hi >> i) & 1;
-        int lo = (a.lo >> i) & 1;
-        uint64_2_t aib = global::E.mul_const((hi << 1) | lo, b);
-        aib.lo <<= i;
-        aib.hi <<= i;
-        c = global::E.add(c, aib);
+        if ((b.lo >> i)&1)
+        {
+            hi ^= (a.lo << i) & lo;
+            lo ^= (a.lo << i);
+        }
     }
 
-    return c;
+    return { hi1 ^ hi2 ^ hi, lo };
 }
 
 /* Extension element */
