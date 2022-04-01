@@ -49,6 +49,8 @@ Extension_element Extension::random() const
     );
 }
 
+/* euclidean division, only used once during initialization.
+ * b has to be monic for this to work */
 uint64_2_t Extension::quo(uint64_2_t a, uint64_2_t b) const
 {
     uint64_2_t q = { 0, 0 };
@@ -56,7 +58,6 @@ uint64_2_t Extension::quo(uint64_2_t a, uint64_2_t b) const
     int dega = 63 - min(__builtin_clzl(a.lo), __builtin_clzl(a.hi));
     while (dega >= degb)
     {
-        int shift = dega - degb;
         uint64_2_t s = {
             (a.hi & (1ll << dega)) >> degb,
             (a.lo & (1ll << dega)) >> degb
@@ -71,6 +72,7 @@ uint64_2_t Extension::quo(uint64_2_t a, uint64_2_t b) const
     return q;
 }
 
+/* https://dl.acm.org/doi/10.1016/j.ipl.2010.04.011 */
 uint64_2_t Extension::rem(uint64_2_t a) const
 {
     uint64_2_t hi = {
