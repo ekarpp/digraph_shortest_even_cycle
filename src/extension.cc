@@ -15,6 +15,9 @@ void Extension::init(const int n, const uint64_t mod)
     this->mod = mod;
     this->mask = (1ll << this->n) - 1;
 
+    this->mod_ast = { 0, this->mod & this->mask };
+    this->q_plus = this->quo({0, 1ull << (2*this->n)} , { 0, this->mod });
+
     cout << "initialized E(4^" << n << ") with modulus: ";
     for (int i = n; i >= 0; i--)
     {
@@ -46,17 +49,45 @@ Extension_element Extension::random() const
     );
 }
 
+uint64_2_t Extension::quo(uint64_2_t a, uint64_2_t b) const
+{
+    uint64_2_t q = { 0, 0 };
+    int degb = this->n;
+    int dega = 63 - min(__builtin_clzl(a.lo), __builtin_clzl(a.hi));
+    while (dega >= degb)
+    {
+        int shift = dega - degb;
+        uint64_2_t s = {
+            (a.hi & (1ll << dega)) >> degb,
+            (a.lo & (1ll << dega)) >> degb
+        };
+
+        q = this->add(q, s);
+        a = this->add(a, this->negate(this->mul(b, s)));
+
+        dega = 63 - min(__builtin_clzl(a.lo), __builtin_clzl(a.hi));
+    }
+
+    return q;
+}
+
 uint64_2_t Extension::rem(uint64_2_t a) const
 {
-    while (a.lo > this->mask || a.hi > this->mask)
-    {
-        int shift = 63 - min(__builtin_clzl(a.lo), __builtin_clzl(a.hi));
-        shift -= this->n;
-        /* mod has coefficients modulo 2, thus its negation
-         * is just it applied to hi and lo (see negate function) */
-        a = this->add(a, { this->mod << shift, this->mod << shift });
-    }
-    return a;
+    uint64_2_t hi = {
+        (a.hi & (~this->mask)) >> this->n,
+        (a.lo & (~this->mask)) >> this->n
+    };
+
+    uint64_2_t lo = {
+        a.hi & this->mask,
+        a.lo & this->mask
+    };
+
+    uint64_2_t r = this->mul(hi, this->q_plus);
+    r = { r.hi >> this->n, r.lo >> this->n };
+    r = this->mul(r, this->mod_ast);
+    r = { r.hi & this->mask, r.lo & this->mask };
+    return this->add(r, lo);
 }
 
 uint64_2_t Extension::add(uint64_2_t a, uint64_2_t b) const

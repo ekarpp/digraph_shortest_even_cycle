@@ -35,6 +35,10 @@ private:
     uint64_t mod;
     uint64_t mask;
 
+    uint64_2_t mod_ast;
+    uint64_2_t q_plus;
+    uint64_2_t quo(uint64_2_t a, uint64_2_t b) const;
+
 public:
     Extension() {};
     void init(const int n, const uint64_t mod);
