@@ -17,7 +17,7 @@ class Extension_element;
  * each bit in lo is the low bit of the mod 4 coefficient.
  * similarly for hi
  */
-/* vectorize with AVX? */
+/* vectorize with AVX? NO */
 struct uint64_2_t
 {
     uint64_t hi;
