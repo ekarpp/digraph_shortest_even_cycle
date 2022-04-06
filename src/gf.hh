@@ -178,6 +178,11 @@ public:
         return GF_element(global::F.ext_euclid(this->repr));
     }
 
+    void inv_in_place()
+    {
+        this->repr = global::F.ext_euclid(this->repr);
+    }
+
     GF_element operator/(const GF_element &other) const
     {
         return *this * other.inv();

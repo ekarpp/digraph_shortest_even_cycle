@@ -74,7 +74,7 @@ GF_element FMatrix::det()
         if (mx == global::F.zero())
             return global::F.zero();
         det *= mx;
-        mx = mx.inv();
+        mx.inv_in_place();
         this->mul_row(col, mx);
         for (int row = col+1; row < this->n; row++)
             this->row_op(col, row, this->operator()(row,col));
