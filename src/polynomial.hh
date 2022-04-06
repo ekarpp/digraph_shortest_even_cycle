@@ -15,6 +15,9 @@ private:
 
 public:
     Polynomial(int n);
+    Polynomial(std::vector<GF_element> P);
+
+    void div(GF_element v);
 
     Polynomial &operator*=(GF_element val);
 

@@ -28,7 +28,8 @@ namespace util
 
     /* la grange interpolation with gamma and delta
      * note that we are in characteristic 2 and thus
-     * - = + */
+     * - = +. done with the formula (3.3) here:
+     * https://doi.org/10.1137/S0036144502417715 */
     Polynomial poly_interpolation(
         const vector<GF_element> &gamma,
         const vector<GF_element> &delta
@@ -37,36 +38,42 @@ namespace util
         // assert(gamma.size() == delta.size())
         // assert(n > 2)
         int n = gamma.size();
-        Polynomial ret(n - 1);
+        Polynomial interp(n - 1);
+
+        /* weights*/
+        vector<GF_element> w(n, global::F.one());
+        for (int j = 1; j < n; j++)
+        {
+            for (int k = 0; k < j; k++)
+            {
+                w[k] *= gamma[k] + gamma[j];
+                w[j] *= gamma[k] + gamma[j];
+            }
+        }
+
+        for (int j = 0; j < n; j++)
+            w[j].inv_in_place();
+
+        /* main polynomial [ prod_{i} (x + gamma_i) ]*/
+        vector<GF_element> P(n+1, global::F.zero());
+        P[n] = global::F.one();
+        P[n-1] = gamma[0];
+        for (int i = 1; i < n; i++)
+        {
+            for (int j = n - i - 1; j < n - 1; j++)
+                P[j] += gamma[i] * P[j+1];
+            P[n - 1] += gamma[i];
+        }
 
         for (int i = 0; i < n; i++)
         {
-
-
-            GF_element prod = global::F.one();
-            for (int j = 0; j < n; j++)
-                if (i != j)
-                    prod *= gamma[i] + gamma[j];
-
-            prod = delta[i] / prod;
-
-            /* init poly with deg n - 1 */
-            Polynomial tmp(n-1);
-            tmp(0, prod);
-
-            for (int j = 0; j < n; j++)
-            {
-                if (i == j)
-                    continue;
-                for (int k = n - 1; k > 0; k--)
-                {
-                    tmp(k, tmp[k] + tmp[k-1]);
-                    tmp(k-1, tmp[k-1] * gamma[j]);
-                }
-            }
-            ret += tmp;
+            Polynomial tmp(P);
+            tmp.div(gamma[i]);
+            tmp *= w[i] * delta[i];
+            interp += tmp;
         }
-        return ret;
+
+        return interp;
     }
 
 
