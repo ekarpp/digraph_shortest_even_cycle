@@ -37,7 +37,29 @@ private:
 
     uint64_2_t mod_ast;
     uint64_2_t q_plus;
-    uint64_2_t quo(uint64_2_t a, uint64_2_t b) const;
+
+    /* euclidean division, only used once during initialization.
+     * b has to be monic for this to work */
+    uint64_2_t quo(uint64_2_t a, uint64_2_t b) const
+    {
+        uint64_2_t q = { 0, 0 };
+        int degb = this->n;
+        int dega = 63 - std::min(__builtin_clzl(a.lo), __builtin_clzl(a.hi));
+        while (dega >= degb)
+        {
+            uint64_2_t s = {
+                (a.hi & (1ll << dega)) >> degb,
+                (a.lo & (1ll << dega)) >> degb
+            };
+
+            q = this->add(q, s);
+            a = this->add(a, this->negate(this->mul(b, s)));
+
+            dega = 63 - std::min(__builtin_clzl(a.lo), __builtin_clzl(a.hi));
+        }
+
+        return q;
+    }
 
 public:
     Extension() {};
@@ -46,13 +68,67 @@ public:
     Extension_element one() const;
     Extension_element random() const;
 
-    uint64_2_t rem(uint64_2_t a) const;
-    uint64_2_t add(uint64_2_t a, uint64_2_t b) const;
-    uint64_2_t mul_const(int a, uint64_2_t b) const;
-    uint64_2_t mul(uint64_2_t a, uint64_2_t b) const;
-    uint64_2_t negate(uint64_2_t a) const;
+    /* https://dl.acm.org/doi/10.1016/j.ipl.2010.04.011 */
+    uint64_2_t rem(uint64_2_t a) const
+    {
+        uint64_2_t hi = {
+            (a.hi & (~this->mask)) >> this->n,
+            (a.lo & (~this->mask)) >> this->n
+        };
 
-    uint64_2_t fast_mul(uint64_2_t a, uint64_2_t b) const;
+        uint64_2_t lo = {
+            a.hi & this->mask,
+            a.lo & this->mask
+        };
+
+        uint64_2_t r = this->mul(hi, this->q_plus);
+        r = { r.hi >> this->n, r.lo >> this->n };
+        r = this->mul(r, this->mod_ast);
+        r = { r.hi & this->mask, r.lo & this->mask };
+        return this->add(r, lo);
+    }
+
+    uint64_2_t add(uint64_2_t a, uint64_2_t b) const
+    {
+        uint64_t carry = a.lo & b.lo;
+        return { carry ^ a.hi ^ b.hi, a.lo ^ b.lo };
+    }
+
+    uint64_2_t negate(uint64_2_t a) const
+    {
+        return {
+            a.lo ^ a.hi,
+            a.lo
+        };
+    }
+
+    uint64_2_t mul(uint64_2_t a, uint64_2_t b) const
+    {
+        /* clean this up */
+        __m128i aa = _mm_set_epi64x(a.hi, a.lo);
+        __m128i bb = _mm_set_epi64x(b.hi, b.lo);
+
+        __m128i alobhi = _mm_clmulepi64_si128(aa, bb, 0x01);
+        __m128i ahiblo = _mm_clmulepi64_si128(aa, bb, 0x10);
+
+        uint64_t hi1 = _mm_extract_epi64(ahiblo, 0x0);
+        uint64_t hi2 = _mm_extract_epi64(alobhi, 0x0);
+
+        uint64_t hi = 0;
+        uint64_t lo = 0;
+
+        /* handle product of lo and lo */
+        for (int i = 0; i <= global::E.get_n(); i++)
+        {
+            if ((b.lo >> i)&1)
+            {
+                hi ^= (a.lo << i) & lo;
+                lo ^= (a.lo << i);
+            }
+        }
+
+        return { hi1 ^ hi2 ^ hi, lo };
+    }
 
     int get_n() const { return this->n; }
     uint64_t get_mod() const { return this->mod; }
