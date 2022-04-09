@@ -1,8 +1,8 @@
-main.o: main.cc global.hh
+main.o: main.cc global.hh gf.hh extension.hh
 
-graph.o: graph.cc graph.hh
+graph.o: graph.cc graph.hh gf.hh
 
-util.o: util.cc util.hh
+util.o: util.cc util.hh gf.hh extension.hh
 
 gf.o: gf.cc gf.hh
 
@@ -10,28 +10,28 @@ extension.o: extension.cc extension.hh
 
 tests.o: tests.cc
 
-gf_test.o: gf_test.cc gf_test.hh test.hh
+gf_test.o: gf_test.cc gf_test.hh test.hh gf.hh
 
-extension_test.o: extension_test.cc extension_test.hh test.hh
+extension_test.o: extension_test.cc extension_test.hh test.hh extension.hh
 
-fmatrix.o: fmatrix.cc fmatrix.hh
+fmatrix.o: fmatrix.cc fmatrix.hh gf.hh
 
-ematrix.o: ematrix.cc ematrix.hh
+ematrix.o: ematrix.cc ematrix.hh extension.hh
 
-fmatrix_test.o: fmatrix_test.cc fmatrix_test.hh
+fmatrix_test.o: fmatrix_test.cc fmatrix_test.hh gf.hh
 
-polynomial.o: polynomial.cc polynomial.hh
+polynomial.o: polynomial.cc polynomial.hh gf.hh
 
-util_test.o: util_test.cc util_test.hh
+util_test.o: util_test.cc util_test.hh gf.hh
 
-solver.o: solver.cc solver.hh
+solver.o: solver.cc solver.hh gf.hh
 
 scale.o: scale.cc
 
 solver_test.o: solver_test.cc solver_test.hh
 
-ematrix_test.o: ematrix_test.cc ematrix_test.hh
+ematrix_test.o: ematrix_test.cc ematrix_test.hh extension.hh
 
-gf_perf.o: gf_perf.cc
+gf_perf.o: gf_perf.cc gf.hh
 
-extension_perf.o: extension_perf.cc
+extension_perf.o: extension_perf.cc extension.hh
