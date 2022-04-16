@@ -50,11 +50,13 @@ public:
         this->n = GF2_bits;
 
 #if GF2_bits == 16
+        /* x^16 + x^5 + x^3 + x^2 +  1 */
         this->mod = 0x1002D;
         this->mask = 0xFFFF;
         this->q_plus = 0x1002D;
         this->mod_ast = 0x2D;
 #elif GF2_bits == 32
+        /* x^32 + x^7 + x^5 + x^3 + x^2 + x + 1 */
         this->mod = 0x1000000AF;
         this->mask = 0xFFFFFFFF;
         this->q_plus = 0x1000000AF;
@@ -78,25 +80,24 @@ public:
     GF_element one() const;
     GF_element random() const;
 
-    /* a needs to be 128 bit for support up to GF(2^64)
-     * now just GF(2^32)
-     * 4.2 in https://dl.acm.org/doi/10.1016/j.ipl.2010.04.011
-     */
     /* returns r s.t. for some q,
      * a = q*field.mod + r is the division relation (in Z(2^n))
      */
     uint64_t rem(uint64_t a) const
     {
         uint64_t lo = a & this->mask;
-        uint64_t hi = (a & (~this->mask)) >> this->n;
+        uint64_t hi = a >> this->n;
 
-        uint64_t rem = this->clmul(hi, this->q_plus);
-        rem &= ~this->mask;
-        rem >>= this->n;
-        rem = this->clmul(rem, this->mod_ast);
-        rem &= this->mask;
+#if GF2_bits == 16
+        uint64_t rem = hi ^ (hi >> 14) ^ (hi >> 13) ^ (hi >> 11);
+        rem ^= (rem << 2) ^ (rem << 3) ^ (rem << 5);
         rem ^= lo;
-        return rem;
+#elif GF2_bits == 32
+        uint64_t rem = hi ^ (hi >> 31) ^ (hi >> 30) ^ (hi >> 29) ^ (hi >> 27) ^ (hi >> 25);
+        rem ^= (rem << 1) ^ (rem << 2) ^ (rem << 3) ^ (rem << 5) ^ (rem << 7);
+        rem ^= lo;
+#endif
+        return rem & this->mask;
     }
 
     /* returns s s.t. for some t: s*a + t*field.mod = gcd(field.mod, a)
