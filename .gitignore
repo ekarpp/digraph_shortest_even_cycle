@@ -2,9 +2,9 @@
 *.asm1
 *.asm2
 *.o
-*.data
-digraph
-digraph-tests
-digraph-scale
-extension-perf
-gf-perf
+perf.data*
+digraph*
+digraph-tests*
+digraph-scale*
+extension-perf*
+gf-perf*

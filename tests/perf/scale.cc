@@ -26,18 +26,9 @@ int main(void)
         {0}
     };
 
-    int dd = -1;
     Solver s;
     for (int n = 3; n <= 64; n++)
     {
-        int d = 5 * ceil(log(n) / log(2));
-        if (d != dd)
-        {
-            dd = d;
-            uint64_t mod = util::irred_poly(d);
-            global::F.init(d, mod);
-            global::E.init(d, mod);
-        }
         graph.push_back({0});
         graph[n-2][0] = n-1;
 

@@ -39,11 +39,10 @@ int main(int argc, char** argv)
     bool emt = false;
     bool ut = false;
     bool st = false;
-    int n = 10;
     int dim = 10;
     int tests = 10000;
     int opt;
-    while ((opt = getopt(argc, argv, "xsuegfmd:n:t:")) != -1)
+    while ((opt = getopt(argc, argv, "xsuegfmd:t:")) != -1)
     {
         switch (opt)
         {
@@ -52,9 +51,6 @@ int main(int argc, char** argv)
             break;
         case 'u':
             ut = true;
-            break;
-        case 'n':
-            n = stoi(optarg);
             break;
         case 'd':
             dim = stoi(optarg);
@@ -81,21 +77,16 @@ int main(int argc, char** argv)
     cout << "seed: " << seed << endl;
     global::randgen.init(seed);
 
-    int64_t p = util::irred_poly(n);
-
-    global::E.init(n, p);
-    global::F.init(n, p);
-
     if (et)
-        Extension_test e(n);
+        Extension_test e;
     if (gft)
-        GF_test f(n);
+        GF_test f;
     if (fmt)
         FMatrix_test fm(dim, tests);
     if (ut)
-        Util_test u(n, tests);
+        Util_test u(dim, tests);
     if (st)
-        Solver_test s(n, tests);
+        Solver_test s(dim, tests);
     if (emt)
         EMatrix_test em(tests);
 

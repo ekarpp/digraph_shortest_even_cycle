@@ -26,7 +26,7 @@ private:
     }
 
 public:
-    GF_test(int deg);
+    GF_test();
 
 };
 

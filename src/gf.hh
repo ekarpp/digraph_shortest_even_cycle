@@ -45,8 +45,35 @@ private:
     uint64_t mod_ast;
 
 public:
-    GF2n() {};
-    void init(const int n, const uint64_t mod);
+    GF2n()
+    {
+        this->n = GF2_bits;
+
+#if GF2_bits == 16
+        this->mod = 0x1002D;
+        this->mask = 0xFFFF;
+        this->q_plus = 0x1002D;
+        this->mod_ast = 0x2D;
+#elif GF2_bits == 32
+        this->mod = 0x1000000AF;
+        this->mask = 0xFFFFFFFF;
+        this->q_plus = 0x1000000AF;
+        this->mod_ast = 0xAF;
+#else
+        GF2_bits_eq_16_or_32
+#endif
+
+        std::cout << "initialized GF(2^" << this->n << ") with modulus: ";
+        for (int i = n; i >= 0; i--)
+        {
+            if ((this->mod >> i) & 1)
+                std::cout << "1";
+            else
+                std::cout << "0";
+        }
+        std::cout << std::endl;
+    }
+
     GF_element zero() const;
     GF_element one() const;
     GF_element random() const;

@@ -26,7 +26,7 @@ private:
     }
 
 public:
-    Extension_test(int deg);
+    Extension_test();
 
 };
 

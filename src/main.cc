@@ -72,21 +72,9 @@ int main(int argc, char **argv)
     file.close();
 
 
-    int d = 5 * ceil(log(graph.size()) / log(2));
-    /* modz2 and gfmul only support upto 32 */
-    if (d > 32)
-    {
-        cout << "graph too large, for now. max size is 64" << endl;
-        return -1;
-    }
-
     uint64_t seed = time(nullptr);
     cout << "seed: " << seed << endl;
     global::randgen.init(seed);
-
-    uint64_t poly = util::irred_poly(d);
-    global::F.init(d, poly);
-    global::E.init(d, poly);
 
     Graph G(graph);
 

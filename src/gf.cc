@@ -10,29 +10,6 @@
 using namespace std;
 
 /* GF */
-void GF2n::init(const int n, const uint64_t mod)
-{
-    this->n = n;
-    this->mod = mod;
-    this->mask = (1ll << this->n) - 1;
-
-    // 4.2 in https://dl.acm.org/doi/10.1016/j.ipl.2010.04.011
-    this->q_plus = this->quo(1ull << (2*this->n), mod);
-    this->mod_ast = this->mask & mod;
-
-    cout << "initialized GF(2^" << n << ") with modulus: ";
-    for (int i = n; i >= 0; i--)
-    {
-        if ((mod >> i) & 1)
-            cout << "1";
-        else
-            cout << "0";
-    }
-    cout << endl;
-
-    return;
-}
-
 GF_element GF2n::zero() const
 {
     return GF_element(0);

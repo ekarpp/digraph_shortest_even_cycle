@@ -14,9 +14,6 @@ namespace util
 {
     int log2(uint64_t a);
 
-    uint64_t irred_poly(int deg);
-    bool gcd1(int i, std::bitset<64> p);
-
     std::vector<GF_element> distinct_elements(int n);
 
     Polynomial poly_interpolation(

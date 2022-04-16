@@ -9,10 +9,8 @@
 using namespace std;
 
 
-Extension_test::Extension_test(int deg)
+Extension_test::Extension_test()
 {
-    this->n = deg;
-
     cout << "-----------------" << endl;
     cout << "TESTING EXTENSION" << endl;
     cout << "-----------------" << endl;

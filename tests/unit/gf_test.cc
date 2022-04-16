@@ -9,10 +9,8 @@
 
 using namespace std;
 
-GF_test::GF_test(int deg)
+GF_test::GF_test()
 {
-    this->n = deg;
-
     cout << "----------" << endl;
     cout << "TESTING GF" << endl;
     cout << "----------" << endl;
