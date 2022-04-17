@@ -41,9 +41,6 @@ private:
         return q;
     }
 
-    uint64_t q_plus;
-    uint64_t mod_ast;
-
 public:
     GF2n()
     {
@@ -53,14 +50,10 @@ public:
         /* x^16 + x^5 + x^3 + x^2 +  1 */
         this->mod = 0x1002D;
         this->mask = 0xFFFF;
-        this->q_plus = 0x1002D;
-        this->mod_ast = 0x2D;
 #elif GF2_bits == 32
-        /* x^32 + x^7 + x^5 + x^3 + x^2 + x + 1 */
-        this->mod = 0x1000000AF;
+        /* x^32 + x^7 + x^3 + x^2 + 1 */
+        this->mod = 0x10000008D;
         this->mask = 0xFFFFFFFF;
-        this->q_plus = 0x1000000AF;
-        this->mod_ast = 0xAF;
 #else
         GF2_bits_eq_16_or_32
 #endif
@@ -93,8 +86,8 @@ public:
         rem ^= (rem << 2) ^ (rem << 3) ^ (rem << 5);
         rem ^= lo;
 #elif GF2_bits == 32
-        uint64_t rem = hi ^ (hi >> 31) ^ (hi >> 30) ^ (hi >> 29) ^ (hi >> 27) ^ (hi >> 25);
-        rem ^= (rem << 1) ^ (rem << 2) ^ (rem << 3) ^ (rem << 5) ^ (rem << 7);
+        uint64_t rem = hi ^ (hi >> 30) ^ (hi >> 29) ^ (hi >> 25);
+        rem ^= (rem << 2) ^ (rem << 3) ^ (rem << 7);
         rem ^= lo;
 #endif
         return rem & this->mask;

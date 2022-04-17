@@ -66,15 +66,17 @@ public:
     {
         this->n = GF2_bits;
 #if GF2_bits == 16
+        /* x^16 + x^5 + x^3 + x^2 +  1 */
         this->mod = 0x1002D;
         this->mask = 0xFFFF;
         this->q_plus = { 0, 0x1002D };
         this->mod_ast = { 0, 0x2D };
 #elif GF2_bits == 32
-        this->mod = 0x1000000AF;
+        /* x^32 + x^7 + x^3 + x^2 + 1 */
+        this->mod = 0x10000008D;
         this->mask = 0xFFFFFFFF;
-        this->q_plus = { 0, 0x1000000AF };
-        this->mod_ast = { 0, 0xAF };
+        this->q_plus = { 0, 0x10000008D };
+        this->mod_ast = { 0, 0x8D };
 #else
         GF2_bits_eq_16_or_32
 #endif
