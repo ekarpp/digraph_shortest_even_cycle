@@ -57,7 +57,7 @@ int main(int argc, char **argv)
 
     start = chrono::steady_clock::now();
     for (uint64_t i = 0; i < t; i++)
-        a = a.inv();
+        a.inv_in_place();
     end = chrono::steady_clock::now();
     a.print();
     cout << t << " inversions in time: " <<
