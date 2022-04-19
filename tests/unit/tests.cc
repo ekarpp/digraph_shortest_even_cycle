@@ -10,6 +10,7 @@
 #include "util_test.hh"
 #include "solver_test.hh"
 #include "ematrix_test.hh"
+#include "geng_test.hh"
 
 util::rand64bit global::randgen;
 Extension global::E;
@@ -30,6 +31,7 @@ int main(int argc, char** argv)
         cout << "-d $int dimension of matrix" << endl;
         cout << "-n $int degree of modulo polynomial" << endl;
         cout << "-t $int how many times random tests are done" << endl;
+        cout << "-c run geng test. \"geng -q $n | listg -aq \" has to be piped to this." << endl;
         return 0;
     }
 
@@ -39,13 +41,18 @@ int main(int argc, char** argv)
     bool emt = false;
     bool ut = false;
     bool st = false;
+    bool geng = false;
     int dim = 10;
     int tests = 10000;
     int opt;
-    while ((opt = getopt(argc, argv, "xsuegfmd:t:")) != -1)
+
+    while ((opt = getopt(argc, argv, "cxsuegfmd:t:")) != -1)
     {
         switch (opt)
         {
+        case 'c':
+            geng = true;
+            break;
         case 'x':
             emt = true;
             break;
@@ -89,6 +96,9 @@ int main(int argc, char** argv)
         Solver_test s(dim, tests);
     if (emt)
         EMatrix_test em(tests);
+    if (geng)
+        Geng_test g;
+
 
     return 0;
 }

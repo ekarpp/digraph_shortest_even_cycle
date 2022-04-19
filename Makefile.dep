@@ -35,3 +35,5 @@ ematrix_test.o: ematrix_test.cc ematrix_test.hh extension.hh
 gf_perf.o: gf_perf.cc gf.hh
 
 extension_perf.o: extension_perf.cc extension.hh
+
+geng_test.o: geng_test.cc geng_test.hh

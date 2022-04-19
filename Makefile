@@ -18,7 +18,7 @@ digraph: main.o $(OBJ)
 	$(CXX) $^ -o $@
 	mv digraph digraph$(BITS)
 
-digraph-tests: tests.o $(OBJ) gf_test.o extension_test.o fmatrix_test.o util_test.o solver_test.o ematrix_test.o
+digraph-tests: tests.o $(OBJ) gf_test.o extension_test.o fmatrix_test.o util_test.o solver_test.o ematrix_test.o geng_test.o
 	$(CXX) $^ -o $@
 	mv digraph-tests digraph-tests$(BITS)
 
