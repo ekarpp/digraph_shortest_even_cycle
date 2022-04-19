@@ -19,39 +19,15 @@ util::rand64bit global::randgen;
 GF2n global::F;
 Extension global::E;
 
-int main(int argc, char **argv)
+void parse_file(string fname, Graph G)
 {
-    if (argc == 1)
-    {
-        cout << "provide path to graph file with -f" << endl;
-        cout << "line i (starting at zero) in graph file" << endl;
-        cout << "tells to which nodes there is an edge to" << endl;
-        return 0;
-    }
-
-    string fname = "";
-    int opt;
-
-    while ((opt = getopt(argc, argv, "f:")) != -1)
-    {
-        switch (opt)
-        {
-        case 'f':
-            fname = optarg;
-            break;
-        case '?':
-            cout << "call with no arguments for help" << endl;
-            return -1;
-        }
-    }
-
     string line;
     ifstream file(fname);
 
     if (!file.is_open())
     {
         cout << "unable to open file: " << fname << endl;
-        return -1;
+        return;
     }
 
     vector<vector<int>> graph;
@@ -71,12 +47,41 @@ int main(int argc, char **argv)
     }
     file.close();
 
+    G.init(graph);
+}
+
+int main(int argc, char **argv)
+{
+    if (argc == 1)
+    {
+        cout << "provide path to graph file with -f" << endl;
+        cout << "line i (starting at zero) in graph file" << endl;
+        cout << "tells to which nodes there is an edge to" << endl;
+        return 0;
+    }
+
+    int opt;
+    Graph G;
+
+    while ((opt = getopt(argc, argv, "f:")) != -1)
+    {
+        switch (opt)
+        {
+        case 'f':
+            parse_file(optarg, G);
+            /* error during parsing */
+            if (G.get_n() == -1)
+                return -1;
+            break;
+        case '?':
+            cout << "call with no arguments for help" << endl;
+            return -1;
+        }
+    }
 
     uint64_t seed = time(nullptr);
     cout << "seed: " << seed << endl;
     global::randgen.init(seed);
-
-    Graph G(graph);
 
     Solver s;
 
