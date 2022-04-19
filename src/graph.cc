@@ -9,7 +9,7 @@
 
 using namespace std;
 
-Graph::Graph(vector<vector<int>> &adjacency_list, bool out)
+void Graph::init(vector<vector<int>> &adjacency_list, bool out)
 {
     this->n = adjacency_list.size();
     this->adj = adjacency_list;
@@ -17,16 +17,6 @@ Graph::Graph(vector<vector<int>> &adjacency_list, bool out)
 
     if (out)
         cout << "created graph of " << this->n << " vertices:" << endl;
-    /* write this to file ?? */
-    /*
-    for (uint i = 0; i < adjacency_list.size(); i++)
-    {
-        cout << i << ": ";
-        for (uint j = 0; j < adjacency_list[i].size(); j++)
-            cout << adjacency_list[i][j] << " ";
-        cout << endl;
-    }
-    */
 }
 
 /* samples the adjacency matrix with random edge weights from F

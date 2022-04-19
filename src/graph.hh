@@ -16,7 +16,14 @@ private:
     void sample_adjacency();
 
 public:
-    Graph(std::vector<std::vector<int>> &adjacency_list, bool out = true);
+    Graph() {}
+
+    Graph(std::vector<std::vector<int>> &adjacency_list, bool out = true)
+    {
+        this->init(adjacency_list, out);
+    }
+
+    void init(std::vector<std::vector<int>> &adjacency_list, bool out);
 
     int get_n() const { return n; }
     FMatrix &get_A() { return A; }
