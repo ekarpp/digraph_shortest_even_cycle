@@ -19,7 +19,7 @@ util::rand64bit global::randgen;
 GF2n global::F;
 Extension global::E;
 
-void parse_file(string fname, Graph G)
+void parse_file(string fname, Graph &G)
 {
     string line;
     ifstream file(fname);
