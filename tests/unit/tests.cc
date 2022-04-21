@@ -31,7 +31,7 @@ int main(int argc, char** argv)
         cout << "-d $int dimension of matrix" << endl;
         cout << "-n $int degree of modulo polynomial" << endl;
         cout << "-t $int how many times random tests are done" << endl;
-        cout << "-c run geng test. \"geng -q $n | listg -aq \" has to be piped to this." << endl;
+        cout << "-c run geng test. \"geng -q $n | directg -q | listg -aq \" has to be piped to this." << endl;
         return 0;
     }
 

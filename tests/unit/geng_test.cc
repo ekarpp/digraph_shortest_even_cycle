@@ -24,6 +24,9 @@ void Geng_test::test_geng()
     int n = stoi(line);
     Solver s;
 
+    int total = 0;
+    int fail = 0;
+    cout << "failed:" << endl;
     do
     {
         vector<vector<int>> graph;
@@ -40,6 +43,19 @@ void Geng_test::test_geng()
 
         }
         Graph G(graph, false);
-        cout << s.shortest_even_cycle(G, false) << endl;
+        total++;
+        int algo = s.shortest_even_cycle(G, false);
+        int ref = s.shortest_even_cycle_brute(G);
+        if (algo != ref)
+            fail++;
+        if (total % 1000 == 1)
+        {
+            cout << "\r" << fail << "/" << total;
+            cout << " (" << ((float) fail) / total * 100 << "%)";
+            cout << flush;
+        }
     } while (cin >> line);
+    cout << "\r" << fail << "/" << total;
+    cout << " (" << ((float) fail) / total * 100 << "%)";
+    cout << endl;
 }
