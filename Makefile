@@ -3,7 +3,6 @@ CXXFLAGS := -g -std=c++1z -O3 -Wall -Wextra -march=native
 VPATH = src:tests/unit:tests/perf
 BIN := digraph digraph-tests digraph-scale gf-perf extension-perf
 OBJ := graph.o util.o gf.o extension.o fmatrix.o ematrix.o polynomial.o solver.o
-LDLFLAGS :=
 
 ifdef 32bits
 	CXXFLAGS += -D GF2_bits=32
@@ -16,23 +15,23 @@ endif
 all: $(BIN)
 
 digraph: main.o $(OBJ)
-	$(CXX) $(LDLFLAGS) $^ -o $@
+	$(CXX) $(LDFLAGS) $^ -o $@
 	mv digraph digraph$(BITS)
 
 digraph-tests: tests.o $(OBJ) gf_test.o extension_test.o fmatrix_test.o util_test.o solver_test.o ematrix_test.o geng_test.o
-	$(CXX) $(LDLFLAGS) $^ -o $@
+	$(CXX) $(LDFLAGS) $^ -o $@
 	mv digraph-tests digraph-tests$(BITS)
 
 digraph-scale: scale.o $(OBJ)
-	$(CXX) $(LDLFLAGS) $^ -o $@
+	$(CXX) $(LDFLAGS) $^ -o $@
 	mv digraph-scale digraph-scale$(BITS)
 
 gf-perf: gf_perf.o $(OBJ)
-	$(CXX) $(LDLFLAGS) $^ -o $@
+	$(CXX) $(LDFLAGS) $^ -o $@
 	mv gf-perf gf-perf$(BITS)
 
 extension-perf: extension_perf.o $(OBJ)
-	$(CXX) $(LDLFLAGS) $^ -o $@
+	$(CXX) $(LDFLAGS) $^ -o $@
 	mv extension-perf extension-perf$(BITS)
 
 .PHONY: clean
