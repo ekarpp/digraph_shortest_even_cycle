@@ -37,12 +37,15 @@ extension-perf: extension_perf.o $(OBJ)
 clean:
 	rm -f $(addsuffix 16, $(BIN)) $(addsuffix 32, $(BIN)) *.o *.s *.asm1 *.asm2
 
+nauty:
+	cd nauty && ./configure && make geng && make listg && make directg && cd ..
+
 test: digraph-tests
 	./digraph-tests$(BITS) -egfux -d20 -t1000
 	./digraph-tests$(BITS) -s -d10 -t100
 
 geng-test: digraph-tests
-	geng -q $(vert) | directg -q | listg -aq | ./digraph-tests$(BITS) -c
+	nauty/geng -q $(vert) | nauty/directg -q | nauty/listg -aq | ./digraph-tests$(BITS) -c
 
 %.s: %.cc
 	$(CXX) -S $(CXXFLAGS) -fverbose-asm $^
