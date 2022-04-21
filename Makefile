@@ -39,15 +39,20 @@ extension-perf: extension_perf.o $(OBJ)
 clean:
 	rm -f $(addsuffix 16, $(BIN)) $(addsuffix 32, $(BIN)) *.o *.s *.asm1 *.asm2 && cd nauty && git clean -xf && git checkout .
 
-.PHONY: nauty
-nauty:
-	cd nauty && ./configure && make geng && make listg && make directg
+nauty/geng:
+	cd nauty && ./configure && make geng
+
+nauty/listg:
+	cd nauty && ./configure && make listg
+
+nauty/directg:
+	cd nauty && ./configure && make directg
 
 test: digraph-tests
 	./digraph-tests$(BITS) -egfux -d20 -t1000
 	./digraph-tests$(BITS) -s -d10 -t100
 
-geng-test: digraph-tests nauty
+geng-test: digraph-tests nauty/geng nauty/directg nauty/listg
 	nauty/geng -q $(vert) | nauty/directg -q | nauty/listg -aq | ./digraph-tests$(BITS) -c
 
 %.s: %.cc
