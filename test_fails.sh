@@ -2,14 +2,16 @@
 
 make digraph
 
-total=0
-fail=0
 
 echo
 
 for d in geng-fail/*
 do
 	echo $d
+
+	total=0
+	fail=0
+
 	for f in $d/*
 	do
 		algo=$(./digraph16 -qf $f | grep -v seed)
