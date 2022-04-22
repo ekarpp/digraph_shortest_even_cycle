@@ -42,7 +42,8 @@ private:
     }
 
 public:
-    GF2n()
+    GF2n() {}
+    void init()
     {
         this->n = GF2_bits;
 

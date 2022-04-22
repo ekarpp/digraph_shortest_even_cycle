@@ -12,8 +12,8 @@
 using namespace std;
 
 util::rand64bit global::randgen;
-GF2n global::F;
 Extension global::E;
+GF2n global::F;
 bool global::output = false;
 
 int main(int argc, char **argv)
@@ -43,6 +43,7 @@ int main(int argc, char **argv)
 
     cout << "seed: " << seed << endl;
     global::randgen.init(seed);
+    global::E.init();
 
     Extension_element a = global::E.random();
     Extension_element b = global::E.one();

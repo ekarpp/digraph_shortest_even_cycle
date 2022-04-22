@@ -21,6 +21,8 @@ int main(void)
     uint64_t seed = time(nullptr);
     cout << "seed: " << seed << endl;
     global::randgen.init(seed);
+    global::F.init();
+    global::E.init();
 
     vector<vector<int>> graph = {
         {1},

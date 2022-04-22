@@ -43,6 +43,7 @@ int main(int argc, char **argv)
 
     cout << "seed: " << seed << endl;
     global::randgen.init(seed);
+    global::F.init();
 
     GF_element a = global::F.random();
     GF_element b = global::F.one();

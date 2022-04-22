@@ -84,6 +84,8 @@ int main(int argc, char** argv)
     uint64_t seed = time(nullptr);
     cout << "seed: " << seed << endl;
     global::randgen.init(seed);
+    global::F.init();
+    global::E.init();
 
     if (et)
         Extension_test e;

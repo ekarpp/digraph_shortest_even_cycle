@@ -62,7 +62,9 @@ private:
     }
 
 public:
-    Extension()
+    Extension() {}
+
+    void init()
     {
         this->n = GF2_bits;
 #if GF2_bits == 16
