@@ -76,7 +76,7 @@ void Geng_test::store_graph(const vector<vector<int>> &g, int id)
 
     for (int i = 0; i < this->n; i++)
     {
-        for (int j = 0; j < g[i].size(); j++)
+        for (uint j = 0; j < g[i].size(); j++)
             file << j << " ";
         file << "\n";
     }
