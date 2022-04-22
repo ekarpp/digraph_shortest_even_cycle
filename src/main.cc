@@ -57,13 +57,16 @@ int main(int argc, char **argv)
         cout << "provide path to graph file with -f" << endl;
         cout << "line i (starting at zero) in graph file" << endl;
         cout << "tells to which nodes there is an edge to" << endl;
+        cout << "-b to use the brute force solver instead (SLOW)" << endl;
         return 0;
     }
 
     int opt;
     Graph G;
 
-    while ((opt = getopt(argc, argv, "f:")) != -1)
+    bool brute = false;
+
+    while ((opt = getopt(argc, argv, "bf:")) != -1)
     {
         switch (opt)
         {
@@ -72,6 +75,9 @@ int main(int argc, char **argv)
             /* error during parsing */
             if (G.get_n() == -1)
                 return -1;
+            break;
+        case 'b':
+            brute = true;
             break;
         case '?':
             cout << "call with no arguments for help" << endl;
@@ -85,7 +91,10 @@ int main(int argc, char **argv)
 
     Solver s;
 
-    cout << s.shortest_even_cycle(G) << endl;
+    if (brute)
+        cout << s.shortest_even_cycle_brute(G) << endl;
+    else
+        cout << s.shortest_even_cycle(G) << endl;
 
     return 0;
 }
