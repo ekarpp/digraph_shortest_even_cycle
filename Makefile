@@ -12,7 +12,7 @@ else
 	BITS := 16
 endif
 
-all: $(BIN)
+all: $(BIN) nauty/geng nauty/directg nauty/listg
 
 digraph: main.o $(OBJ)
 	$(CXX) $(LDFLAGS) $^ -o $@
