@@ -52,6 +52,7 @@ test: digraph-tests
 	./digraph-tests$(BITS) -s -d10 -t100
 
 geng-test: digraph-tests nauty/geng nauty/directg nauty/listg
+	mkdir -p geng-fail/$(vert)
 	nauty/geng -q $(vert) | nauty/directg -q | nauty/listg -aq | ./digraph-tests$(BITS) -c
 
 %.s: %.cc

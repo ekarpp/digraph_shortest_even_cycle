@@ -2,6 +2,8 @@
 #ifndef GENG_TEST_H
 #define GENG_TEST_H
 
+#include <vector>
+
 #include "test.hh"
 
 class Geng_test : Test
@@ -10,6 +12,8 @@ private:
     int n;
 
     void test_geng();
+
+    void store_graph(const std::vector<std::vector<int>> &g, int id);
 
     void run()
     {

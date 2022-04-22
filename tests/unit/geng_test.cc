@@ -1,6 +1,8 @@
 /* Copyright 2022 Eetu Karppinen. Subject to the MIT license. */
 #include <iostream>
 #include <vector>
+#include <fstream>
+#include <string>
 
 #include "geng_test.hh"
 #include "../../src/graph.hh"
@@ -21,7 +23,7 @@ void Geng_test::test_geng()
 {
     string line = "";
     cin >> line;
-    int n = stoi(line);
+    this->n = stoi(line);
     Solver s;
 
     int total = 0;
@@ -30,11 +32,11 @@ void Geng_test::test_geng()
     do
     {
         vector<vector<int>> graph;
-        for (int i = 0; i < n; i++)
+        for (int i = 0; i < this->n; i++)
         {
             vector<int> vec;
             cin >> line;
-            for (int j = 0; j < n; j++)
+            for (int j = 0; j < this->n; j++)
             {
                 if (line[j] == '1')
                     vec.push_back(j);
@@ -43,11 +45,15 @@ void Geng_test::test_geng()
 
         }
         Graph G(graph, false);
-        total++;
+
         int algo = s.shortest_even_cycle(G, false);
         int ref = s.shortest_even_cycle_brute(G);
         if (algo != ref)
+        {
+            this->store_graph(graph, total);
             fail++;
+        }
+        total++;
         if (total % 1000 == 1)
         {
             cout << "\r" << fail << "/" << total;
@@ -58,4 +64,22 @@ void Geng_test::test_geng()
     cout << "\r" << fail << "/" << total;
     cout << " (" << ((float) fail) / total * 100 << "%)";
     cout << endl;
+}
+
+void Geng_test::store_graph(const vector<vector<int>> &g, int id)
+{
+    ofstream file("geng-fail/" + to_string(this->n) + "/" + to_string(id));
+
+    /* just return if cant open */
+    if (!file.is_open())
+        return;
+
+    for (int i = 0; i < this->n; i++)
+    {
+        for (int j = 0; j < g[i].size(); j++)
+            file << j << " ";
+        file << "\n";
+    }
+
+    file.close();
 }
