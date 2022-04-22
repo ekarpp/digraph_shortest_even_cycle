@@ -9,7 +9,7 @@
 
 using namespace std;
 
-void Graph::init(vector<vector<int>> &adjacency_list)
+Graph::Graph(vector<vector<int>> &adjacency_list)
 {
     this->n = adjacency_list.size();
     this->adj = adjacency_list;
