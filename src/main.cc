@@ -20,7 +20,7 @@ GF2n global::F;
 Extension global::E;
 bool global::output = true;
 
-void parse_file(string fname, Graph &G)
+bool parse_file(string fname, vector<vector<int>> &graph)
 {
     string line;
     ifstream file(fname);
@@ -28,10 +28,10 @@ void parse_file(string fname, Graph &G)
     if (!file.is_open())
     {
         cout << "unable to open file: " << fname << endl;
-        return;
+        return false;
     }
 
-    vector<vector<int>> graph;
+
     int u = 0;
     while (getline(file, line))
     {
@@ -48,7 +48,7 @@ void parse_file(string fname, Graph &G)
     }
     file.close();
 
-    G.init(graph);
+    return true;
 }
 
 int main(int argc, char **argv)
@@ -64,7 +64,7 @@ int main(int argc, char **argv)
     }
 
     int opt;
-    Graph G;
+    vector<vector<int>> graph;
 
     bool brute = false;
 
@@ -73,9 +73,8 @@ int main(int argc, char **argv)
         switch (opt)
         {
         case 'f':
-            parse_file(optarg, G);
             /* error during parsing */
-            if (G.get_n() == -1)
+            if (!parse_file(optarg, graph))
                 return -1;
             break;
         case 'b':
@@ -92,11 +91,11 @@ int main(int argc, char **argv)
 
     uint64_t seed = time(nullptr);
     cout << "seed: " << seed << endl;
-
     global::randgen.init(seed);
     global::F.init();
     global::E.init();
 
+    Graph G(graph);
     Solver s;
 
     if (brute)
