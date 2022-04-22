@@ -39,9 +39,9 @@ void Solver_test::test_solver()
             }
         }
 
-        Graph G(adj, false);
+        Graph G(adj);
 
-        if (s.shortest_even_cycle(G, false) != s.shortest_even_cycle_brute(G))
+        if (s.shortest_even_cycle(G) != s.shortest_even_cycle_brute(G))
             err++;
     }
     cout << err << " out of " << this->tests << " failed (";

@@ -14,6 +14,7 @@ using namespace std;
 util::rand64bit global::randgen;
 GF2n global::F;
 Extension global::E;
+bool global::output = false;
 
 int main(int argc, char **argv)
 {

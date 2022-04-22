@@ -9,13 +9,13 @@
 
 using namespace std;
 
-void Graph::init(vector<vector<int>> &adjacency_list, bool out)
+void Graph::init(vector<vector<int>> &adjacency_list)
 {
     this->n = adjacency_list.size();
     this->adj = adjacency_list;
     this->sample_adjacency();
 
-    if (out)
+    if (global::output)
         cout << "created graph of " << this->n << " vertices:" << endl;
 }
 

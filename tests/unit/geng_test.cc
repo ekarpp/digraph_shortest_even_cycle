@@ -44,9 +44,9 @@ void Geng_test::test_geng()
             graph.push_back(vec);
 
         }
-        Graph G(graph, false);
+        Graph G(graph);
 
-        int algo = s.shortest_even_cycle(G, false);
+        int algo = s.shortest_even_cycle(G);
         int ref = s.shortest_even_cycle_brute(G);
         if (algo != ref)
         {

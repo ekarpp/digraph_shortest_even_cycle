@@ -57,16 +57,18 @@ public:
 #else
         GF2_bits_eq_16_or_32
 #endif
-
-        std::cout << "initialized GF(2^" << this->n << ") with modulus: ";
-        for (int i = n; i >= 0; i--)
+        if (global::output)
         {
-            if ((this->mod >> i) & 1)
-                std::cout << "1";
-            else
-                std::cout << "0";
+            std::cout << "initialized GF(2^" << this->n << ") with modulus: ";
+            for (int i = n; i >= 0; i--)
+            {
+                if ((this->mod >> i) & 1)
+                    std::cout << "1";
+                else
+                    std::cout << "0";
+            }
+            std::cout << std::endl;
         }
-        std::cout << std::endl;
     }
 
     GF_element zero() const;

@@ -27,6 +27,7 @@ namespace global
     extern util::rand64bit randgen;
     extern GF2n F;
     extern Extension E;
+    extern bool output;
 }
 
 

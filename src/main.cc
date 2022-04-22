@@ -18,6 +18,7 @@ using namespace std;
 util::rand64bit global::randgen;
 GF2n global::F;
 Extension global::E;
+bool global::output = true;
 
 void parse_file(string fname, Graph &G)
 {
@@ -66,7 +67,6 @@ int main(int argc, char **argv)
     Graph G;
 
     bool brute = false;
-    bool output = true;
 
     while ((opt = getopt(argc, argv, "qbf:")) != -1)
     {
@@ -82,7 +82,7 @@ int main(int argc, char **argv)
             brute = true;
             break;
         case 'q':
-            output = false;
+            global::output = false;
             break;
         case '?':
             cout << "call with no arguments for help" << endl;
@@ -99,7 +99,7 @@ int main(int argc, char **argv)
     if (brute)
         cout << s.shortest_even_cycle_brute(G) << endl;
     else
-        cout << s.shortest_even_cycle(G, output) << endl;
+        cout << s.shortest_even_cycle(G) << endl;
 
     return 0;
 }

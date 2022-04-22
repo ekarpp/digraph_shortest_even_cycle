@@ -13,7 +13,7 @@ using namespace std;
 
 /* returns the length of the shortest even cycle in G.
  * if no even cycle exists, returns -1 */
-int Solver::shortest_even_cycle(Graph G, bool out)
+int Solver::shortest_even_cycle(Graph G)
 {
     vector<GF_element> gamma = util::distinct_elements(G.get_n() + 1);
     vector<GF_element> delta(G.get_n() + 1);
@@ -21,7 +21,7 @@ int Solver::shortest_even_cycle(Graph G, bool out)
     for (int l = 0; l <= G.get_n(); l++)
     {
         delta[l] = G.get_A().pcc(gamma[l]);
-        if (out)
+        if (global::output)
             cout << l+1 << "/" << G.get_n()+1 << endl;
     }
 

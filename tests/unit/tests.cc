@@ -15,6 +15,7 @@
 util::rand64bit global::randgen;
 Extension global::E;
 GF2n global::F;
+bool global::output = false;
 
 using namespace std;
 
