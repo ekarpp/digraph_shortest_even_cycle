@@ -1,11 +1,18 @@
+# intermediate compilation items
 *.s
 *.asm1
 *.asm2
 *.o
+
+# data from "perf"
 perf.data*
+
+# binaries
 digraph*
 digraph-tests*
 digraph-scale*
 extension-perf*
 gf-perf*
+
+# geng failure graphs, can be big
 geng-fail
