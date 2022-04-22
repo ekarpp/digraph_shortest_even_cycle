@@ -39,13 +39,13 @@ clean:
 	rm -f $(addsuffix 16, $(BIN)) $(addsuffix 32, $(BIN)) *.o *.s *.asm1 *.asm2 && cd nauty && git clean -xf && git checkout .
 
 nauty/geng:
-	cd nauty && ./configure && make geng
+	cd nauty && [ -f config.log ] || ./configure && make geng
 
 nauty/listg:
-	cd nauty && ./configure && make listg
+	cd nauty && [ -f config.log ] || ./configure && make listg
 
 nauty/directg:
-	cd nauty && ./configure && make directg
+	cd nauty && [ -f config.log ] || ./configure && make directg
 
 test: digraph-tests
 	./digraph-tests$(BITS) -egfux -d20 -t1000
