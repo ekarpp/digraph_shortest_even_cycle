@@ -85,7 +85,8 @@ public:
         this->mask = 0xFFFFFFFF;
         this->q_plus = { 0, 0x10000008D };
         this->mod_ast = { 0, 0x8D };
-        this->n_prime = { 0x1031, 0xD0BD };
+        // N' = x^30 + 3x^29 + x^28 + x^27 + x^26 + x^25 + x^23 + 3x^22 + x^21 + 2x^20 + 2x^19 + 3x^18 + x^15 + 2x^14 + 3x^13 + 2x^12 + x^10 + 3x^9 + 2x^8 + 2x^5 + 3x^4 + x^3 + x^2 + 3
+        this->n_prime = { 0x205C7331, 0x7EE4A61D };
 #else
         GF2_bits_eq_16_or_32
 #endif
