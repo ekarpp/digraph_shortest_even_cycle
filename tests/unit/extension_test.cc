@@ -103,6 +103,39 @@ void Extension_test::test_intel_rem()
     end_test(err);
 }
 
+void Extension_test::test_mont_mul()
+{
+    cout << "test montgomery multiplication: ";
+    int err = 0;
+    for (int i = 0; i < this->tests; i++)
+    {
+        uint64_2_t a = {
+            global::randgen() & global::E.get_mask(),
+            global::randgen() & global::E.get_mask()
+        };
+
+        uint64_2_t b = {
+            global::randgen() & global::E.get_mask(),
+            global::randgen() & global::E.get_mask()
+        };
+
+        uint64_2_t mont = global::E.mont_reduce(
+            global::E.mont_mul(
+                global::E.mont_form(a),
+                global::E.mont_form(b)
+            )
+        );
+
+        uint64_2_t ref = global::E.euclid_rem(
+            global::E.mul(a, b)
+        );
+
+        if (ref.hi != mont.hi || ref.lo != mont.lo)
+            err++;
+    }
+    end_test(err);
+}
+
 void Extension_test::test_even_tau()
 {
     cout << "test even tau: ";

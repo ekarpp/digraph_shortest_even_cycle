@@ -39,6 +39,7 @@ private:
     uint64_2_t q_plus;
 
     uint64_2_t n_prime;
+    uint64_2_t r_squared;
 
     /* euclidean division, only used once during initialization.
      * b has to be monic for this to work */
@@ -77,6 +78,7 @@ public:
         this->mod_ast = { 0, 0x2D };
         // N' = x^15 + x^14 + 3x^12 + x^7 + 3x^5 + 3x^4 + x^3 + x^2 + 3
         this->n_prime = { 0x1031, 0xD0BD };
+        this->r_squared = { 0x018C, 0x0451 };
 #elif GF2_bits == 32
         /* x^32 + x^7 + x^3 + x^2 + 1 */
         this->mod = 0x10000008D;
@@ -156,6 +158,16 @@ public:
         c.hi >>= this->n;
         c.lo >>= this->n;
         return c;
+    }
+
+    uint64_2_t mont_form(uint64_2_t a) const
+    {
+        return this->mont_mul(a, this->r_squared);
+    }
+
+    uint64_2_t mont_reduce(uint64_2_t a) const
+    {
+        return this->mont_mul(a, { 0, 1 });
     }
 
     uint64_2_t add(uint64_2_t a, uint64_2_t b) const
