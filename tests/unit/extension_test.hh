@@ -13,6 +13,8 @@ private:
     void test_add_inverse();
     void test_associativity();
     void test_mul();
+    void test_fast_mul();
+    void test_intel_rem();
     void test_even_tau();
     void test_is_even();
 
@@ -23,6 +25,8 @@ private:
         test_mul();
         test_even_tau();
         test_is_even();
+        test_fast_mul();
+        test_intel_rem();
     }
 
 public:

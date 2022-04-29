@@ -38,6 +38,8 @@ private:
     uint64_2_t mod_ast;
     uint64_2_t q_plus;
 
+    uint64_2_t n_prime;
+
     /* euclidean division, only used once during initialization.
      * b has to be monic for this to work */
     uint64_2_t quo(uint64_2_t a, uint64_2_t b) const
@@ -73,12 +75,15 @@ public:
         this->mask = 0xFFFF;
         this->q_plus = { 0, 0x1002D };
         this->mod_ast = { 0, 0x2D };
+        // N' = x^15 + x^14 + 3x^12 + x^7 + 3x^5 + 3x^4 + x^3 + x^2 + 3
+        this->n_prime = { 0x1031, 0xD0BD };
 #elif GF2_bits == 32
         /* x^32 + x^7 + x^3 + x^2 + 1 */
         this->mod = 0x10000008D;
         this->mask = 0xFFFFFFFF;
         this->q_plus = { 0, 0x10000008D };
         this->mod_ast = { 0, 0x8D };
+        this->n_prime = { 0x1031, 0xD0BD };
 #else
         GF2_bits_eq_16_or_32
 #endif
@@ -101,8 +106,26 @@ public:
     Extension_element one() const;
     Extension_element random() const;
 
-    /* https://dl.acm.org/doi/10.1016/j.ipl.2010.04.011 */
     uint64_2_t rem(uint64_2_t a) const
+    {
+        return intel_rem(a);
+    }
+
+    uint64_2_t euclid_rem(uint64_2_t a) const
+    {
+        while (a.lo > this->mask || a.hi > this->mask)
+        {
+            int shift = 63 - std::min(__builtin_clzl(a.lo), __builtin_clzl(a.hi));
+            shift -= this->n;
+            /* mod has coefficients modulo 2, thus its negation
+             * is just it applied to hi and lo (see negate function)*/
+            a = this->add(a, { this->mod << shift, this->mod << shift });
+        }
+        return a;
+    }
+
+    /* https://dl.acm.org/doi/10.1016/j.ipl.2010.04.011 */
+    uint64_2_t intel_rem(uint64_2_t a) const
     {
         uint64_2_t hi = {
             (a.hi & (~this->mask)) >> this->n,
@@ -121,6 +144,20 @@ public:
         return this->add(r, lo);
     }
 
+    uint64_2_t mont_mul(uint64_2_t a, uint64_2_t b) const
+    {
+        uint64_2_t t = this->mul(a, b);
+        uint64_2_t u = this->mul(t, this->n_prime);
+
+        u.hi &= this->mask;
+        u.lo &= this->mask;
+        uint64_2_t c = this->add(t, this->mul(u, {0, this->mod}));
+
+        c.hi >>= this->n;
+        c.lo >>= this->n;
+        return c;
+    }
+
     uint64_2_t add(uint64_2_t a, uint64_2_t b) const
     {
         uint64_t carry = a.lo & b.lo;
@@ -136,6 +173,37 @@ public:
     }
 
     uint64_2_t mul(uint64_2_t a, uint64_2_t b) const
+    {
+        return fast_mul(a, b);
+    }
+
+    uint64_2_t ref_mul(uint64_2_t a, uint64_2_t b) const
+    {
+        uint64_2_t c = { 0, 0 };
+
+        for (int i = 0; i <= global::E.get_n(); i++)
+        {
+            uint64_2_t tmp = { 0, 0 };
+            if ((a.hi >> i) & 1)
+                tmp.hi = this->mask;
+            if ((a.lo >> i) & 1)
+                tmp.lo = this->mask;
+
+            /* 2 bit carryless multiplier */
+            uint64_2_t aib = {
+                (b.lo & tmp.hi) ^ (b.hi & tmp.lo),
+                b.lo & tmp.lo
+            };
+
+            aib.lo <<= i;
+            aib.hi <<= i;
+            c = global::E.add(c, aib);
+        }
+
+        return c;
+    }
+
+    uint64_2_t fast_mul(uint64_2_t a, uint64_2_t b) const
     {
         /* clean this up */
         __m128i aa = _mm_set_epi64x(a.hi, a.lo);

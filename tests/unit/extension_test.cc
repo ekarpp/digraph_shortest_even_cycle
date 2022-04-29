@@ -64,6 +64,45 @@ void Extension_test::test_mul()
     end_test(err);
 }
 
+void Extension_test::test_fast_mul()
+{
+    cout << "test fast mul: ";
+    int err = 0;
+    for (int i = 0; i < this->tests; i++)
+    {
+        Extension_element a = global::E.random();
+        Extension_element b = global::E.random();
+
+        uint64_2_t ref = global::E.ref_mul(a.get_repr(), b.get_repr());
+        uint64_2_t fast = global::E.fast_mul(a.get_repr(), b.get_repr());
+
+        if (fast.hi != ref.hi || fast.lo != ref.lo)
+            err++;
+    }
+    end_test(err);
+}
+
+void Extension_test::test_intel_rem()
+{
+    cout << "test intel rem: ";
+    int err = 0;
+    uint64_t mask = (1ll << (global::E.get_n() - 1)) - 1;
+    for (int i = 0; i < this->tests; i++)
+    {
+        uint64_2_t v = {
+            global::randgen() & mask,
+            global::randgen() & mask
+        };
+
+        uint64_2_t euclid = global::E.euclid_rem(v);
+        uint64_2_t intel = global::E.intel_rem(v);
+
+        if (euclid.hi != intel.hi || euclid.lo != intel.lo)
+            err++;
+    }
+    end_test(err);
+}
+
 void Extension_test::test_even_tau()
 {
     cout << "test even tau: ";
