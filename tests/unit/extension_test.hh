@@ -15,7 +15,7 @@ private:
     void test_mul();
     void test_fast_mul();
     void test_intel_rem();
-    void test_mont_mul();
+    void test_mont_rem();
     void test_even_tau();
     void test_is_even();
 
@@ -28,7 +28,7 @@ private:
         test_is_even();
         test_fast_mul();
         test_intel_rem();
-        test_mont_mul();
+        test_mont_rem();
     }
 
 public:

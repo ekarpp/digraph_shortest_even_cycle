@@ -148,14 +148,13 @@ public:
         return this->add(r, lo);
     }
 
-    uint64_2_t mont_mul(uint64_2_t a, uint64_2_t b) const
+    uint64_2_t mont_rem(uint64_2_t a) const
     {
-        uint64_2_t t = this->mul(a, b);
-        uint64_2_t u = this->mul(t, this->n_prime);
+        uint64_2_t u = this->mul(a, this->n_prime);
 
         u.hi &= this->mask;
         u.lo &= this->mask;
-        uint64_2_t c = this->add(t, this->mul(u, {0, this->mod}));
+        uint64_2_t c = this->add(a, this->mul(u, {0, this->mod}));
 
         c.hi >>= this->n;
         c.lo >>= this->n;
@@ -164,12 +163,12 @@ public:
 
     uint64_2_t mont_form(uint64_2_t a) const
     {
-        return this->mont_mul(a, this->r_squared);
+        return this->mont_rem(this->mul(a, this->r_squared));
     }
 
     uint64_2_t mont_reduce(uint64_2_t a) const
     {
-        return this->mont_mul(a, { 0, 1 });
+        return this->mont_rem(this->mul(a, { 0, 1 }));
     }
 
     uint64_2_t add(uint64_2_t a, uint64_2_t b) const

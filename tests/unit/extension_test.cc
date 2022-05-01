@@ -103,7 +103,7 @@ void Extension_test::test_intel_rem()
     end_test(err);
 }
 
-void Extension_test::test_mont_mul()
+void Extension_test::test_mont_rem()
 {
     cout << "test montgomery multiplication: ";
     int err = 0;
@@ -120,9 +120,11 @@ void Extension_test::test_mont_mul()
         };
 
         uint64_2_t mont = global::E.mont_reduce(
-            global::E.mont_mul(
-                global::E.mont_form(a),
-                global::E.mont_form(b)
+            global::E.mont_rem(
+                global::E.mul(
+                    global::E.mont_form(a),
+                    global::E.mont_form(b)
+                )
             )
         );
 
