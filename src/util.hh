@@ -23,5 +23,7 @@ namespace util
 
     Extension_element tau(Extension_element sigma, Extension_element v);
 
+    uint64_t irred_poly(int deg);
+    bool gcd1(int i, std::bitset<64> p);
 }
 #endif

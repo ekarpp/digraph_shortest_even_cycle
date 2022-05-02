@@ -23,6 +23,9 @@ private:
     int n;
     uint64_t mod;
 
+    uint64_t q_plus;
+    uint64_t mod_ast;
+
     /* returns q s.t. for some r,
      * a = q*b + r is the division relation
      */
@@ -43,20 +46,28 @@ private:
 
 public:
     GF2n() {}
+#if GF2_bits == 0
+    void init(const int n, const uint64_t mod)
+#else
     void init()
+#endif
     {
-        this->n = GF2_bits;
-
 #if GF2_bits == 16
+        this->n = GF2_bits;
         /* x^16 + x^5 + x^3 + x^2 +  1 */
         this->mod = 0x1002D;
         this->mask = 0xFFFF;
 #elif GF2_bits == 32
+        this->n = GF2_bits;
         /* x^32 + x^7 + x^3 + x^2 + 1 */
         this->mod = 0x10000008D;
         this->mask = 0xFFFFFFFF;
 #else
-        GF2_bits_eq_16_or_32
+        this->n = n;
+        this->mod = mod;
+        this->mask = (1ll << this->n) - 1;
+        this->q_plus = this->quo(1ull << (2*this->n), mod);
+        this->mod_ast = this->mask & mod;
 #endif
         if (global::output)
         {
@@ -88,12 +99,19 @@ public:
         uint64_t rem = hi ^ (hi >> 14) ^ (hi >> 13) ^ (hi >> 11);
         rem ^= (rem << 2) ^ (rem << 3) ^ (rem << 5);
         rem ^= lo;
+        return rem & this->mask;
 #elif GF2_bits == 32
         uint64_t rem = hi ^ (hi >> 30) ^ (hi >> 29) ^ (hi >> 25);
         rem ^= (rem << 2) ^ (rem << 3) ^ (rem << 7);
         rem ^= lo;
-#endif
         return rem & this->mask;
+#else
+        uint64_t rem = this->clmul(hi, this->q_plus);
+        rem >>= this->n;
+        rem = this->clmul(rem, this->mod_ast);
+        rem &= this->mask;
+        return rem ^ lo;
+#endif
     }
 
     /* returns s s.t. for some t: s*a + t*field.mod = gcd(field.mod, a)

@@ -44,7 +44,13 @@ int main(int argc, char **argv)
 
     cout << "seed: " << seed << endl;
     global::randgen.init(seed);
+#if GF2_bits == 0
+    int n = 10;
+    uint64_t mod = util::irred_poly(n);
+    global::E.init(n, mod);
+#else
     global::E.init();
+#endif
 
     vector<uint64_2_t> a(t);
     vector<uint64_2_t> b(t);

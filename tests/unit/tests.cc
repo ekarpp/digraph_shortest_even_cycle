@@ -45,12 +45,16 @@ int main(int argc, char** argv)
     bool geng = false;
     int dim = 10;
     int tests = 10000;
+    int n = 10;
     int opt;
 
-    while ((opt = getopt(argc, argv, "cxsuegfmd:t:")) != -1)
+    while ((opt = getopt(argc, argv, "cxsuegfmn:d:t:")) != -1)
     {
         switch (opt)
         {
+        case 'n':
+            n = stoi(optarg);
+            break;
         case 'c':
             geng = true;
             break;
@@ -84,8 +88,14 @@ int main(int argc, char** argv)
     uint64_t seed = time(nullptr);
     cout << "seed: " << seed << endl;
     global::randgen.init(seed);
+#if GF2_bits == 0
+    uint64_t mod = util::irred_poly(n);
+    global::F.init(n, mod);
+    global::E.init(n, mod);
+#else
     global::F.init();
     global::E.init();
+#endif
 
     if (et)
         Extension_test e;

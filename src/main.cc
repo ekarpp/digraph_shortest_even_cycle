@@ -92,8 +92,16 @@ int main(int argc, char **argv)
     uint64_t seed = time(nullptr);
     cout << "seed: " << seed << endl;
     global::randgen.init(seed);
+
+#if GF2_bits == 0
+    int n = 10;
+    uint64_t mod = util::irred_poly(n);
+    global::F.init(n, mod);
+    global::E.init(n, mod);
+#else
     global::F.init();
     global::E.init();
+#endif
 
     Graph G(graph);
     Solver s;

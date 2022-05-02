@@ -67,10 +67,15 @@ private:
 public:
     Extension() {}
 
+#if GF2_bits == 0
+    void init(const int n, const uint64_t mod)
+#else
     void init()
+#endif
     {
-        this->n = GF2_bits;
 #if GF2_bits == 16
+        this->n = GF2_bits;
+
         /* x^16 + x^5 + x^3 + x^2 +  1 */
         this->mod = 0x1002D;
         this->mask = 0xFFFF;
@@ -79,6 +84,8 @@ public:
         this->n_prime = { 0x1031, 0xD0BD };
         this->r_squared = { 0x018C, 0x0451 };
 #elif GF2_bits == 32
+        this->n = GF2_bits;
+
         /* x^32 + x^7 + x^3 + x^2 + 1 */
         this->mod = 0x10000008D;
         this->mask = 0xFFFFFFFF;
@@ -87,7 +94,14 @@ public:
         this->n_prime = { 0x205C7331, 0x7EE4A61D };
         this->r_squared = { 0x000006AC, 0x00004051 };
 #else
-        GF2_bits_eq_16_or_32
+        this->n = n;
+        this->mod = mod;
+        this->mask = (1ll << this->n) - 1;
+
+        this->mod_ast = { 0, this->mod & this->mask };
+        this->q_plus = this->quo({0, 1ull << (2*this->n)} , { 0, this->mod });
+
+        /* n prime? r squared ? */
 #endif
 
         if (global::output)
@@ -152,6 +166,12 @@ public:
         rem = this->add(rem, { tmp.hi << 7, tmp.lo << 7 });
         rem = this->add(rem, lo);
         return { rem.hi & this->mask, rem.lo & this->mask };
+#else
+        uint64_2_t rem = this->mul(hi, this->q_plus);
+        rem = { rem.hi >> this->n, rem.lo >> this->n };
+        rem = this->mul(rem, this->mod_ast);
+        rem = { rem.hi & this->mask, rem.lo & this->mask };
+        return this->add(rem, lo);
 #endif
     }
 
