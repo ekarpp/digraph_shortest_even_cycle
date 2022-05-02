@@ -74,8 +74,7 @@ public:
         /* x^16 + x^5 + x^3 + x^2 +  1 */
         this->mod = 0x1002D;
         this->mask = 0xFFFF;
-        this->q_plus = { 0, 0x1002D };
-        this->mod_ast = { 0, 0x2D };
+
         // N' = x^15 + x^14 + 3x^12 + x^7 + 3x^5 + 3x^4 + x^3 + x^2 + 3
         this->n_prime = { 0x1031, 0xD0BD };
         this->r_squared = { 0x018C, 0x0451 };
@@ -83,8 +82,7 @@ public:
         /* x^32 + x^7 + x^3 + x^2 + 1 */
         this->mod = 0x10000008D;
         this->mask = 0xFFFFFFFF;
-        this->q_plus = { 0, 0x10000008D };
-        this->mod_ast = { 0, 0x8D };
+
         // N' = x^30 + 3x^29 + x^28 + x^27 + x^26 + x^25 + x^23 + 3x^22 + x^21 + 2x^20 + 2x^19 + 3x^18 + x^15 + 2x^14 + 3x^13 + 2x^12 + x^10 + 3x^9 + 2x^8 + 2x^5 + 3x^4 + x^3 + x^2 + 3
         this->n_prime = { 0x205C7331, 0x7EE4A61D };
         this->r_squared = { 0x000006AC, 0x00004051 };
@@ -131,21 +129,30 @@ public:
     /* https://dl.acm.org/doi/10.1016/j.ipl.2010.04.011 */
     uint64_2_t intel_rem(uint64_2_t a) const
     {
-        uint64_2_t hi = {
-            (a.hi & (~this->mask)) >> this->n,
-            (a.lo & (~this->mask)) >> this->n
-        };
+        uint64_2_t hi = { a.hi >> this->n, a.lo >> this->n };
+        uint64_2_t lo = { a.hi & this->mask, a.lo & this->mask };
 
-        uint64_2_t lo = {
-            a.hi & this->mask,
-            a.lo & this->mask
-        };
+#if GF2_bits == 16
+        uint64_2_t tmp = this->add(hi, { hi.hi >> 14, hi.lo >> 14 });
+        tmp = this->add(tmp, { hi.hi >> 13, hi.lo >> 13 });
+        tmp = this->add(tmp, { hi.hi >> 11, hi.lo >> 11 });
 
-        uint64_2_t r = this->mul(hi, this->q_plus);
-        r = { r.hi >> this->n, r.lo >> this->n };
-        r = this->mul(r, this->mod_ast);
-        r = { r.hi & this->mask, r.lo & this->mask };
-        return this->add(r, lo);
+        uint64_2_t rem = this->add(tmp, { tmp.hi << 2, tmp.lo << 2 });
+        rem = this->add(rem, { tmp.hi << 3, tmp.lo << 3 });
+        rem = this->add(rem, { tmp.hi << 5, tmp.lo << 5 });
+        rem = this->add(rem, lo);
+        return { rem.hi & this->mask, rem.lo & this->mask };
+#elif GF2_bits == 32
+        uint64_2_t tmp = this->add(hi, { hi.hi >> 30, hi.lo >> 30 });
+        tmp = this->add(tmp, { hi.hi >> 29, hi.lo >> 29 });
+        tmp = this->add(tmp, { hi.hi >> 25, hi.lo >> 25 });
+
+        uint64_2_t rem = this->add(tmp, { tmp.hi << 2, tmp.lo << 2 });
+        rem = this->add(rem, { tmp.hi << 3, tmp.lo << 3 });
+        rem = this->add(rem, { tmp.hi << 7, tmp.lo << 7 });
+        rem = this->add(rem, lo);
+        return { rem.hi & this->mask, rem.lo & this->mask };
+#endif
     }
 
     uint64_2_t mont_rem(uint64_2_t a) const
