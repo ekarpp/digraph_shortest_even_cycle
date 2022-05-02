@@ -96,21 +96,21 @@ public:
         uint64_t hi = a >> this->n;
 
 #if GF2_bits == 16
-        uint64_t rem = hi ^ (hi >> 14) ^ (hi >> 13) ^ (hi >> 11);
-        rem ^= (rem << 2) ^ (rem << 3) ^ (rem << 5);
-        rem ^= lo;
-        return rem & this->mask;
+        uint64_t r = hi ^ (hi >> 14) ^ (hi >> 13) ^ (hi >> 11);
+        r ^= (r << 2) ^ (r << 3) ^ (r << 5);
+        r ^= lo;
+        return r & this->mask;
 #elif GF2_bits == 32
-        uint64_t rem = hi ^ (hi >> 30) ^ (hi >> 29) ^ (hi >> 25);
-        rem ^= (rem << 2) ^ (rem << 3) ^ (rem << 7);
-        rem ^= lo;
-        return rem & this->mask;
+        uint64_t r = hi ^ (hi >> 30) ^ (hi >> 29) ^ (hi >> 25);
+        r ^= (r << 2) ^ (r << 3) ^ (r << 7);
+        r ^= lo;
+        return r & this->mask;
 #else
-        uint64_t rem = this->clmul(hi, this->q_plus);
-        rem >>= this->n;
-        rem = this->clmul(rem, this->mod_ast);
-        rem &= this->mask;
-        return rem ^ lo;
+        uint64_t r = this->clmul(hi, this->q_plus);
+        r >>= this->n;
+        r = this->clmul(r, this->mod_ast);
+        r &= this->mask;
+        return r ^ lo;
 #endif
     }
 

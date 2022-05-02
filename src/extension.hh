@@ -156,27 +156,27 @@ public:
         tmp = this->add(tmp, { hi.hi >> 13, hi.lo >> 13 });
         tmp = this->add(tmp, { hi.hi >> 11, hi.lo >> 11 });
 
-        uint64_2_t rem = this->add(tmp, { tmp.hi << 2, tmp.lo << 2 });
-        rem = this->add(rem, { tmp.hi << 3, tmp.lo << 3 });
-        rem = this->add(rem, { tmp.hi << 5, tmp.lo << 5 });
-        rem = this->add(rem, lo);
-        return { rem.hi & this->mask, rem.lo & this->mask };
+        uint64_2_t r = this->add(tmp, { tmp.hi << 2, tmp.lo << 2 });
+        r = this->add(r, { tmp.hi << 3, tmp.lo << 3 });
+        r = this->add(r, { tmp.hi << 5, tmp.lo << 5 });
+        r = this->add(r, lo);
+        return { r.hi & this->mask, r.lo & this->mask };
 #elif GF2_bits == 32
         uint64_2_t tmp = this->add(hi, { hi.hi >> 30, hi.lo >> 30 });
         tmp = this->add(tmp, { hi.hi >> 29, hi.lo >> 29 });
         tmp = this->add(tmp, { hi.hi >> 25, hi.lo >> 25 });
 
-        uint64_2_t rem = this->add(tmp, { tmp.hi << 2, tmp.lo << 2 });
-        rem = this->add(rem, { tmp.hi << 3, tmp.lo << 3 });
-        rem = this->add(rem, { tmp.hi << 7, tmp.lo << 7 });
-        rem = this->add(rem, lo);
-        return { rem.hi & this->mask, rem.lo & this->mask };
+        uint64_2_t r = this->add(tmp, { tmp.hi << 2, tmp.lo << 2 });
+        r = this->add(r, { tmp.hi << 3, tmp.lo << 3 });
+        r = this->add(r, { tmp.hi << 7, tmp.lo << 7 });
+        r = this->add(r, lo);
+        return { r.hi & this->mask, r.lo & this->mask };
 #else
-        uint64_2_t rem = this->mul(hi, this->q_plus);
-        rem = { rem.hi >> this->n, rem.lo >> this->n };
-        rem = this->mul(rem, this->mod_ast);
-        rem = { rem.hi & this->mask, rem.lo & this->mask };
-        return this->add(rem, lo);
+        uint64_2_t r = this->mul(hi, this->q_plus);
+        r = { r.hi >> this->n, r.lo >> this->n };
+        r = this->mul(r, this->mod_ast);
+        r = { r.hi & this->mask, r.lo & this->mask };
+        return this->add(r, lo);
 #endif
     }
 
