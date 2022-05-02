@@ -103,7 +103,7 @@ public:
 
         this->r_squared = {
             0,
-            1ll << (this->n * 2)
+            1ull << (this->n * 2)
         };
         this->r_squared = this->rem(this->r_squared);
 /* n prime? r squared ? */
