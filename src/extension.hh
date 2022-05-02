@@ -101,7 +101,12 @@ public:
         this->mod_ast = { 0, this->mod & this->mask };
         this->q_plus = this->quo({0, 1ull << (2*this->n)} , { 0, this->mod });
 
-        /* n prime? r squared ? */
+        this->r_squared = {
+            0,
+            1ll << (this->n * 2)
+        };
+        this->r_squared = this->rem(this->r_squared);
+/* n prime? r squared ? */
 #endif
 
         if (global::output)
