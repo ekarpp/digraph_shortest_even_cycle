@@ -1,9 +1,8 @@
 #!/bin/bash
 
-# what do here?
-#SBATCH --time=04:00:00
-#SBATCH --mem=2G
-#SBATCH --output=ScriptOutput.log
+#SBATCH --time=00:01:00
+#SBATCH --nodelist=pe[1-48,65-81]
+#SBATCH --output=extension-perf.log
 
 uname -a
 cat /etc/*release
