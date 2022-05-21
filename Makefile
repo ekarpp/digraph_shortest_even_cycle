@@ -65,6 +65,8 @@ digraph-tests: digraph-tests32 digraph-tests16 digraph-tests0
 # GF PERF BINARIES #
 ####################
 
+PERF_OBJ := extension.o polynomial.o gf.o util.o
+
 gf-perf32:
 	$(MAKE) gf-perfX bits=32
 	rm -f *.o
@@ -77,7 +79,7 @@ gf-perf0:
 	$(MAKE) gf-perfX bits=0
 	rm -f *.o
 
-gf-perfX: gf_perf.o $(OBJ)
+gf-perfX: gf_perf.o $(PERF_OBJ)
 	$(CXX) $(LDFLAGS) $^ -o $@
 	mv $@ gf-perf$(bits)
 
@@ -99,7 +101,7 @@ extension-perf0:
 	$(MAKE) extension-perfX bits=0
 	rm -f *.o
 
-extension-perfX: extension_perf.o $(OBJ)
+extension-perfX: extension_perf.o $(PERF_OBJ)
 	$(CXX) $(LDFLAGS) $^ -o $@
 	mv $@ extension-perf$(bits)
 
