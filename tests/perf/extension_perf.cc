@@ -54,7 +54,8 @@ int main(int argc, char **argv)
 
     vector<uint64_2_t> a(t);
     vector<uint64_2_t> b(t);
-    vector<uint64_2_t> c(t);
+    vector<uint64_2_t> p(t);
+    vector<uint64_2_t> r(t);
 
     for (uint64_t i = 0; i < t; i++)
     {
@@ -71,46 +72,67 @@ int main(int argc, char **argv)
 
     chrono::steady_clock::time_point start;
     chrono::steady_clock::time_point end;
+    double delta;
+    double mhz;
 
     start = chrono::steady_clock::now();
     for (uint64_t i = 0; i < t; i++)
-        c[i] = global::E.euclid_rem(global::E.ref_mul(a[i], b[i]));
+        p[i] = global::E.ref_mul(a[i], b[i]);
     end = chrono::steady_clock::now();
-    cout << t << " multiplications (euclid + ref) in time: " <<
-        (chrono::duration_cast<chrono::microseconds>(end - start).count()) /1000000.0 << " s" << endl;
+    delta = chrono::duration_cast<chrono::microseconds>(end - start).count()
+        / 1e6;
+    mhz = ((double) t) / delta;
+    mhz /= 1e6;
 
+    cout << t << " ref multiplications in time: " <<
+        delta << " s or " << mhz << " Mhz" << endl;
 
     start = chrono::steady_clock::now();
     for (uint64_t i = 0; i < t; i++)
-        c[i] = global::E.intel_rem(global::E.fast_mul(a[i], b[i]));
+        p[i] = global::E.fast_mul(a[i], b[i]);
     end = chrono::steady_clock::now();
+    delta = chrono::duration_cast<chrono::microseconds>(end - start).count()
+        / 1e6;
+    mhz = ((double) t) / delta;
+    mhz /= 1e6;
 
-    cout << t << " multiplications (intel + fast) in time: " <<
-        (chrono::duration_cast<chrono::microseconds>(end - start).count()) /1000000.0 << " s" << endl;
-
+    cout << t << " fast multiplications in time: " <<
+        delta << " s or " << mhz << " Mhz" << endl;
 
     start = chrono::steady_clock::now();
     for (uint64_t i = 0; i < t; i++)
-        c[i] = global::E.mont_rem(global::E.fast_mul(a[i], b[i]));
+        r[i] = global::E.mont_rem(p[i]);
     end = chrono::steady_clock::now();
+    delta = chrono::duration_cast<chrono::microseconds>(end - start).count()
+        / 1e6;
+    mhz = ((double) t) / delta;
+    mhz /= 1e6;
 
-    cout << t << " multiplications (montgomery + fast) in time: " <<
-        (chrono::duration_cast<chrono::microseconds>(end - start).count()) /1000000.0 << " s" << endl;
+    cout << t << " mont remainders in time: " <<
+        delta << " s or " << mhz << " Mhz" << endl;
 
     start = chrono::steady_clock::now();
     for (uint64_t i = 0; i < t; i++)
-        c[i] = global::E.euclid_rem(global::E.fast_mul(a[i], b[i]));
+        r[i] = global::E.euclid_rem(p[i]);
     end = chrono::steady_clock::now();
+    delta = chrono::duration_cast<chrono::microseconds>(end - start).count()
+        / 1e6;
+    mhz = ((double) t) / delta;
+    mhz /= 1e6;
 
-    cout << t << " multiplications (euclid + fast) in time: " <<
-        (chrono::duration_cast<chrono::microseconds>(end - start).count()) /1000000.0 << " s" << endl;
+    cout << t << " euclid remainders in time: " <<
+        delta << " s or " << mhz << " Mhz" << endl;
 
         start = chrono::steady_clock::now();
     for (uint64_t i = 0; i < t; i++)
-        c[i] = global::E.intel_rem(global::E.ref_mul(a[i], b[i]));
+        r[i] = global::E.intel_rem(p[i]);
     end = chrono::steady_clock::now();
+    delta = chrono::duration_cast<chrono::microseconds>(end - start).count()
+        / 1e6;
+    mhz = ((double) t) / delta;
+    mhz /= 1e6;
 
-    cout << t << " multiplications (intel + ref) in time: " <<
-        (chrono::duration_cast<chrono::microseconds>(end - start).count()) /1000000.0 << " s" << endl;
+    cout << t << " intel remainders in time " <<
+        delta << " s or " << mhz << " Mhz" << endl;
     return 0;
 }
