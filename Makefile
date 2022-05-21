@@ -3,7 +3,7 @@
 CXX := g++
 CXXFLAGS := -g -std=c++1z -O3 -Wall -Wextra -march=native
 VPATH = src:tests/unit:tests/perf
-BIN := digraph digraph-tests extension-perf
+BIN := digraph digraph-tests extension-perf gf-perf
 OBJ := graph.o util.o gf.o extension.o fmatrix.o ematrix.o polynomial.o solver.o
 TEST_OBJ := gf_test.o extension_test.o fmatrix_test.o util_test.o solver_test.o ematrix_test.o geng_test.o
 
@@ -60,6 +60,28 @@ digraph-testsX: tests.o $(OBJ) $(TEST_OBJ)
 	mv $@ digraph-tests$(bits)
 
 digraph-tests: digraph-tests32 digraph-tests16 digraph-tests0
+
+####################
+# GF PERF BINARIES #
+####################
+
+gf-perf32:
+	$(MAKE) gf-perfX bits=32
+	rm -f *.o
+
+gf-perf16:
+	$(MAKE) gf-perfX bits=16
+	rm -f *.o
+
+gf-perf0:
+	$(MAKE) gf-perfX bits=0
+	rm -f *.o
+
+gf-perfX: gf_perf.o $(OBJ)
+	$(CXX) $(LDFLAGS) $^ -o $@
+	mv $@ gf-perf$(bits)
+
+gf-perf: gf-perf32 gf-perf16 gf-perf0
 
 #####################
 # EXT PERF BINARIES #

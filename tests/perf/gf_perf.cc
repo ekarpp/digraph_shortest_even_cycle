@@ -43,27 +43,82 @@ int main(int argc, char **argv)
 
     cout << "seed: " << seed << endl;
     global::randgen.init(seed);
+#if GF2_bits == 0
+    int n = 10;
+    uint64_t mod = util::irred_poly(n);
+    global::F.init(n, mod);
+#else
     global::F.init();
+#endif
 
-    GF_element a = global::F.random();
-    GF_element b = global::F.one();
-    chrono::steady_clock::time_point start =
-        chrono::steady_clock::now();
+    vector<uint64_t> a(t);
+    vector<uint64_t> b(t);
+    vector<uint64_t> p(t);
+    vector<uint64_t> r(t);
+
+    vector<GF_element> aa(t);
+    vector<GF_element> bb(t);
+
     for (uint64_t i = 0; i < t; i++)
-        b *= a;
-    chrono::steady_clock::time_point end =
-        chrono::steady_clock::now();
-    b.print();
-    cout << t << " multiplications in time: " <<
-        (chrono::duration_cast<chrono::microseconds>(end - start).count()) /1000000.0 << " s" << endl;
+    {
+        a[i] = global::randgen() & global::F.get_mask();
+        b[i] = global::randgen() & global::F.get_mask();
+        aa[i] = global::F.random();
+        bb[i] = global::F.random();
+    }
+
+    chrono::steady_clock::time_point start;
+    chrono::steady_clock::time_point end;
+    double delta;
+    double mhz;
 
     start = chrono::steady_clock::now();
     for (uint64_t i = 0; i < t; i++)
-        a.inv_in_place();
+        aa[i] *= bb[i];
     end = chrono::steady_clock::now();
-    a.print();
-    cout << t << " inversions in time: " <<
-        (chrono::duration_cast<chrono::microseconds>(end - start).count()) /1000000.0 << " s" << endl;
+    delta = chrono::duration_cast<chrono::microseconds>(end - start).count()
+        / 1e6;
+    mhz = ((double) t) / delta;
+    mhz /= 1e6;
+
+    cout << t << " multiplications (whole) in time: " <<
+        delta << " s or " << mhz << " Mhz" << endl;
+
+    start = chrono::steady_clock::now();
+    for (uint64_t i = 0; i < t; i++)
+        p[i] = global::F.clmul(a[i], b[i]);
+    end = chrono::steady_clock::now();
+    delta = chrono::duration_cast<chrono::microseconds>(end - start).count()
+        / 1e6;
+    mhz = ((double) t) / delta;
+    mhz /= 1e6;
+
+    cout << t << " multiplications in time: " <<
+        delta << " s or " << mhz << " Mhz" << endl;
+
+    start = chrono::steady_clock::now();
+    for (uint64_t i = 0; i < t; i++)
+        r[i] = global::F.rem(p[i]);
+    end = chrono::steady_clock::now();
+    delta = chrono::duration_cast<chrono::microseconds>(end - start).count()
+        / 1e6;
+    mhz = ((double) t) / delta;
+    mhz /= 1e6;
+
+    cout << t << " remainder in time: " <<
+        delta << " s or " << mhz << " Mhz" << endl;
+
+    start = chrono::steady_clock::now();
+    for (uint64_t i = 0; i < t; i++)
+        r[i] = global::F.ext_euclid(r[i]);
+    end = chrono::steady_clock::now();
+    delta = chrono::duration_cast<chrono::microseconds>(end - start).count()
+        / 1e6;
+    mhz = ((double) t) / delta;
+    mhz /= 1e6;
+
+    cout << t << " inversion in time: " <<
+        delta << " s or " << mhz << " Mhz" << endl;
 
     return 0;
 }
