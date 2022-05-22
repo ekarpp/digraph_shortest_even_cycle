@@ -9,7 +9,10 @@ cat /etc/*release
 g++ --version
 
 make clean
+make digraph-tests
 make extension-perf
+
+make test
 
 ARGS="-s123 -t10000000"
 
