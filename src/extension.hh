@@ -176,6 +176,7 @@ public:
         r = { r.hi >> this->n, r.lo >> this->n };
         r = this->mul(r, this->mod_ast);
         r = { r.hi & this->mask, r.lo & this->mask };
+        r = this->negate(r);
         return this->add(r, lo);
 #endif
     }
