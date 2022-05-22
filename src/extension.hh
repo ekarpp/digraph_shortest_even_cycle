@@ -152,25 +152,25 @@ public:
         uint64_2_t lo = { a.hi & this->mask, a.lo & this->mask };
 
 #if GF2_bits == 16
-        uint64_2_t tmp = this->add(hi, { hi.hi >> 14, hi.lo >> 14 });
-        tmp = this->add(tmp, { hi.hi >> 13, hi.lo >> 13 });
-        tmp = this->add(tmp, { hi.hi >> 11, hi.lo >> 11 });
+        uint64_2_t tmp = this->subtract(hi, { hi.hi >> 14, hi.lo >> 14 });
+        tmp = this->subtract(tmp, { hi.hi >> 13, hi.lo >> 13 });
+        tmp = this->subtract(tmp, { hi.hi >> 11, hi.lo >> 11 });
 
         uint64_2_t r = this->add(tmp, { tmp.hi << 2, tmp.lo << 2 });
         r = this->add(r, { tmp.hi << 3, tmp.lo << 3 });
         r = this->add(r, { tmp.hi << 5, tmp.lo << 5 });
-        r = this->add(r, lo);
-        return { r.hi & this->mask, r.lo & this->mask };
+        r = { r.hi & this->mask, r.lo & this->mask };
+        return this->subtract(lo, r);
 #elif GF2_bits == 32
-        uint64_2_t tmp = this->add(hi, { hi.hi >> 30, hi.lo >> 30 });
-        tmp = this->add(tmp, { hi.hi >> 29, hi.lo >> 29 });
-        tmp = this->add(tmp, { hi.hi >> 25, hi.lo >> 25 });
+        uint64_2_t tmp = this->subtract(hi, { hi.hi >> 30, hi.lo >> 30 });
+        tmp = this->subtract(tmp, { hi.hi >> 29, hi.lo >> 29 });
+        tmp = this->subtract(tmp, { hi.hi >> 25, hi.lo >> 25 });
 
         uint64_2_t r = this->add(tmp, { tmp.hi << 2, tmp.lo << 2 });
         r = this->add(r, { tmp.hi << 3, tmp.lo << 3 });
         r = this->add(r, { tmp.hi << 7, tmp.lo << 7 });
-        r = this->add(r, lo);
-        return { r.hi & this->mask, r.lo & this->mask };
+        r = { r.hi & this->mask, r.lo & this->mask };
+        return this->subtract(lo, r);
 #else
         uint64_2_t r = this->mul(hi, this->q_plus);
         r = { r.hi >> this->n, r.lo >> this->n };
@@ -216,6 +216,11 @@ public:
             a.lo ^ a.hi,
             a.lo
         };
+    }
+
+    uint64_2_t subtract(uint64_2_t a, uint64_2_t b) const
+    {
+        return this->add(a, this->negate(b));
     }
 
     uint64_2_t mul(uint64_2_t a, uint64_2_t b) const
