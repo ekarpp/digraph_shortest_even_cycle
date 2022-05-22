@@ -98,7 +98,7 @@ int main(int argc, char** argv)
 #endif
 
     if (et)
-        Extension_test e;
+        Extension_test e(tests);
     if (gft)
         GF_test f;
     if (fmt)

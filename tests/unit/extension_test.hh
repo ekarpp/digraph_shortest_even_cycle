@@ -32,7 +32,7 @@ private:
     }
 
 public:
-    Extension_test();
+    Extension_test(int tests);
 
 };
 

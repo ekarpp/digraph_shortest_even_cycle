@@ -9,12 +9,12 @@
 using namespace std;
 
 
-Extension_test::Extension_test()
+Extension_test::Extension_test(int tests)
 {
     cout << "-----------------" << endl;
     cout << "TESTING EXTENSION" << endl;
     cout << "-----------------" << endl;
-
+    this->tests = tests;
     this->run();
 }
 
