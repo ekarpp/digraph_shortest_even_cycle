@@ -56,7 +56,7 @@ private:
             };
 
             q = this->add(q, s);
-            a = this->add(a, this->negate(this->mul(b, s)));
+            a = this->subtract(a, this->mul(b, s));
 
             dega = 63 - std::min(__builtin_clzl(a.lo), __builtin_clzl(a.hi));
         }
@@ -176,8 +176,7 @@ public:
         r = { r.hi >> this->n, r.lo >> this->n };
         r = this->mul(r, this->mod_ast);
         r = { r.hi & this->mask, r.lo & this->mask };
-        r = this->negate(r);
-        return this->add(r, lo);
+        return this->subtract(lo, r);
 #endif
     }
 
@@ -328,13 +327,13 @@ public:
     {
         /* turn other to the additive inverse and then just add */
         return Extension_element(
-            global::E.add(this->repr, global::E.negate(other.get_repr()))
+            global::E.subtract(this->repr, other.get_repr())
         );
     }
 
     Extension_element &operator-=(const Extension_element &other)
     {
-        this->repr = global::E.add(this->repr, global::E.negate(other.get_repr()));
+        this->repr = global::E.subtract(this->repr, other.get_repr());
         return *this;
     }
 
