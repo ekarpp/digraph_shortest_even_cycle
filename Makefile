@@ -130,15 +130,15 @@ nauty/directg:
 #################
 
 test32: digraph-tests32
-	./digraph-tests32 -efux -d20 -t1000
+	./digraph-tests32 -efux -d20 -t10000
 	./digraph-tests32 -s -d10 -t100
 
 test16: digraph-tests16
-	./digraph-tests16 -egfux -d20 -t1000
+	./digraph-tests16 -egfux -d20 -t10000
 	./digraph-tests16 -s -d10 -t100
 
 test0: digraph-tests0
-	./digraph-tests0 -egfux -d20 -n20 -t1000
+	./digraph-tests0 -egfux -d20 -n20 -t10000
 	./digraph-tests0 -s -d10 -n20 -t100
 
 test: test32 test16 test0
