@@ -2,8 +2,8 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
-#include <chrono>
 #include <getopt.h>
+#include <omp.h>
 
 #include "../../src/global.hh"
 #include "../../src/extension.hh"
@@ -70,66 +70,61 @@ int main(int argc, char **argv)
         };
     }
 
-    chrono::steady_clock::time_point start;
-    chrono::steady_clock::time_point end;
+    double start;
+    double end;
     double delta;
     double mhz;
 
-    start = chrono::steady_clock::now();
+    start = omp_get_wtime();
     for (uint64_t i = 0; i < t; i++)
         p[i] = global::E.ref_mul(a[i], b[i]);
-    end = chrono::steady_clock::now();
-    delta = chrono::duration_cast<chrono::microseconds>(end - start).count()
-        / 1e6;
-    mhz = ((double) t) / delta;
+    end = omp_get_wtime();
+    delta = (end - start);
+    mhz = t / delta;
     mhz /= 1e6;
 
     cout << t << " ref multiplications in time: " <<
         delta << " s or " << mhz << " Mhz" << endl;
 
-    start = chrono::steady_clock::now();
+    start = omp_get_wtime();
     for (uint64_t i = 0; i < t; i++)
         p[i] = global::E.fast_mul(a[i], b[i]);
-    end = chrono::steady_clock::now();
-    delta = chrono::duration_cast<chrono::microseconds>(end - start).count()
-        / 1e6;
-    mhz = ((double) t) / delta;
+    end = omp_get_wtime();
+    delta = (end - start);
+    mhz = t / delta;
     mhz /= 1e6;
 
     cout << t << " fast multiplications in time: " <<
         delta << " s or " << mhz << " Mhz" << endl;
 
-    start = chrono::steady_clock::now();
+    start = omp_get_wtime();
     for (uint64_t i = 0; i < t; i++)
         r[i] = global::E.mont_rem(p[i]);
-    end = chrono::steady_clock::now();
-    delta = chrono::duration_cast<chrono::microseconds>(end - start).count()
-        / 1e6;
-    mhz = ((double) t) / delta;
+    end = omp_get_wtime();
+    delta = (end - start);
+    mhz = t / delta;
     mhz /= 1e6;
 
     cout << t << " mont remainders in time: " <<
         delta << " s or " << mhz << " Mhz" << endl;
 
-    start = chrono::steady_clock::now();
+    start = omp_get_wtime();
     for (uint64_t i = 0; i < t; i++)
         r[i] = global::E.euclid_rem(p[i]);
-    end = chrono::steady_clock::now();
-    delta = chrono::duration_cast<chrono::microseconds>(end - start).count()
-        / 1e6;
-    mhz = ((double) t) / delta;
+    end = omp_get_wtime();
+    delta = (end - start);
+    mhz = t / delta;
     mhz /= 1e6;
 
     cout << t << " euclid remainders in time: " <<
         delta << " s or " << mhz << " Mhz" << endl;
 
-        start = chrono::steady_clock::now();
+    start = omp_get_wtime();
     for (uint64_t i = 0; i < t; i++)
         r[i] = global::E.intel_rem(p[i]);
-    end = chrono::steady_clock::now();
-    delta = chrono::duration_cast<chrono::microseconds>(end - start).count()
-        / 1e6;
-    mhz = ((double) t) / delta;
+    end = omp_get_wtime();
+    delta = (end - start);
+    mhz = t / delta;
     mhz /= 1e6;
 
     cout << t << " intel remainders in time " <<

@@ -2,8 +2,8 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
-#include <chrono>
 #include <getopt.h>
+#include <omp.h>
 
 #include "../../src/global.hh"
 #include "../../src/gf.hh"
@@ -67,54 +67,50 @@ int main(int argc, char **argv)
         bb[i] = global::F.random();
     }
 
-    chrono::steady_clock::time_point start;
-    chrono::steady_clock::time_point end;
+    double start;
+    double end;
     double delta;
     double mhz;
 
-    start = chrono::steady_clock::now();
+    start = omp_get_wtime();
     for (uint64_t i = 0; i < t; i++)
         aa[i] *= bb[i];
-    end = chrono::steady_clock::now();
-    delta = chrono::duration_cast<chrono::microseconds>(end - start).count()
-        / 1e6;
-    mhz = ((double) t) / delta;
+    end = omp_get_wtime();
+    delta = (end - start);
+    mhz = t / delta;
     mhz /= 1e6;
 
     cout << t << " multiplications (whole) in time: " <<
         delta << " s or " << mhz << " Mhz" << endl;
 
-    start = chrono::steady_clock::now();
+    start = omp_get_wtime();
     for (uint64_t i = 0; i < t; i++)
         p[i] = global::F.clmul(a[i], b[i]);
-    end = chrono::steady_clock::now();
-    delta = chrono::duration_cast<chrono::microseconds>(end - start).count()
-        / 1e6;
-    mhz = ((double) t) / delta;
+    end = omp_get_wtime();
+    delta = (end - start);
+    mhz = t / delta;
     mhz /= 1e6;
 
     cout << t << " multiplications in time: " <<
         delta << " s or " << mhz << " Mhz" << endl;
 
-    start = chrono::steady_clock::now();
+    start = omp_get_wtime();
     for (uint64_t i = 0; i < t; i++)
         r[i] = global::F.rem(p[i]);
-    end = chrono::steady_clock::now();
-    delta = chrono::duration_cast<chrono::microseconds>(end - start).count()
-        / 1e6;
-    mhz = ((double) t) / delta;
+    end = omp_get_wtime();
+    delta = (end - start);
+    mhz = t / delta;
     mhz /= 1e6;
 
     cout << t << " remainder in time: " <<
         delta << " s or " << mhz << " Mhz" << endl;
 
-    start = chrono::steady_clock::now();
+    start = omp_get_wtime();
     for (uint64_t i = 0; i < t; i++)
         r[i] = global::F.ext_euclid(r[i]);
-    end = chrono::steady_clock::now();
-    delta = chrono::duration_cast<chrono::microseconds>(end - start).count()
-        / 1e6;
-    mhz = ((double) t) / delta;
+    end = omp_get_wtime();
+    delta = (end - start);
+    mhz = t / delta;
     mhz /= 1e6;
 
     cout << t << " inversion in time: " <<

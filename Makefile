@@ -5,6 +5,7 @@ CXXFLAGS := -g -std=c++1z -O3 -Wall -Wextra -march=native
 VPATH = src:tests/unit:tests/perf
 BIN := digraph digraph-tests extension-perf gf-perf
 OBJ := graph.o util.o gf.o extension.o fmatrix.o ematrix.o polynomial.o solver.o
+LDFLAGS := -fopenmp
 TEST_OBJ := gf_test.o extension_test.o fmatrix_test.o util_test.o solver_test.o ematrix_test.o geng_test.o
 
 ifeq ($(bits), 32)
