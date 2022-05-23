@@ -1,12 +1,15 @@
-# CLEAN THIS UP! compilation takes a looooooong time
-
 CXX := g++
 CXXFLAGS := -g -std=c++1z -O3 -Wall -Wextra -march=native
 VPATH = src:tests/unit:tests/perf
 BIN := digraph digraph-tests extension-perf gf-perf
 OBJ := graph.o util.o gf.o extension.o fmatrix.o ematrix.o polynomial.o solver.o
+PERF_OBJ := extension.o polynomial.o gf.o util.o
 LDFLAGS := -fopenmp
 TEST_OBJ := gf_test.o extension_test.o fmatrix_test.o util_test.o solver_test.o ematrix_test.o geng_test.o
+
+OBJ := $(addprefix $(bits), $(OBJ))
+TEST_OBJ := $(addprefix $(bits), $(TEST_OBJ))
+PERF_OBJ := $(addprefix $(bits), $(PERF_OBJ))
 
 ifeq ($(bits), 32)
 	CXXFLAGS += -D GF2_bits=32
@@ -31,10 +34,9 @@ digraph16:
 digraph0:
 	$(MAKE) digraphX bits=0
 
-digraphX: main.o $(OBJ)
+digraphX: $(bits)main.o $(OBJ)
 	$(CXX) $(LDFLAGS) $^ -o $@
 	mv $@ digraph$(bits)
-	rm *.o
 
 digraph: digraph32 digraph16 digraph0
 
@@ -51,18 +53,15 @@ digraph-tests16:
 digraph-tests0:
 	$(MAKE) digraph-testsX bits=0
 
-digraph-testsX: tests.o $(OBJ) $(TEST_OBJ)
+digraph-testsX: $(bits)tests.o $(OBJ) $(TEST_OBJ)
 	$(CXX) $(LDFLAGS) $^ -o $@
 	mv $@ digraph-tests$(bits)
-	rm *.o
 
 digraph-tests: digraph-tests32 digraph-tests16 digraph-tests0
 
 ####################
 # GF PERF BINARIES #
 ####################
-
-PERF_OBJ := extension.o polynomial.o gf.o util.o
 
 gf-perf32:
 	$(MAKE) gf-perfX bits=32
@@ -73,10 +72,9 @@ gf-perf16:
 gf-perf0:
 	$(MAKE) gf-perfX bits=0
 
-gf-perfX: gf_perf.o $(PERF_OBJ)
+gf-perfX: $(bits)gf_perf.o $(PERF_OBJ)
 	$(CXX) $(LDFLAGS) $^ -o $@
 	mv $@ gf-perf$(bits)
-	rm *.o
 
 gf-perf: gf-perf32 gf-perf16 gf-perf0
 
@@ -93,10 +91,9 @@ extension-perf16:
 extension-perf0:
 	$(MAKE) extension-perfX bits=0
 
-extension-perfX: extension_perf.o $(PERF_OBJ)
+extension-perfX: $(bits)extension_perf.o $(PERF_OBJ)
 	$(CXX) $(LDFLAGS) $^ -o $@
 	mv $@ extension-perf$(bits)
-	rm *.o
 
 extension-perf: extension-perf32 extension-perf16 extension-perf0
 

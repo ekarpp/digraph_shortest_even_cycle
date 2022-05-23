@@ -1,39 +1,61 @@
-main.o: main.cc global.hh gf.hh extension.hh
+# messy...
 
-graph.o: graph.cc graph.hh gf.hh
+$(bits)main.o: main.cc
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-util.o: util.cc util.hh gf.hh extension.hh
+$(bits)tests.o: tests.cc
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-gf.o: gf.cc gf.hh
+$(bits)graph.o: graph.cc
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-extension.o: extension.cc extension.hh
+$(bits)util.o: util.cc
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-tests.o: tests.cc
+$(bits)gf.o: gf.cc
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-gf_test.o: gf_test.cc gf_test.hh test.hh gf.hh
+$(bits)extension.o: extension.cc
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-extension_test.o: extension_test.cc extension_test.hh test.hh extension.hh
+$(bits)gf_test.o: gf_test.cc
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-fmatrix.o: fmatrix.cc fmatrix.hh gf.hh
+$(bits)extension_test.o: extension_test.cc
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-ematrix.o: ematrix.cc ematrix.hh extension.hh
+$(bits)fmatrix.o: fmatrix.cc
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-fmatrix_test.o: fmatrix_test.cc fmatrix_test.hh gf.hh
+$(bits)ematrix.o: ematrix.cc
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-polynomial.o: polynomial.cc polynomial.hh gf.hh
+$(bits)fmatrix_test.o: fmatrix_test.cc
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-util_test.o: util_test.cc util_test.hh gf.hh
+$(bits)polynomial.o: polynomial.cc
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-solver.o: solver.cc solver.hh gf.hh
+$(bits)util_test.o: util_test.cc
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-scale.o: scale.cc
+$(bits)solver.o: solver.cc
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-solver_test.o: solver_test.cc solver_test.hh
+$(bits)scale.o: scale.cc
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-ematrix_test.o: ematrix_test.cc ematrix_test.hh extension.hh
+$(bits)solver_test.o: solver_test.cc
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-gf_perf.o: gf_perf.cc gf.hh
+$(bits)ematrix_test.o: ematrix_test.cc
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-extension_perf.o: extension_perf.cc extension.hh
+$(bits)gf_perf.o: gf_perf.cc
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-geng_test.o: geng_test.cc geng_test.hh
+$(bits)extension_perf.o: extension_perf.cc
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
+
+$(bits)geng_test.o: geng_test.cc
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
