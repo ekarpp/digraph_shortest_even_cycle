@@ -135,7 +135,6 @@ public:
 
         // deg <= 3n - 1, overflow when 3n - 1 > 64 <=> n > 65 / 4 ~ 21.667
         this->n_prime = this->mul(r, r_prime);
-        this->n_prime = this->subtract(this->n_prime, { 0x0, 0x1 });
         this->n_prime = this->quo(this->n_prime, { 0x0, this->mod });
 #endif
 
