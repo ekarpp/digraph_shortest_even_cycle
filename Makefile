@@ -24,19 +24,17 @@ all: $(BIN) nauty/geng nauty/directg nauty/listg
 
 digraph32:
 	$(MAKE) digraphX bits=32
-	rm -f *.o
 
 digraph16:
 	$(MAKE) digraphX bits=16
-	rm -f *.o
 
 digraph0:
 	$(MAKE) digraphX bits=0
-	rm -f *.o
 
 digraphX: main.o $(OBJ)
 	$(CXX) $(LDFLAGS) $^ -o $@
 	mv $@ digraph$(bits)
+	rm *.o
 
 digraph: digraph32 digraph16 digraph0
 
@@ -46,19 +44,17 @@ digraph: digraph32 digraph16 digraph0
 
 digraph-tests32:
 	$(MAKE) digraph-testsX bits=32
-	rm -f *.o
 
 digraph-tests16:
 	$(MAKE) digraph-testsX bits=16
-	rm -f *.o
 
 digraph-tests0:
 	$(MAKE) digraph-testsX bits=0
-	rm -f *.o
 
 digraph-testsX: tests.o $(OBJ) $(TEST_OBJ)
 	$(CXX) $(LDFLAGS) $^ -o $@
 	mv $@ digraph-tests$(bits)
+	rm *.o
 
 digraph-tests: digraph-tests32 digraph-tests16 digraph-tests0
 
@@ -70,19 +66,17 @@ PERF_OBJ := extension.o polynomial.o gf.o util.o
 
 gf-perf32:
 	$(MAKE) gf-perfX bits=32
-	rm -f *.o
 
 gf-perf16:
 	$(MAKE) gf-perfX bits=16
-	rm -f *.o
 
 gf-perf0:
 	$(MAKE) gf-perfX bits=0
-	rm -f *.o
 
 gf-perfX: gf_perf.o $(PERF_OBJ)
 	$(CXX) $(LDFLAGS) $^ -o $@
 	mv $@ gf-perf$(bits)
+	rm *.o
 
 gf-perf: gf-perf32 gf-perf16 gf-perf0
 
@@ -92,19 +86,17 @@ gf-perf: gf-perf32 gf-perf16 gf-perf0
 
 extension-perf32:
 	$(MAKE) extension-perfX bits=32
-	rm -f *.o
 
 extension-perf16:
 	$(MAKE) extension-perfX bits=16
-	rm -f *.o
 
 extension-perf0:
 	$(MAKE) extension-perfX bits=0
-	rm -f *.o
 
 extension-perfX: extension_perf.o $(PERF_OBJ)
 	$(CXX) $(LDFLAGS) $^ -o $@
 	mv $@ extension-perf$(bits)
+	rm *.o
 
 extension-perf: extension-perf32 extension-perf16 extension-perf0
 
