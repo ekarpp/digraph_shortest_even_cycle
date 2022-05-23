@@ -7,7 +7,6 @@
 #include <iostream>
 #include <immintrin.h>
 
-#include "extension.hh"
 #include "global.hh"
 
 /* forward declare */

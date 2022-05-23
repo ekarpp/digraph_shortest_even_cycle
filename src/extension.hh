@@ -46,22 +46,36 @@ private:
     uint64_2_t quo(uint64_2_t a, uint64_2_t b) const
     {
         uint64_2_t q = { 0, 0 };
-        int degb = this->n;
         int dega = 63 - std::min(__builtin_clzl(a.lo), __builtin_clzl(a.hi));
+        int degb = 63 - std::min(__builtin_clzl(b.lo), __builtin_clzl(b.hi));
+
         while (dega >= degb)
         {
+
             uint64_2_t s = {
                 (a.hi & (1ll << dega)) >> degb,
                 (a.lo & (1ll << dega)) >> degb
             };
 
             q = this->add(q, s);
-            a = this->subtract(a, this->mul(b, s));
+            a = this->subtract(a, this->mul(s, b));
 
             dega = 63 - std::min(__builtin_clzl(a.lo), __builtin_clzl(a.hi));
         }
 
         return q;
+    }
+
+    void print(uint64_2_t a) const
+    {
+        for (int i = 63; i >= 0; i--)
+        {
+            uint64_t v = (a.hi >> i) & 1;
+            v <<= 1;
+            v |= (a.lo >> i) & 1;
+            std::cout << v;
+        }
+        std::cout << std::endl;
     }
 
 public:
@@ -106,7 +120,23 @@ public:
             1ull << (this->n * 2)
         };
         this->r_squared = this->rem(this->r_squared);
-/* n prime? r squared ? */
+
+        // deg == 2*n
+        uint64_2_t r = { 0x0, 1ull << (this->n*2) };
+        int N = 1 << this->n;
+        N -= 1;
+        N *= 2;
+
+        // deg <= n-1
+        uint64_2_t r_prime = { 0x0, 0x1 };
+        /* lazy... */
+        for (int i = 0; i < N - 1; i++)
+            r_prime = this->rem(this->mul(r_prime, this->rem(r)));
+
+        // deg <= 3n - 1, overflow when 3n - 1 > 64 <=> n > 65 / 4 ~ 21.667
+        this->n_prime = this->mul(r, r_prime);
+        this->n_prime = this->subtract(this->n_prime, { 0x0, 0x1 });
+        this->n_prime = this->quo(this->n_prime, { 0x0, this->mod });
 #endif
 
         if (global::output)

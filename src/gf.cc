@@ -2,8 +2,8 @@
 #include <stdint.h>
 #include <iostream>
 
-#include "extension.hh"
 #include "gf.hh"
+#include "extension.hh"
 #include "global.hh"
 #include "util.hh"
 
