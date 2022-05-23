@@ -5,6 +5,7 @@
 #include <getopt.h>
 #include <fstream>
 #include <sstream>
+#include <omp.h>
 
 #include "gf.hh"
 #include "global.hh"
@@ -60,6 +61,7 @@ int main(int argc, char **argv)
         cout << "tells to which nodes there is an edge to" << endl;
         cout << "-b to use the brute force solver instead (SLOW)" << endl;
         cout << "-q for no progress output from solver" << endl;
+        cout << "-t to output time spent computing" << endl;
         return 0;
     }
 
@@ -67,8 +69,9 @@ int main(int argc, char **argv)
     vector<vector<int>> graph;
 
     bool brute = false;
+    bool duration = false;
 
-    while ((opt = getopt(argc, argv, "qbf:")) != -1)
+    while ((opt = getopt(argc, argv, "tqbf:")) != -1)
     {
         switch (opt)
         {
@@ -79,6 +82,9 @@ int main(int argc, char **argv)
             break;
         case 'b':
             brute = true;
+            break;
+        case 't':
+            duration = true;
             break;
         case 'q':
             global::output = false;
@@ -106,10 +112,29 @@ int main(int argc, char **argv)
     Graph G(graph);
     Solver s;
 
+    double start;
+    double end;
+
     if (brute)
-        cout << s.shortest_even_cycle_brute(G) << endl;
+    {
+        start = omp_get_wtime();
+        int k = s.shortest_even_cycle_brute(G);
+        end = omp_get_wtime();
+        cout << k << endl;
+    }
     else
-        cout << s.shortest_even_cycle(G) << endl;
+    {
+        start = omp_get_wtime();
+        int k = s.shortest_even_cycle(G);
+        end = omp_get_wtime();
+        cout << k << endl;
+    }
+
+    if (duration) {
+        double delta = end - start;
+        cout << "computed graph of " << G.get_n() << " vertices in ";
+        cout << delta << " seconds." << endl;
+    }
 
     return 0;
 }
