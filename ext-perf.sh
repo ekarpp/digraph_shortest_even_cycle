@@ -1,9 +1,5 @@
 #!/bin/bash
 
-#SBATCH --time=00:01:00
-#SBATCH --nodelist=pe[1-48,65-81]
-#SBATCH --output=extension-perf.log
-
 uname -a
 cat /etc/*release
 g++ --version
