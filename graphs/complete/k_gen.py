@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 def K(n):
 	l = [x for x in range(n)]
 	grph = ""
