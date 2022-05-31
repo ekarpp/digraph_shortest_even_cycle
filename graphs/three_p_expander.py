@@ -10,7 +10,9 @@ def graph(p):
         ]
         for _ in range(p-2):
             elems[2] = (elems[2] * i) % p
-        graph += " ".join(elems) + "\n"
+        grph += " ".join([str(e) for e in elems]) + "\n"
+    with open(f"tp{p}", "w") as f:
+        f.write(grph)
 
 import sys
 
