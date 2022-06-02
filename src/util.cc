@@ -32,16 +32,17 @@ namespace util
      * with direction chosen uniformly at random. */
     void direct_undirected(vector<vector<int>> &adj)
     {
-        for (uint u = 0; u < adj.size(); u++)
+        for (int u = 0; u < (int) adj.size(); u++)
         {
             vector<int> nbors = adj[u];
-            for (uint v = 0; v < nbors.size(); v++)
+            for (int i = 0; i < (int) nbors.size(); i++)
             {
-                if (u > (uint) nbors[v])
+                int v = nbors[i];
+                if (u > v)
                     continue;
                 /* rndom choose del */
-                uint keep = u;
-                uint del = v;
+                int keep = u;
+                int del = v;
                 if (global::randgen() % 2)
                 {
                     keep = v;
