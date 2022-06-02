@@ -63,6 +63,7 @@ int main(int argc, char **argv)
         cout << "-q for no progress output from solver" << endl;
         cout << "-t to output time spent computing" << endl;
         cout << "-u if the input graph is undirected, directs it randomly" << endl;
+        cout << "-s for seed" << endl;
         return 0;
     }
 
@@ -72,8 +73,9 @@ int main(int argc, char **argv)
     bool brute = false;
     bool duration = false;
     bool direct = false;
+    uint64_t seed = time(nullptr);
 
-    while ((opt = getopt(argc, argv, "utqbf:")) != -1)
+    while ((opt = getopt(argc, argv, "utqbf:s:")) != -1)
     {
         switch (opt)
         {
@@ -81,6 +83,9 @@ int main(int argc, char **argv)
             /* error during parsing */
             if (!parse_file(optarg, graph))
                 return -1;
+            break;
+        case 's':
+            seed = stoi(optarg);
             break;
         case 'u':
             direct = true;
@@ -100,7 +105,6 @@ int main(int argc, char **argv)
         }
     }
 
-    uint64_t seed = time(nullptr);
     cout << "seed: " << seed << endl;
     global::randgen.init(seed);
 
