@@ -5,10 +5,10 @@ cat /etc/*release
 g++ --version
 
 make clean
-make digraph-tests
-make digraph
+make digraph-tests16
+make digraph16
 
-make test
+make test16
 
 REPEATS=50
 DEG=6
