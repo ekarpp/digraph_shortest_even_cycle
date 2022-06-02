@@ -300,7 +300,12 @@ public:
         uint64_t lo = 0;
 
         /* handle product of lo and lo */
+#if GF2_bits == 0
         for (int i = 0; i <= global::E.get_n(); i++)
+#else
+        #pragma GCC unroll 32
+        for (int i = 0; i <= GF2_bits; i++)
+#endif
         {
             if ((b.lo >> i)&1)
             {
