@@ -18,7 +18,7 @@ def adja_ok(adj):
             return False
     return True
 
-def cfg_model(n, d):
+def cfg_model(n, d, i):
     W = []
     for i in range(n):
         for j in range(d):
@@ -29,13 +29,15 @@ def cfg_model(n, d):
     graph = "\n".join(
         [" ".join([str(x) for x in l]) for l in G]
     ) + "\n"
-    with open(f"cm{n}_{d}", "w") as f:
+    with open(f"config/cm{n}_{d}_{i}", "w") as f:
         f.write(graph)
 
 import sys
 
 n = int(sys.argv[1])
 d = int(sys.argv[2])
+m = int(sys.argv[3])
 
 if n*d % 2 == 0:
-    cfg_model(n, d)
+    for i in range(m):
+        cfg_model(n, d, i)

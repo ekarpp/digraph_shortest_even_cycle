@@ -2,7 +2,7 @@
 
 def C(n):
     l = [str((x+1)%n) for x in range(n)]
-    with open(f"c{n}", "w") as f:
+    with open(f"cycle/c{n}", "w") as f:
         f.write(
             "\n".join(l) + "\n"
         )

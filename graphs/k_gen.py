@@ -6,7 +6,7 @@ def K(n):
 	for i in range(n):
 		lfilt = [str(x) for x in l if x != i]
 		grph += f"{' '.join(lfilt)}\n"
-	with open(f"k{n}", "w") as f:
+	with open(f"complete/k{n}", "w") as f:
 		f.write(grph)
 
 import sys
