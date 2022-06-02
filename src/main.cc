@@ -62,6 +62,7 @@ int main(int argc, char **argv)
         cout << "-b to use the brute force solver instead (SLOW)" << endl;
         cout << "-q for no progress output from solver" << endl;
         cout << "-t to output time spent computing" << endl;
+        cout << "-u if the input graph is undirected, directs it randomly" << endl;
         return 0;
     }
 
@@ -70,8 +71,9 @@ int main(int argc, char **argv)
 
     bool brute = false;
     bool duration = false;
+    bool direct = false;
 
-    while ((opt = getopt(argc, argv, "tqbf:")) != -1)
+    while ((opt = getopt(argc, argv, "utqbf:")) != -1)
     {
         switch (opt)
         {
@@ -79,6 +81,9 @@ int main(int argc, char **argv)
             /* error during parsing */
             if (!parse_file(optarg, graph))
                 return -1;
+            break;
+        case 'u':
+            direct = true;
             break;
         case 'b':
             brute = true;
@@ -108,6 +113,9 @@ int main(int argc, char **argv)
     global::F.init();
     global::E.init();
 #endif
+
+    if (direct)
+        util::direct_undirected(graph);
 
     Graph G(graph);
     Solver s;
