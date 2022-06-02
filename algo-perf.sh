@@ -1,5 +1,9 @@
 #!/bin/bash
 
+FOLDER_NAME=$(date +%Y%m%d_%H%M%S)
+mkdir results/$FOLDER_NAME
+mv results/*.out results/$FOLDER_NAME
+
 uname -a
 cat /etc/*release
 g++ --version
@@ -13,8 +17,10 @@ make test16
 REPEATS=50
 DEG=6
 
-for v in 8 16 24 32 40 48 56 64
+for v in 16 24 32 40 48 56 64
 do
+	echo $v
+
 	cd graphs
 	./k_gen.py $v
 	./c_gen.py $v
