@@ -14,6 +14,8 @@ namespace util
 {
     int log2(uint64_t a);
 
+    void direct_undirected(std::vector<std::vector<int>> &adj);
+
     std::vector<GF_element> distinct_elements(int n);
 
     Polynomial poly_interpolation(

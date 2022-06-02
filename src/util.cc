@@ -3,6 +3,7 @@
 #include <cmath>
 #include <set>
 #include <vector>
+#include <algorithm>
 
 #include "util.hh"
 #include "extension.hh"
@@ -24,6 +25,37 @@ namespace util
         for (deg = 0; a >> deg && deg < 64; deg++);
         */
         return 63 - __builtin_clzl(a);
+    }
+
+    /* given an adjacency list for an undirected graph,
+     * directs it such that edges are made one way
+     * with direction chosen uniformly at random. */
+    void direct_undirected(vector<vector<int>> &adj)
+    {
+        for (uint u = 0; u < adj.size(); u++)
+        {
+            vector<int> nbors = adj[u];
+            for (uint v = 0; v < nbors.size(); v++)
+            {
+                if (u > (uint) nbors[v])
+                    continue;
+                /* rndom choose del */
+                uint keep = u;
+                uint del = v;
+                if (global::randgen() % 2)
+                {
+                    keep = v;
+                    del = u;
+                }
+                vector<int>::iterator pos = find(
+                    adj[del].begin(),
+                    adj[del].end(),
+                    keep
+                );
+                adj[del].erase(pos);
+            }
+        }
+        return;
     }
 
     /* la grange interpolation with gamma and delta
