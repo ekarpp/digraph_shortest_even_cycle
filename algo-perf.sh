@@ -19,7 +19,7 @@ do
 	./k_gen.py $v
 	./c_gen.py $v
 	./config_model.py $v $DEG $REPEATS
-	./erdos_renyi.py $v "edges" $REPEATS
+	./erdos_renyi.py $v $(( $v*3 )) $REPEATS
 	cd ..
 
 	echo "COMPLETE + CYCLE"
@@ -32,14 +32,14 @@ do
 	echo "CONFIG"
 	for file in graphs/config/*
 	do
-		./digraph16 -qtf $file -s $RANDOM >> "results/config_$v.out"
+		./digraph16 -uqtf $file -s $RANDOM >> "results/config_$v.out"
 	done
 	rm graphs/config/cm*
 
 	echo "ERDOS"
 	for file in graphs/erdos_renyi/*
 	do
-		./digraph16 -qtf $file -s $RANDOM >> "results/erdos_$v.out"
+		./digraph16 -uqtf $file -s $RANDOM >> "results/erdos_$v.out"
 	done
 	rm graphs/erdos_renyi/er*
 done
