@@ -304,7 +304,6 @@ public:
 #if GF2_bits == 16
         for (int i = 0; i <= GF2_bits; i++)
 #else
-
         for (int i = 0; i <= 32; i++)
 #endif
         {
