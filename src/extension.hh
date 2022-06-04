@@ -312,6 +312,29 @@ public:
         return { hi1 ^ hi2 ^ hi, lo };
     }
 
+#if GF2_bits == 16
+    uint64_2_t kronecker_mul(uint64_2_t a, uint64_2_t b) const
+    {
+        /* kronecker subst */
+        /*
+        uint64_t ll = _pdep_u64(lo, 0x55555555);
+        uint64_t hh = _pdep_u64(hi, 0xAAAAAAAA);
+        uint64_t comb = ll | hh;
+
+        __uint128_t vec = 0x0;
+
+        vec |= _pdep_u64(comb & 0xFF, 0x3030303);
+        vec |= _pdep_u64((comb & 0xFF00) >> 8, 0x3030303) << 32;
+        vec |= ((__uint128_t) _pdep_u64((comb & 0xFF0000) >> 16, 0x3030303)) << 64;
+        vec |= ((__uint128_t) _pdep_u64((comb & 0xFF000000) >> 24, 0x3030303)) << 96;
+        */
+
+        /* multiply two 128 bits after kronecker subst to get 256 bits */
+        /* take mod first then reduce from kronecker subst */
+        return a;
+    }
+#endif
+
     int get_n() const { return this->n; }
     uint64_t get_mod() const { return this->mod; }
     uint64_t get_mask() const { return this->mask; }
