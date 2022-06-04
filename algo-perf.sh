@@ -25,7 +25,7 @@ do
 	./k_gen.py $v
 	./c_gen.py $v
 	./config_model.py $v $DEG $REPEATS
-	./erdos_renyi.py $v $(( $v*3 )) $REPEATS
+	./erdos_renyi.py $v $(( $v*$v )) $REPEATS
 	cd ..
 
 	echo "COMPLETE + CYCLE"
