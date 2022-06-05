@@ -385,11 +385,9 @@ public:
          * (see details in thesis) thus we need 16*8 = 128 bits
          * for the polynomial after substitution. */
         uint64_2_t vec;
-        vec.lo = _pdep_u64(comb & 0xFF, 0x03030303);
-        vec.lo |= _pdep_u64((comb & 0xFF00) >> 8, 0x03030303) << 32;
-
-        vec.hi = _pdep_u64((comb & 0xFF0000) >> 16, 0x03030303);
-        vec.hi |= _pdep_u64((comb & 0xFF000000) >> 24, 0x03030303) << 32;
+        uint64_t extmask = 0x0303030303030303ull;
+        vec.lo = _pdep_u64(comb & 0xFFFF, extmask);
+        vec.hi = _pdep_u64((comb >> 16) & 0xFFFF, extmask);
 
         return vec;
     }
