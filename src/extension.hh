@@ -213,11 +213,13 @@ public:
 
     uint64_2_t mont_rem(uint64_2_t a) const
     {
+        /* d-1 deg * d-1 deg */
         uint64_2_t u = this->mul(a, this->n_prime);
 
         u.hi &= this->mask;
         u.lo &= this->mask;
-        uint64_2_t c = this->add(a, this->mul(u, {0, this->mod}));
+        /* d deg * d-1 deg */
+        uint64_2_t c = this->add(a, this->fast_mul(u, {0, this->mod}));
 
         c.hi >>= this->n;
         c.lo >>= this->n;
@@ -255,7 +257,11 @@ public:
 
     uint64_2_t mul(uint64_2_t a, uint64_2_t b) const
     {
+#if GF2_bits == 16
+        return kronecker_mul(a, b);
+#else
         return fast_mul(a, b);
+#endif
     }
 
     uint64_2_t ref_mul(uint64_2_t a, uint64_2_t b) const
