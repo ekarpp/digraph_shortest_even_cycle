@@ -4,7 +4,7 @@ VPATH = src:tests/unit:tests/perf
 BIN := digraph digraph-tests extension-perf gf-perf
 OBJ := graph.o util.o gf.o extension.o fmatrix.o ematrix.o polynomial.o solver.o
 PERF_OBJ := extension.o polynomial.o gf.o util.o
-LDFLAGS := -fopenmp
+LDFLAGS := -fopenmp -lgmp
 TEST_OBJ := gf_test.o extension_test.o fmatrix_test.o util_test.o solver_test.o ematrix_test.o geng_test.o
 
 OBJ := $(addprefix $(bits), $(OBJ))
@@ -35,7 +35,7 @@ digraph0:
 	$(MAKE) digraphX bits=0
 
 digraphX: $(bits)main.o $(OBJ)
-	$(CXX) $(LDFLAGS) $^ -o $@
+	$(CXX) $^ -o $@ $(LDFLAGS)
 	mv $@ digraph$(bits)
 
 digraph: digraph32 digraph16 digraph0
@@ -54,7 +54,7 @@ digraph-tests0:
 	$(MAKE) digraph-testsX bits=0
 
 digraph-testsX: $(bits)tests.o $(OBJ) $(TEST_OBJ)
-	$(CXX) $(LDFLAGS) $^ -o $@
+	$(CXX) $^ -o $@ $(LDFLAGS)
 	mv $@ digraph-tests$(bits)
 
 digraph-tests: digraph-tests32 digraph-tests16 digraph-tests0
@@ -73,7 +73,7 @@ gf-perf0:
 	$(MAKE) gf-perfX bits=0
 
 gf-perfX: $(bits)gf_perf.o $(PERF_OBJ)
-	$(CXX) $(LDFLAGS) $^ -o $@
+	$(CXX) $^ -o $@ $(LDFLAGS)
 	mv $@ gf-perf$(bits)
 
 gf-perf: gf-perf32 gf-perf16 gf-perf0
@@ -92,7 +92,7 @@ extension-perf0:
 	$(MAKE) extension-perfX bits=0
 
 extension-perfX: $(bits)extension_perf.o $(PERF_OBJ)
-	$(CXX) $(LDFLAGS) $^ -o $@
+	$(CXX) $^ -o $@ $(LDFLAGS)
 	mv $@ extension-perf$(bits)
 
 extension-perf: extension-perf32 extension-perf16 extension-perf0

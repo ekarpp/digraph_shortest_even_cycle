@@ -82,7 +82,6 @@ void Extension_test::test_fast_mul()
     end_test(err);
 }
 
-#if GF2_bits == 16
 void Extension_test::test_kronecker_mul()
 {
     cout << "test kronecker mul: ";
@@ -100,7 +99,6 @@ void Extension_test::test_kronecker_mul()
     }
     end_test(err);
 }
-#endif
 
 void Extension_test::test_intel_rem()
 {

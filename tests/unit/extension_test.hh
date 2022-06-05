@@ -18,10 +18,7 @@ private:
     void test_mont_rem();
     void test_even_tau();
     void test_is_even();
-#if GF2_bits == 16
     void test_kronecker_mul();
-#endif
-
 
     void run()
     {
@@ -33,9 +30,7 @@ private:
         test_fast_mul();
         test_intel_rem();
         test_mont_rem();
-#if GF2_bits == 16
         test_kronecker_mul();
-#endif
     }
 
 public:

@@ -6,6 +6,9 @@
 #include <stdint.h>
 #include <immintrin.h>
 
+#include <gmp.h>
+
+
 #include "gf.hh"
 #include "global.hh"
 
@@ -323,10 +326,9 @@ public:
         return { hi1 ^ hi2 ^ hi, lo };
     }
 
-#if GF2_bits == 16
-    /* only works if deg <= 15 for a AND b */
     uint64_2_t kronecker_mul(uint64_2_t a, uint64_2_t b) const
     {
+#if GF2_bits == 16
         /* we use different representation of polynomials than before here.
          * each bit string can be split to sets of 2 bits where each set
          * corresponds to a coefficient modulo 4. */
@@ -368,32 +370,81 @@ public:
         uint64_t loextmask = 0x5555555555555555ull;
         ret.lo = _pext_u64(tmp, loextmask);
         ret.hi = _pext_u64(tmp, hiextmask);
+#else
+        mpz_t aa, bb, p;
+        mpz_init(aa);
+        mpz_init(bb);
+        mpz_init(p);
+
+        this->kronecker_substitution(aa, a);
+        this->kronecker_substitution(bb, b);
+        mpz_mul(p, aa, bb);
+
+        uint64_t vec[10];
+//        mpz_export(vec, (*size_t) 10, 1, 0, 0, p);
+        mpz_export(vec, NULL, 1, 1, 0, 0, p);
+
+        uint64_t extmask = 0x00C06030180C0603ull;
+
+        uint64_2_t tmp;
+        tmp.lo = 0;
+        tmp.hi = 0;
+        for (int i = 0; i < 5; i++)
+            tmp.lo |= _pext_u64(vec[i], extmask) << (14*i);
+
+        for (int i = 0; i < 5; i++)
+            tmp.hi |= _pext_u64(vec[i+5], extmask) << (14*i);
+
+        uint64_2_t ret;
+
+        uint64_t hiextmask = 0xAAAAAAAAAAAAAAAAull;
+        uint64_t loextmask = 0x5555555555555555ull;
+        ret.lo = _pext_u64(tmp.lo, loextmask);
+        ret.lo |= _pext_u64(tmp.hi, loextmask) << 32;
+        ret.hi = _pext_u64(tmp.lo, hiextmask);
+        ret.lo |= _pext_u64(tmp.hi, loextmask) << 32;
+#endif
 
         return ret;
     }
 
+#if GF2_bits == 16
     uint64_2_t kronecker_substitution(uint64_2_t x) const
+#else
+    void kronecker_substitution(mpz_t rop, uint64_2_t x) const
+#endif
     {
         /* combine lo and hi to single uint64_t
          * where 2 bits represent single coefficient.
          * the "more traditional" bit representation for polynomials */
-        uint64_t comb = _pdep_u64(x.lo, 0x55555555);
-        comb |= _pdep_u64(x.hi, 0xAAAAAAAA);
+        uint64_t extmask = 0x55555555;
+        uint64_t comb = _pdep_u64(x.lo, extmask);
+        comb |= _pdep_u64(x.hi, extmask << 1);
 
+#if GF2_bits == 16
         /* contains the "polynomial" after kronecker substitution.
          * for us it is sufficient that each coefficient has 8 bits,
          * (see details in thesis) thus we need 16*8 = 128 bits
          * for the polynomial after substitution. */
-        uint64_2_t vec;
-        vec.lo = _pdep_u64(comb & 0xFF, 0x03030303);
-        vec.lo |= _pdep_u64((comb & 0xFF00) >> 8, 0x03030303) << 32;
+        uint64_2_t kron;
+        extmask = 0x0303030303030303ull;
+        kron.lo = _pdep_u64(comb & 0xFFFF, extmask);
 
-        vec.hi = _pdep_u64((comb & 0xFF0000) >> 16, 0x03030303);
-        vec.hi |= _pdep_u64((comb & 0xFF000000) >> 24, 0x03030303) << 32;
+        kron.hi = _pdep_u64((comb >> 16) & 0xFFFF, extmask);
 
-        return vec;
-    }
+        return kron;
+#else
+        /* each element stores 7 coefficients.
+         * each coefficients takes 9 bits.*/
+#define COUNT 5
+        uint64_t vec[COUNT];
+        extmask = 0x00C06030180C0603ull;
+        for (int i = 0; i < COUNT; i++)
+            vec[i] = _pdep_u64((comb >> (i*14)) & 0x3FFF, extmask);
+
+        mpz_import(rop, COUNT, 1, sizeof(vec[0]), 0, 0, vec);
 #endif
+    }
 
     int get_n() const { return this->n; }
     uint64_t get_mod() const { return this->mod; }
