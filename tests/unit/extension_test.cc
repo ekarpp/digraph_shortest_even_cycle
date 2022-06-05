@@ -82,6 +82,26 @@ void Extension_test::test_fast_mul()
     end_test(err);
 }
 
+#if GF2_bits == 16
+void Extension_test::test_kronecker_mul()
+{
+    cout << "test kronecker mul: ";
+    int err = 0;
+    for (int i = 0; i < this->tests; i++)
+    {
+        Extension_element a = global::E.random();
+        Extension_element b = global::E.random();
+
+        uint64_2_t ref = global::E.ref_mul(a.get_repr(), b.get_repr());
+        uint64_2_t kron = global::E.kronecker_mul(a.get_repr(), b.get_repr());
+
+        if (kron.hi != ref.hi || kron.lo != ref.lo)
+            err++;
+    }
+    end_test(err);
+}
+#endif
+
 void Extension_test::test_intel_rem()
 {
     cout << "test intel rem: ";
