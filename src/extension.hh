@@ -24,6 +24,12 @@ struct uint64_2_t
     uint64_t lo;
 };
 
+struct __int256_t
+{
+    __int128_t hi;
+    __int128_t lo;
+};
+
 /* Extension of GF(2^n) to the ring E(4^n).
  * If GF(2^n) = Z2 / <g_2> for irreducible polynomial
  * g_2 of degree n, then if g_4 is g_2 but coefficients
@@ -323,20 +329,12 @@ public:
         return { hi1 ^ hi2 ^ hi, lo };
     }
 
-#if GF2_bits == 16
-    /* only works if deg <= 15 for a AND b */
-    uint64_2_t kronecker_mul(uint64_2_t a, uint64_2_t b) const
+    __int256_t mul_128bit(uint64_2_t a, uint64_2_t b) const
     {
-        /* we use different representation of polynomials than before here.
-         * each bit string can be split to sets of 2 bits where each set
-         * corresponds to a coefficient modulo 4. */
-        uint64_2_t aa = this->kronecker_substitution(a);
-        uint64_2_t bb = this->kronecker_substitution(b);
-
-        __int128_t ah = aa.hi;
-        __int128_t al = aa.lo;
-        __int128_t bh = bb.hi;
-        __int128_t bl = bb.lo;
+        __int128_t ah = a.hi;
+        __int128_t al = a.lo;
+        __int128_t bh = b.hi;
+        __int128_t bl = b.lo;
 
         /* see https://stackoverflow.com/a/26855440 for logic. */
 
@@ -349,18 +347,34 @@ public:
 
         __int128_t mid = (albl >> 64) + (ahbl & mask64b) + (albh & mask64b);
 
-        __int128_t hi = ahbh + (ahbl >> 64) + (albh >> 64) + (mid >> 64);
-        __int128_t lo = (mid << 64) | (albl & mask64b);
+        __int256_t ret;
+        ret.hi = ahbh + (ahbl >> 64) + (albh >> 64) + (mid >> 64);
+        ret.lo = (mid << 64) | (albl & mask64b);
+
+        return ret;
+    }
+
+#if GF2_bits == 16
+    /* only works if deg <= 15 for a AND b */
+    uint64_2_t kronecker_mul(uint64_2_t a, uint64_2_t b) const
+    {
+        /* we use different representation of polynomials than before here.
+         * each bit string can be split to sets of 2 bits where each set
+         * corresponds to a coefficient modulo 4. */
+        uint64_2_t aa = this->kronecker_substitution(a);
+        uint64_2_t bb = this->kronecker_substitution(b);
+
+        __int256_t prod = this->mul_128bit(aa, bb);
 
         /* first store the interesting bits to a uint64_t,
          * that is the first two bits of each 8 bit limb.
          * it fits, as we have deg <= 15+15 and each coefficient
          * uses two bits. */
         uint64_t extmask = 0x0303030303030303ull;
-        uint64_t tmp = _pext_u64(lo, extmask);
-        tmp |= _pext_u64(lo >> 64, extmask) << 16;
-        tmp |= _pext_u64(hi, extmask) << 32;
-        tmp |= _pext_u64(hi >> 64, extmask) << 48;
+        uint64_t tmp = _pext_u64(prod.lo, extmask);
+        tmp |= _pext_u64(prod.lo >> 64, extmask) << 16;
+        tmp |= _pext_u64(prod.hi, extmask) << 32;
+        tmp |= _pext_u64(prod.hi >> 64, extmask) << 48;
 
         /* extract the usual hi/lo representation */
         uint64_2_t ret;
