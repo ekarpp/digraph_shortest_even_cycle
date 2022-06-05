@@ -320,23 +320,56 @@ public:
 #if GF2_bits == 16
     uint64_2_t kronecker_mul(uint64_2_t a, uint64_2_t b) const
     {
-        /* kronecker subst */
-        /*
-        uint64_t ll = _pdep_u64(lo, 0x55555555);
-        uint64_t hh = _pdep_u64(hi, 0xAAAAAAAA);
-        uint64_t comb = ll | hh;
+        uint64_2_t aa = this->kronecker_substitution(a);
+        uint64_2_t bb = this->kronecker_substitution(b);
 
-        __uint128_t vec = 0x0;
+        __int128_t ah = aa.hi;
+        __int128_t al = aa.lo;
+        __int128_t bh = bb.hi;
+        __int128_t bl = bb.lo;
 
-        vec |= _pdep_u64(comb & 0xFF, 0x3030303);
-        vec |= _pdep_u64((comb & 0xFF00) >> 8, 0x3030303) << 32;
-        vec |= ((__uint128_t) _pdep_u64((comb & 0xFF0000) >> 16, 0x3030303)) << 64;
-        vec |= ((__uint128_t) _pdep_u64((comb & 0xFF000000) >> 24, 0x3030303)) << 96;
-        */
+        __int128_t ahbh = ah*bh;
+        __int128_t ahbl = ah*bl;
+        __int128_t albh = al*bh;
+        __int128_t albl = al*bl;
+
+        __int128_t mask64b = 0xFFFFFFFFFFFFFFFFull;
+
+        __int128_t mid = (albl >> 64) + (ahbl & mask64b) + (albh & mask64b);
+
+        __int128_t hi = ahbh + (ahbl >> 64) + (albh >> 64) + (mid >> 64);
+        __int128_t lo = (mid << 64) | (albl & mask64b);
+
+        uint64_t extmask = 0x0303030303030303ull;
+        uint64_t tmp = _pext_u64(lo, extmask);
+        tmp |= _pext_u64(lo >> 64, extmask) << 16;
+        tmp |= _pext_u64(hi, extmask) << 32;
+        tmp |= _pext_u64(hi >> 64, extmask) << 48;
+
+        uint64_2_t ret;
+        uint64_t hiextmask = 0xAAAAAAAAAAAAAAAAull;
+        uint64_t loextmask = 0x5555555555555555ull;
+        ret.lo = _pext_u64(tmp, loextmask);
+        ret.hi = _pext_u64(tmp, hiextmask);
 
         /* multiply two 128 bits after kronecker subst to get 256 bits */
         /* take mod first then reduce from kronecker subst */
-        return a;
+        return ret;
+    }
+
+    uint64_2_t kronecker_substitution(uint64_2_t x) const
+    {
+        uint64_t comb = _pdep_u64(x.lo, 0x55555555);
+        comb |= _pdep_u64(x.hi, 0xAAAAAAAA);
+
+        uint64_2_t vec;
+        vec.lo = _pdep_u64(comb & 0xFF, 0x03030303);
+        vec.lo |= _pdep_u64((comb & 0xFF00) >> 8, 0x03030303) << 32;
+
+        vec.hi = _pdep_u64((comb & 0xFF0000) >> 16, 0x03030303);
+        vec.hi |= _pdep_u64((comb & 0xFF000000) >> 24, 0x03030303) << 32;
+
+        return vec;
     }
 #endif
 
