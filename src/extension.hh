@@ -36,6 +36,16 @@ struct __int512_t
     __int256_t lo;
 };
 
+#if GF2_bits == 16
+typedef uint64_2_t kronecker_form;
+#else
+struct kronecker_form
+{
+    __int256_t big;
+    uint64_t small;
+};
+#endif
+
 /* Extension of GF(2^n) to the ring E(4^n).
  * If GF(2^n) = Z2 / <g_2> for irreducible polynomial
  * g_2 of degree n, then if g_4 is g_2 but coefficients
@@ -370,11 +380,7 @@ public:
         return sum;
     }
 
-    __int256_t add_256bit(
-        __int256_t a,
-        __int256_t b,
-        char *carry
-    ) const
+    __int256_t add_256bit(__int256_t a, __int256_t b, char *carry) const
     {
         __int256_t sum;
         sum.lo = add_128bit(a.lo, b.lo, carry);
@@ -382,11 +388,7 @@ public:
         return sum;
     }
 
-    __int128_t add_128bit(
-        __int128_t a,
-        __int128_t b,
-        char *carry
-    ) const
+    __int128_t add_128bit(__int128_t a, __int128_t b, char *carry) const
     {
         __int128_t mask64b = 0xFFFFFFFFFFFFFFFFull;
         uint64_t loa = a & mask64b;
@@ -413,8 +415,8 @@ public:
         /* we use different representation of polynomials than before here.
          * each bit string can be split to sets of 2 bits where each set
          * corresponds to a coefficient modulo 4. */
-        uint64_2_t aa = this->kronecker_substitution(a);
-        uint64_2_t bb = this->kronecker_substitution(b);
+        kronecker_form aa = this->kronecker_substitution(a);
+        kronecker_form bb = this->kronecker_substitution(b);
 
         __int256_t prod = this->mul_128bit(aa, bb);
 
@@ -438,7 +440,7 @@ public:
         return ret;
     }
 
-    uint64_2_t kronecker_substitution(uint64_2_t x) const
+    kronecker_form kronecker_substitution(uint64_2_t x) const
     {
         /* combine lo and hi to single uint64_t
          * where 2 bits represent single coefficient.
