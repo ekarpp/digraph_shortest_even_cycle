@@ -30,6 +30,12 @@ struct __int256_t
     __int128_t lo;
 };
 
+struct __int512_t
+{
+    __int256_t hi;
+    __int256_t lo;
+};
+
 /* Extension of GF(2^n) to the ring E(4^n).
  * If GF(2^n) = Z2 / <g_2> for irreducible polynomial
  * g_2 of degree n, then if g_4 is g_2 but coefficients
@@ -352,6 +358,52 @@ public:
         ret.lo = (mid << 64) | (albl & mask64b);
 
         return ret;
+    }
+
+    __int512_t add_512bit(__int512_t a, __int512_t b) const
+    {
+
+        __int512_t sum;
+        char carry = 0;
+        sum.lo = add_256bit(a.lo, b.lo, &carry);
+        sum.hi = add_256bit(a.hi, b.hi, &carry);
+        return sum;
+    }
+
+    __int256_t add_256bit(
+        __int256_t a,
+        __int256_t b,
+        char *carry
+    ) const
+    {
+        __int256_t sum;
+        sum.lo = add_128bit(a.lo, b.lo, carry);
+        sum.hi = add_128bit(a.hi, b.hi, carry);
+        return sum;
+    }
+
+    __int128_t add_128bit(
+        __int128_t a,
+        __int128_t b,
+        char *carry
+    ) const
+    {
+        __int128_t mask64b = 0xFFFFFFFFFFFFFFFFull;
+        uint64_t loa = a & mask64b;
+        uint64_t hia = a >> 64;
+        uint64_t lob = b & mask64b;
+        uint64_t hib = b >> 64;
+
+        /* ???????? */
+        long long unsigned int sumlo = 0;
+        long long unsigned int sumhi = 0;
+
+        *carry = _addcarry_u64(*carry, loa, lob, &sumlo);
+        *carry = _addcarry_u64(*carry, hia, hib, &sumhi);
+
+        __int128_t sum = sumlo;
+        sum |= ((__int128_t) sumhi) << 64;
+        return sum;
     }
 
 #if GF2_bits == 16
