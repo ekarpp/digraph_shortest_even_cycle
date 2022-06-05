@@ -85,7 +85,18 @@ int main(int argc, char **argv)
 
     cout << t << " ref multiplications in time: " <<
         delta << " s or " << mhz << " Mhz" << endl;
+#if GF2_bits == 16
+    start = omp_get_wtime();
+    for (uint64_t i = 0; i < t; i++)
+        p[i] = global::E.kronecker_mul(a[i], b[i]);
+    end = omp_get_wtime();
+    delta = (end - start);
+    mhz = t / delta;
+    mhz /= 1e6;
 
+    cout << t << " kronecker multiplications in time: " <<
+        delta << " s or " << mhz << " Mhz" << endl;
+#endif
     start = omp_get_wtime();
     for (uint64_t i = 0; i < t; i++)
         p[i] = global::E.fast_mul(a[i], b[i]);
