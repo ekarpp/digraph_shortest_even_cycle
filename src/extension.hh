@@ -324,8 +324,12 @@ public:
     }
 
 #if GF2_bits == 16
+    /* only works if deg <= 15 for a AND b */
     uint64_2_t kronecker_mul(uint64_2_t a, uint64_2_t b) const
     {
+        /* we use different representation of polynomials than before here.
+         * each bit string can be split to sets of 2 bits where each set
+         * corresponds to a coefficient modulo 4. */
         uint64_2_t aa = this->kronecker_substitution(a);
         uint64_2_t bb = this->kronecker_substitution(b);
 
@@ -333,6 +337,8 @@ public:
         __int128_t al = aa.lo;
         __int128_t bh = bb.hi;
         __int128_t bl = bb.lo;
+
+        /* see https://stackoverflow.com/a/26855440 for logic. */
 
         __int128_t ahbh = ah*bh;
         __int128_t ahbl = ah*bl;
@@ -346,28 +352,38 @@ public:
         __int128_t hi = ahbh + (ahbl >> 64) + (albh >> 64) + (mid >> 64);
         __int128_t lo = (mid << 64) | (albl & mask64b);
 
+        /* first store the interesting bits to a uint64_t,
+         * that is the first two bits of each 8 bit limb.
+         * it fits, as we have deg <= 15+15 and each coefficient
+         * uses two bits. */
         uint64_t extmask = 0x0303030303030303ull;
         uint64_t tmp = _pext_u64(lo, extmask);
         tmp |= _pext_u64(lo >> 64, extmask) << 16;
         tmp |= _pext_u64(hi, extmask) << 32;
         tmp |= _pext_u64(hi >> 64, extmask) << 48;
 
+        /* extract the usual hi/lo representation */
         uint64_2_t ret;
         uint64_t hiextmask = 0xAAAAAAAAAAAAAAAAull;
         uint64_t loextmask = 0x5555555555555555ull;
         ret.lo = _pext_u64(tmp, loextmask);
         ret.hi = _pext_u64(tmp, hiextmask);
 
-        /* multiply two 128 bits after kronecker subst to get 256 bits */
-        /* take mod first then reduce from kronecker subst */
         return ret;
     }
 
     uint64_2_t kronecker_substitution(uint64_2_t x) const
     {
+        /* combine lo and hi to single uint64_t
+         * where 2 bits represent single coefficient.
+         * the "more traditional" bit representation for polynomials */
         uint64_t comb = _pdep_u64(x.lo, 0x55555555);
         comb |= _pdep_u64(x.hi, 0xAAAAAAAA);
 
+        /* contains the "polynomial" after kronecker substitution.
+         * for us it is sufficient that each coefficient has 8 bits,
+         * (see details in thesis) thus we need 16*8 = 128 bits
+         * for the polynomial after substitution. */
         uint64_2_t vec;
         vec.lo = _pdep_u64(comb & 0xFF, 0x03030303);
         vec.lo |= _pdep_u64((comb & 0xFF00) >> 8, 0x03030303) << 32;
