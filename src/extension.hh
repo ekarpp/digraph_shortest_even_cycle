@@ -463,23 +463,13 @@ public:
         __int128_t hi = _pdep_u64((comb >> 16) & 0xFFFF, extmask);
         kron = lo | (hi << 64);
 #else
-        /* each element stores 7 coefficients.
-         * each coefficients takes 9 bits.*/
-#define COUNT 5
-        __int128_t vec[COUNT];
+        /* each coefficients takes 9 bits.
+         * we have <= 32 coefficients. */
         /* mask has 2x ones 7x zeros repeating */
         extmask = 0x00C06030180C0603ull;
-        for (int i = 0; i < COUNT; i++)
-            vec[i] = _pdep_u64((comb >> (i*14)) & 0x3FFF, extmask);
-
-        kron.small = vec[0] & 0xFFFFFFFF;
-        kron.big[0] = vec[0] >> 32;
-        kron.big[0] |= vec[1] << 32;
-        kron.big[0] |= (vec[2] & 0xFFFFFFFF) << 96;
-
-        kron.big[1] = vec[2] >> 32;
-        kron.big[1] |= vec[3] << 32;
-        kron.big[1] |= (vec[4] & 0xFFFFFFFF) << 96;
+        for (int i = 0; i < 4; i++)
+            kron.big.words[i] = _pdep_u64((comb >> (i*14)) & 0x3FFF, extmask);
+        kron.small = _pdep_u64((comb >> 56) & 0xFF, extmask);
 #endif
 
         return kron;
