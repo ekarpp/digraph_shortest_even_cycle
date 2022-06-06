@@ -470,28 +470,50 @@ public:
 
         return ret;
     }
-
+#endif
     kronecker_form kronecker_substitution(uint64_2_t x) const
     {
         /* combine lo and hi to single uint64_t
          * where 2 bits represent single coefficient.
          * the "more traditional" bit representation for polynomials */
-        uint64_t comb = _pdep_u64(x.lo, 0x55555555);
-        comb |= _pdep_u64(x.hi, 0xAAAAAAAA);
+        uint64_t extmask = 0x55555555;
+        uint64_t comb = _pdep_u64(x.lo, extmask);
+        comb |= _pdep_u64(x.hi, extmask << 1);
 
+        kronecker_form kron;
+
+#if GF2_bits == 16
         /* contains the "polynomial" after kronecker substitution.
          * for us it is sufficient that each coefficient has 8 bits,
          * (see details in thesis) thus we need 16*8 = 128 bits
          * for the polynomial after substitution. */
-        __int128_t ret;
-        uint64_t extmask = 0x0303030303030303ull;
+
+        extmask = 0x0303030303030303ull;
         __int128_t lo = _pdep_u64(comb & 0xFFFF, extmask);
         __int128_t hi = _pdep_u64((comb >> 16) & 0xFFFF, extmask);
-        ret = lo | (hi << 64);
+        kron = lo | (hi << 64);
+#else
+        /* each element stores 7 coefficients.
+         * each coefficients takes 9 bits.*/
+#define COUNT 5
+        __int128_t vec[COUNT];
+        /* mask has 2x ones 7x zeros repeating */
+        extmask = 0x00C06030180C0603ull;
+        for (int i = 0; i < COUNT; i++)
+            vec[i] = _pdep_u64((comb >> (i*14)) & 0x3FFF, extmask);
 
-        return ret;
-    }
+        kron.small = vec[0] & 0xFFFFFFFF;
+        kron.big.lo = vec[0] >> 32;
+        kron.big.lo |= vec[1] << 32;
+        kron.big.lo |= (vec[2] & 0xFFFFFFFF) << 96;
+
+        kron.big.hi = vec[2] >> 32;
+        kron.big.hi |= vec[3] << 32;
+        kron.big.hi |= (vec[4] & 0xFFFFFFFF) << 96;
 #endif
+
+        return kron;
+    }
 
     int get_n() const { return this->n; }
     uint64_t get_mod() const { return this->mod; }
