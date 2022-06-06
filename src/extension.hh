@@ -37,7 +37,7 @@ struct __int512_t
 };
 
 #if GF2_bits == 16
-typedef uint64_2_t kronecker_form;
+typedef __int128_t kronecker_form;
 #else
 struct kronecker_form
 {
@@ -345,12 +345,14 @@ public:
         return { hi1 ^ hi2 ^ hi, lo };
     }
 
-    __int256_t mul_128bit(uint64_2_t a, uint64_2_t b) const
+    __int256_t mul_128bit(__int128_t a, __int128_t b) const
     {
-        __int128_t ah = a.hi;
-        __int128_t al = a.lo;
-        __int128_t bh = b.hi;
-        __int128_t bl = b.lo;
+        __int128_t mask64b = 0xFFFFFFFFFFFFFFFFull;
+
+        __int128_t ah = a >> 64;
+        __int128_t al = a & mask64b;
+        __int128_t bh = b >> 64;
+        __int128_t bl = b & mask64b;
 
         /* see https://stackoverflow.com/a/26855440 for logic. */
 
@@ -359,13 +361,42 @@ public:
         __int128_t albh = al*bh;
         __int128_t albl = al*bl;
 
-        __int128_t mask64b = 0xFFFFFFFFFFFFFFFFull;
-
         __int128_t mid = (albl >> 64) + (ahbl & mask64b) + (albh & mask64b);
 
         __int256_t ret;
         ret.hi = ahbh + (ahbl >> 64) + (albh >> 64) + (mid >> 64);
         ret.lo = (mid << 64) | (albl & mask64b);
+
+        return ret;
+    }
+
+    __int512_t mul_256bit(__int256_t a, __int256_t b) const
+    {
+        __int256_t ahbh = this->mul_128bit(a.hi, b.hi);
+        __int256_t ahbl = this->mul_128bit(a.hi, b.lo);
+        __int256_t albh = this->mul_128bit(a.lo, b.hi);
+        __int256_t albl = this->mul_128bit(a.lo, b.lo);
+
+        __int256_t mid;
+        char ctot = 0;
+        char carry = 0;
+        mid.lo = add_128bit(albl.hi, ahbl.lo, &carry);
+        ctot += carry;
+        carry = 0;
+        mid.lo = add_128bit(mid.lo, albh.lo, &carry);
+        mid.hi = ctot + carry;
+
+        __int512_t ret;
+        ret.lo.lo = albl.lo;
+        ret.lo.hi = mid.lo;
+
+        carry = 0;
+        ctot = 0;
+        ret.hi = add_256bit(ahbh, { 0, ahbl.lo }, &carry);
+        ctot = carry;
+        carry = 0;
+        ret.hi = add_256bit(ret.hi, { ctot, albh.lo }, &carry);
+        ret.hi.hi += carry;
 
         return ret;
     }
@@ -452,12 +483,13 @@ public:
          * for us it is sufficient that each coefficient has 8 bits,
          * (see details in thesis) thus we need 16*8 = 128 bits
          * for the polynomial after substitution. */
-        uint64_2_t vec;
+        __int128_t ret;
         uint64_t extmask = 0x0303030303030303ull;
-        vec.lo = _pdep_u64(comb & 0xFFFF, extmask);
-        vec.hi = _pdep_u64((comb >> 16) & 0xFFFF, extmask);
+        __int128_t lo = _pdep_u64(comb & 0xFFFF, extmask);
+        __int128_t hi = _pdep_u64((comb >> 16) & 0xFFFF, extmask);
+        ret = lo | (hi << 64);
 
-        return vec;
+        return ret;
     }
 #endif
 
