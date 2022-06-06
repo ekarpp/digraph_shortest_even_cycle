@@ -30,32 +30,6 @@ struct __int256_t
     __int128_t lo;
 };
 
-struct __int512_t
-{
-    __int256_t hi;
-    __int256_t lo;
-};
-
-struct __int576_t
-{
-/* LSB */
-    __int512_t big;
-/* MSB */
-    uint64_t small;
-};
-
-#if GF2_bits == 16
-typedef __int128_t kronecker_form;
-#else
-struct kronecker_form
-{
-/* MSB */
-    __int256_t big;
-/* 32bit LSB */
-    uint64_t small;
-};
-#endif
-
 /* Extension of GF(2^n) to the ring E(4^n).
  * If GF(2^n) = Z2 / <g_2> for irreducible polynomial
  * g_2 of degree n, then if g_4 is g_2 but coefficients
@@ -355,14 +329,12 @@ public:
         return { hi1 ^ hi2 ^ hi, lo };
     }
 
-    __int256_t mul_128bit(__int128_t a, __int128_t b) const
+    __int256_t mul_128bit(uint64_2_t a, uint64_2_t b) const
     {
-        __int128_t mask64b = 0xFFFFFFFFFFFFFFFFull;
-
-        __int128_t ah = a >> 64;
-        __int128_t al = a & mask64b;
-        __int128_t bh = b >> 64;
-        __int128_t bl = b & mask64b;
+        __int128_t ah = a.hi;
+        __int128_t al = a.lo;
+        __int128_t bh = b.hi;
+        __int128_t bl = b.lo;
 
         /* see https://stackoverflow.com/a/26855440 for logic. */
 
@@ -370,6 +342,8 @@ public:
         __int128_t ahbl = ah*bl;
         __int128_t albh = al*bh;
         __int128_t albl = al*bl;
+
+        __int128_t mask64b = 0xFFFFFFFFFFFFFFFFull;
 
         __int128_t mid = (albl >> 64) + (ahbl & mask64b) + (albh & mask64b);
 
@@ -380,121 +354,16 @@ public:
         return ret;
     }
 
-    __int512_t mul_256bit(__int256_t a, __int256_t b) const
-    {
-        __int256_t ahbh = this->mul_128bit(a.hi, b.hi);
-        __int256_t ahbl = this->mul_128bit(a.hi, b.lo);
-        __int256_t albh = this->mul_128bit(a.lo, b.hi);
-        __int256_t albl = this->mul_128bit(a.lo, b.lo);
-
-        __int256_t mid;
-        char ctot = 0;
-        char carry = 0;
-        mid.lo = add_128bit(albl.hi, ahbl.lo, &carry);
-        ctot += carry;
-        carry = 0;
-        mid.lo = add_128bit(mid.lo, albh.lo, &carry);
-        mid.hi = ctot + carry;
-
-        __int512_t ret;
-        ret.lo.lo = albl.lo;
-        ret.lo.hi = mid.lo;
-
-        carry = 0;
-        ctot = 0;
-        ret.hi = add_256bit(ahbh, { 0, ahbl.lo }, &carry);
-        ctot = carry;
-        carry = 0;
-        ret.hi = add_256bit(ret.hi, { ctot, albh.lo }, &carry);
-        ret.hi.hi += carry;
-
-        return ret;
-    }
-
-    __int576_t add_576bit(__int576_t a, __int576_t b) const
-    {
-        __int576_t sum;
-        char carry = 0;
-
-        sum.big = add_512bit(a.big, b.big, &carry);
-        sum.small = a.small + b.small + carry;
-
-        return sum;
-    }
-
-    /* i has to be <= 128 */
-    __int576_t lshift_512bit(__int512_t a, int i) const
-    {
-        __int512_t big;
-
-        big.lo.lo = a.lo.lo << i;
-
-        big.lo.hi = a.lo.hi << i;
-        big.lo.hi |= a.lo.lo >> (128 - i);
-
-        big.hi.lo = a.hi.lo << i;
-        big.hi.lo |= a.lo.hi >> (128 - i);
-
-        big.hi.hi = a.hi.hi << i;
-        big.hi.hi |= a.hi.lo >> (128 - i);
-
-        uint64_t small = a.hi.hi >> (128 - i);
-
-        __int576_t ret;
-        ret.big = big;
-        ret.small = small;
-
-        return ret;
-    }
-
-    __int512_t add_512bit(__int512_t a, __int512_t b, char *carry) const
-    {
-
-        __int512_t sum;
-        sum.lo = add_256bit(a.lo, b.lo, carry);
-        sum.hi = add_256bit(a.hi, b.hi, carry);
-        return sum;
-    }
-
-    __int256_t add_256bit(__int256_t a, __int256_t b, char *carry) const
-    {
-        __int256_t sum;
-        sum.lo = add_128bit(a.lo, b.lo, carry);
-        sum.hi = add_128bit(a.hi, b.hi, carry);
-        return sum;
-    }
-
-    __int128_t add_128bit(__int128_t a, __int128_t b, char *carry) const
-    {
-        __int128_t mask64b = 0xFFFFFFFFFFFFFFFFull;
-        uint64_t loa = a & mask64b;
-        uint64_t hia = a >> 64;
-        uint64_t lob = b & mask64b;
-        uint64_t hib = b >> 64;
-
-        /* ???????? */
-        long long unsigned int sumlo = 0;
-        long long unsigned int sumhi = 0;
-
-        *carry = _addcarry_u64(*carry, loa, lob, &sumlo);
-        *carry = _addcarry_u64(*carry, hia, hib, &sumhi);
-
-        __int128_t sum = sumlo;
-        sum |= ((__int128_t) sumhi) << 64;
-        return sum;
-    }
-
-
+#if GF2_bits == 16
     /* only works if deg <= 15 for a AND b */
     uint64_2_t kronecker_mul(uint64_2_t a, uint64_2_t b) const
     {
-        uint64_2_t ret;
         /* we use different representation of polynomials than before here.
          * each bit string can be split to sets of 2 bits where each set
          * corresponds to a coefficient modulo 4. */
-        kronecker_form aa = this->kronecker_substitution(a);
-        kronecker_form bb = this->kronecker_substitution(b);
-#if GF2_bits == 16
+        uint64_2_t aa = this->kronecker_substitution(a);
+        uint64_2_t bb = this->kronecker_substitution(b);
+
         __int256_t prod = this->mul_128bit(aa, bb);
 
         /* first store the interesting bits to a uint64_t,
@@ -508,100 +377,35 @@ public:
         tmp |= _pext_u64(prod.hi >> 64, extmask) << 48;
 
         /* extract the usual hi/lo representation */
+        uint64_2_t ret;
         uint64_t hiextmask = 0xAAAAAAAAAAAAAAAAull;
         uint64_t loextmask = 0x5555555555555555ull;
         ret.lo = _pext_u64(tmp, loextmask);
         ret.hi = _pext_u64(tmp, hiextmask);
-#else
-        __int512_t ahbh = this->mul_256bit(aa.big, bb.big);
-        __int512_t ahbl = this->mul_256bit(aa.big, { 0, bb.small });
-        __int512_t albh = this->mul_256bit({ 0, aa.small }, bb.big);
-        uint64_t albl = aa.small * bb.small;
 
-        __int576_t prod = this->add_576bit(
-            this->lshift_512bit(ahbh, 64),
-            this->lshift_512bit(ahbl, 32)
-        );
-
-        prod = this->add_576bit(
-            prod,
-            this->lshift_512bit(albh, 32)
-        );
-
-        /* albl to __int576_t */
-        __int576_t small = { { {0,0}, {0,0} }, 0 };
-        small.big.lo.lo = albl;
-
-        prod = this->add_576bit(prod, small);
-
-        /* extract */
-
-        uint64_t extmask = 0x00C06030180C0603ull;
-        uint64_2_t tmp;
-        tmp.lo = _pext_u64(prod.big.lo.lo, extmask);
-        tmp.lo |= _pext_u64(prod.big.lo.lo >> 64, extmask) << 14;
-        tmp.lo |= _pext_u64(prod.big.lo.hi, extmask) << 28;
-        tmp.lo |= _pext_u64(prod.big.lo.hi >> 64, extmask) << 42;
-
-        tmp.hi = _pext_u64(prod.big.hi.lo, extmask);
-        tmp.hi |= _pext_u64(prod.big.hi.lo >> 64, extmask) << 14;
-        tmp.hi |= _pext_u64(prod.big.hi.hi, extmask) << 28;
-        tmp.hi |= _pext_u64(prod.big.hi.hi >> 64, extmask) << 42;
-
-        uint64_t hiextmask = 0xAAAAAAAAAAAAAAAAull;
-        uint64_t loextmask = 0x5555555555555555ull;
-        ret.hi = _pext_u64(tmp.lo, hiextmask);
-        ret.hi |= _pext_u64(tmp.hi, hiextmask) << 28;
-
-        ret.lo = _pext_u64(tmp.lo, loextmask);
-        ret.lo |= _pext_u64(tmp.hi, loextmask) << 28;
-#endif
         return ret;
     }
 
-    kronecker_form kronecker_substitution(uint64_2_t x) const
+    uint64_2_t kronecker_substitution(uint64_2_t x) const
     {
         /* combine lo and hi to single uint64_t
          * where 2 bits represent single coefficient.
          * the "more traditional" bit representation for polynomials */
-        uint64_t extmask = 0x55555555;
-        uint64_t comb = _pdep_u64(x.lo, extmask);
-        comb |= _pdep_u64(x.hi, extmask << 1);
+        uint64_t comb = _pdep_u64(x.lo, 0x55555555);
+        comb |= _pdep_u64(x.hi, 0xAAAAAAAA);
 
-        kronecker_form kron;
-
-#if GF2_bits == 16
         /* contains the "polynomial" after kronecker substitution.
          * for us it is sufficient that each coefficient has 8 bits,
          * (see details in thesis) thus we need 16*8 = 128 bits
          * for the polynomial after substitution. */
+        uint64_2_t vec;
+        uint64_t extmask = 0x0303030303030303ull;
+        vec.lo = _pdep_u64(comb & 0xFFFF, extmask);
+        vec.hi = _pdep_u64((comb >> 16) & 0xFFFF, extmask);
 
-        extmask = 0x0303030303030303ull;
-        __int128_t lo = _pdep_u64(comb & 0xFFFF, extmask);
-        __int128_t hi = _pdep_u64((comb >> 16) & 0xFFFF, extmask);
-        kron = lo | (hi << 64);
-#else
-        /* each element stores 7 coefficients.
-         * each coefficients takes 9 bits.*/
-#define COUNT 5
-        __int128_t vec[COUNT];
-        /* mask has 2x ones 7x zeros repeating */
-        extmask = 0x00C06030180C0603ull;
-        for (int i = 0; i < COUNT; i++)
-            vec[i] = _pdep_u64((comb >> (i*14)) & 0x3FFF, extmask);
-
-        kron.small = vec[0] & 0xFFFFFFFF;
-        kron.big.lo = vec[0] >> 32;
-        kron.big.lo |= vec[1] << 32;
-        kron.big.lo |= (vec[2] & 0xFFFFFFFF) << 96;
-
-        kron.big.hi = vec[2] >> 32;
-        kron.big.hi |= vec[3] << 32;
-        kron.big.hi |= (vec[4] & 0xFFFFFFFF) << 96;
-#endif
-
-        return kron;
+        return vec;
     }
+#endif
 
     int get_n() const { return this->n; }
     uint64_t get_mod() const { return this->mod; }
