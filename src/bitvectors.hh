@@ -2,6 +2,11 @@
 #ifndef BITVECTOR_H
 #define BITVECTOR_H
 
+struct uint128_t
+{
+    uint64_t words[2];
+};
+
 struct __int256_t
 {
     long long unsigned int words[4];
@@ -17,25 +22,26 @@ struct __int576_t
     long long unsigned int words[9];
 };
 
+#define ADD_WORDS(n)                                                           \
+{                                                                              \
+    char carry = 0;                                                            \
+    for (int i = 0; i < n; i++)                                                \
+        carry = _addcarry_u64(carry, a.words[i], b.words[i], &(sum.words[i])); \
+}
+
 namespace bit
 {
     inline __int512_t add_512bit(__int512_t a, __int512_t b)
     {
         __int512_t sum;
-        char carry = 0;
-        for (int i = 0; i < 8; i++)
-            carry =
-                _addcarry_u64(carry, a.words[i], b.words[i], &(sum.words[i]));
+        ADD_WORDS(8)
         return sum;
     }
 
     inline __int576_t add_576bit(__int576_t a, __int576_t b)
     {
         __int576_t sum;
-        char carry = 0;
-        for (int i = 0; i < 9; i++)
-            carry =
-                _addcarry_u64(carry, a.words[i], b.words[i], &(sum.words[i]));
+        ADD_WORDS(9)
         return sum;
     }
 
@@ -53,14 +59,22 @@ namespace bit
         return shift;
     }
 
-    inline __int256_t mul_128bit(__int128_t a, __int128_t b)
+    inline char add_128bit_carry(uint128_t a, uint128_t b, long long unsigned int *sum)
+    {
+        char carry = 0;
+        carry = _addcarry_u64(carry, a.words[0], b.words[0], sum);
+        carry = _addcarry_u64(carry, a.words[1], b.words[1], sum + 1);
+        return carry;
+    }
+
+    inline __int256_t mul_128bit(uint128_t a, uint128_t b)
     {
         __int128_t mask64b = 0xFFFFFFFFFFFFFFFFull;
 
-        __int128_t ah = a >> 64;
-        __int128_t al = a & mask64b;
-        __int128_t bh = b >> 64;
-        __int128_t bl = b & mask64b;
+        __int128_t ah = a.words[1];
+        __int128_t al = a.words[0];
+        __int128_t bh = b.words[1];
+        __int128_t bl = b.words[0];
 
         /* see https://stackoverflow.com/a/26855440 for logic. */
 
@@ -77,6 +91,83 @@ namespace bit
         __int128_t hi = ahbh + (ahbl >> 64) + (albh >> 64) + (mid >> 64);
         ret.words[2] = hi & mask64b;
         ret.words[3] = hi >> 64;
+
+        return ret;
+    }
+
+    inline __int512_t mul_256bit(__int256_t a, __int256_t b)
+    {
+        __int256_t ahbh = bit::mul_128bit(
+            { a.words[3], a.words[2] },
+            { b.words[3], b.words[2] }
+        );
+        __int256_t ahbl = bit::mul_128bit(
+            { a.words[3], a.words[2] },
+            { b.words[1], b.words[0] }
+        );
+        __int256_t albh = bit::mul_128bit(
+            { a.words[1], a.words[0] },
+            { b.words[3], b.words[2] }
+        );
+        __int256_t albl = bit::mul_128bit(
+            { a.words[1], a.words[0] },
+            { b.words[1], b.words[0] }
+        );
+
+        __int256_t mid;
+        unsigned char carry = 0;
+        long long unsigned int sum[2];
+        carry = add_128bit_carry(
+            { albl.words[3], albl.words[2] },
+            { ahbl.words[1], ahbl.words[0] },
+            sum
+        );
+        carry += add_128bit_carry(
+            { sum[1], sum[0] },
+            { albh.words[1], albh.words[0] },
+            sum
+        );
+        mid.words[0] = sum[0];
+        mid.words[1] = sum[1];
+        mid.words[3] = carry;
+
+        __int512_t ret;
+        ret.words[0] = albl.words[0];
+        ret.words[1] = albl.words[1];
+        ret.words[2] = mid.words[0];
+        ret.words[3] = mid.words[1];
+
+        sum[0] = 0;
+        sum[1] = 0;
+        carry = add_128bit_carry(
+            { ahbh.words[1], ahbh.words[0] },
+            { ahbl.words[3], ahbl.words[2] },
+            sum
+        );
+        carry += add_128bit_carry(
+            { sum[1], sum[0] },
+            { albh.words[3], albh.words[2] },
+            sum
+        );
+        carry += add_128bit_carry(
+            { sum[1], sum[0] },
+            { 0, mid.words[3] },
+            sum
+        );
+
+        ret.words[4] = sum[0];
+        ret.words[5] = sum[1];
+
+        sum[0] = 0;
+        sum[1] = 0;
+        carry = add_128bit_carry(
+            { 0, carry },
+            { ahbh.words[4], ahbh.words[3] },
+            sum
+        );
+
+        ret.words[6] = sum[0];
+        ret.words[7] = sum[1];
 
         return ret;
     }

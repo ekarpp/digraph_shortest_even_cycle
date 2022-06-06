@@ -26,7 +26,7 @@ struct uint64_2_t
 };
 
 #if GF2_bits == 16
-typedef __int128_t kronecker_form;
+typedef uint128_t kronecker_form;
 #else
 struct kronecker_form
 {
@@ -335,38 +335,7 @@ public:
 
         return { hi1 ^ hi2 ^ hi, lo };
     }
-/*
-    __int512_t mul_256bit(__int256_t a, __int256_t b) const
-    {
-        __int256_t ahbh = bit::mul_128bit(a.hi, b.hi);
-        __int256_t ahbl = bit::mul_128bit(a.hi, b.lo);
-        __int256_t albh = bit::mul_128bit(a.lo, b.hi);
-        __int256_t albl = bit::mul_128bit(a.lo, b.lo);
 
-        __int256_t mid;
-        char ctot = 0;
-        char carry = 0;
-        mid.lo = add_128bit(albl.hi, ahbl.lo, &carry);
-        ctot += carry;
-        carry = 0;
-        mid.lo = add_128bit(mid.lo, albh.lo, &carry);
-        mid.hi = ctot + carry;
-
-        __int512_t ret;
-        ret.lo.lo = albl.lo;
-        ret.lo.hi = mid.lo;
-
-        carry = 0;
-        ctot = 0;
-        ret.hi = add_256bit(ahbh, { 0, ahbl.lo }, &carry);
-        ctot = carry;
-        carry = 0;
-        ret.hi = add_256bit(ret.hi, { ctot, albh.lo }, &carry);
-        ret.hi.hi += carry;
-
-        return ret;
-    }
-*/
     /* only works if deg <= 15 for a AND b */
     uint64_2_t kronecker_mul(uint64_2_t a, uint64_2_t b) const
     {
@@ -459,9 +428,8 @@ public:
          * for the polynomial after substitution. */
 
         extmask = 0x0303030303030303ull;
-        __int128_t lo = _pdep_u64(comb & 0xFFFF, extmask);
-        __int128_t hi = _pdep_u64((comb >> 16) & 0xFFFF, extmask);
-        kron = lo | (hi << 64);
+        kron.words[0] = _pdep_u64(comb & 0xFFFF, extmask);
+        kron.words[1] = _pdep_u64((comb >> 16) & 0xFFFF, extmask);
 #else
         /* each coefficients takes 9 bits.
          * we have <= 32 coefficients. */
