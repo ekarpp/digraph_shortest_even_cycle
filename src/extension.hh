@@ -6,11 +6,9 @@
 #include <stdint.h>
 #include <immintrin.h>
 
-#include <gmp.h>
-
-
 #include "gf.hh"
 #include "global.hh"
+#include "bitvectors.hh"
 
 /* forward declare */
 class GF_element;
@@ -25,26 +23,6 @@ struct uint64_2_t
 {
     uint64_t hi;
     uint64_t lo;
-};
-
-struct __int256_t
-{
-    __int128_t hi;
-    __int128_t lo;
-};
-
-struct __int512_t
-{
-    __int256_t hi;
-    __int256_t lo;
-};
-
-struct __int576_t
-{
-/* LSB */
-    __int512_t big;
-/* MSB */
-    uint64_t small;
 };
 
 #if GF2_bits == 16
@@ -357,38 +335,13 @@ public:
 
         return { hi1 ^ hi2 ^ hi, lo };
     }
-
-    __int256_t mul_128bit(__int128_t a, __int128_t b) const
-    {
-        __int128_t mask64b = 0xFFFFFFFFFFFFFFFFull;
-
-        __int128_t ah = a >> 64;
-        __int128_t al = a & mask64b;
-        __int128_t bh = b >> 64;
-        __int128_t bl = b & mask64b;
-
-        /* see https://stackoverflow.com/a/26855440 for logic. */
-
-        __int128_t ahbh = ah*bh;
-        __int128_t ahbl = ah*bl;
-        __int128_t albh = al*bh;
-        __int128_t albl = al*bl;
-
-        __int128_t mid = (albl >> 64) + (ahbl & mask64b) + (albh & mask64b);
-
-        __int256_t ret;
-        ret.hi = ahbh + (ahbl >> 64) + (albh >> 64) + (mid >> 64);
-        ret.lo = (mid << 64) | (albl & mask64b);
-
-        return ret;
-    }
-
+/*
     __int512_t mul_256bit(__int256_t a, __int256_t b) const
     {
-        __int256_t ahbh = this->mul_128bit(a.hi, b.hi);
-        __int256_t ahbl = this->mul_128bit(a.hi, b.lo);
-        __int256_t albh = this->mul_128bit(a.lo, b.hi);
-        __int256_t albl = this->mul_128bit(a.lo, b.lo);
+        __int256_t ahbh = bit::mul_128bit(a.hi, b.hi);
+        __int256_t ahbl = bit::mul_128bit(a.hi, b.lo);
+        __int256_t albh = bit::mul_128bit(a.lo, b.hi);
+        __int256_t albl = bit::mul_128bit(a.lo, b.lo);
 
         __int256_t mid;
         char ctot = 0;
@@ -413,81 +366,7 @@ public:
 
         return ret;
     }
-
-    __int576_t add_576bit(__int576_t a, __int576_t b) const
-    {
-        __int576_t sum;
-        char carry = 0;
-
-        sum.big = add_512bit(a.big, b.big, &carry);
-        sum.small = a.small + b.small + carry;
-
-        return sum;
-    }
-
-    /* i has to be <= 128 */
-    __int576_t lshift_512bit(__int512_t a, int i) const
-    {
-        __int512_t big;
-
-        big.lo.lo = a.lo.lo << i;
-
-        big.lo.hi = a.lo.hi << i;
-        big.lo.hi |= a.lo.lo >> (128 - i);
-
-        big.hi.lo = a.hi.lo << i;
-        big.hi.lo |= a.lo.hi >> (128 - i);
-
-        big.hi.hi = a.hi.hi << i;
-        big.hi.hi |= a.hi.lo >> (128 - i);
-
-        uint64_t small = a.hi.hi >> (128 - i);
-
-        __int576_t ret;
-        ret.big = big;
-        ret.small = small;
-
-        return ret;
-    }
-
-    __int512_t add_512bit(__int512_t a, __int512_t b, char *carry) const
-    {
-
-        __int512_t sum;
-        sum.lo = add_256bit(a.lo, b.lo, carry);
-        sum.hi = add_256bit(a.hi, b.hi, carry);
-        return sum;
-    }
-
-    __int256_t add_256bit(__int256_t a, __int256_t b, char *carry) const
-    {
-        __int256_t sum;
-        sum.lo = add_128bit(a.lo, b.lo, carry);
-        sum.hi = add_128bit(a.hi, b.hi, carry);
-        return sum;
-    }
-
-    __int128_t add_128bit(__int128_t a, __int128_t b, char *carry) const
-    {
-        __int128_t mask64b = 0xFFFFFFFFFFFFFFFFull;
-        uint64_t loa = a & mask64b;
-        uint64_t hia = a >> 64;
-        uint64_t lob = b & mask64b;
-        uint64_t hib = b >> 64;
-
-        /* ???????? */
-        long long unsigned int sumlo = 0;
-        long long unsigned int sumhi = 0;
-
-        *carry = _addcarry_u64(*carry, loa, lob, &sumlo);
-        *carry = _addcarry_u64(*carry, hia, hib, &sumhi);
-
-        __int128_t sum = sumlo;
-        sum |= ((__int128_t) sumhi) << 64;
-        return sum;
-    }
-
-
+*/
     /* only works if deg <= 15 for a AND b */
     uint64_2_t kronecker_mul(uint64_2_t a, uint64_2_t b) const
     {
@@ -498,17 +377,17 @@ public:
         kronecker_form aa = this->kronecker_substitution(a);
         kronecker_form bb = this->kronecker_substitution(b);
 #if GF2_bits == 16
-        __int256_t prod = this->mul_128bit(aa, bb);
+        __int256_t prod = bit::mul_128bit(aa, bb);
 
         /* first store the interesting bits to a uint64_t,
          * that is the first two bits of each 8 bit limb.
          * it fits, as we have deg <= 15+15 and each coefficient
          * uses two bits. */
         uint64_t extmask = 0x0303030303030303ull;
-        uint64_t tmp = _pext_u64(prod.lo, extmask);
-        tmp |= _pext_u64(prod.lo >> 64, extmask) << 16;
-        tmp |= _pext_u64(prod.hi, extmask) << 32;
-        tmp |= _pext_u64(prod.hi >> 64, extmask) << 48;
+        uint64_t tmp = _pext_u64(prod.words[0], extmask);
+        tmp |= _pext_u64(prod.words[1], extmask) << 16;
+        tmp |= _pext_u64(prod.words[2], extmask) << 32;
+        tmp |= _pext_u64(prod.words[3], extmask) << 48;
 
         /* extract the usual hi/lo representation */
         uint64_t hiextmask = 0xAAAAAAAAAAAAAAAAull;
@@ -594,13 +473,13 @@ public:
             vec[i] = _pdep_u64((comb >> (i*14)) & 0x3FFF, extmask);
 
         kron.small = vec[0] & 0xFFFFFFFF;
-        kron.big.lo = vec[0] >> 32;
-        kron.big.lo |= vec[1] << 32;
-        kron.big.lo |= (vec[2] & 0xFFFFFFFF) << 96;
+        kron.big[0] = vec[0] >> 32;
+        kron.big[0] |= vec[1] << 32;
+        kron.big[0] |= (vec[2] & 0xFFFFFFFF) << 96;
 
-        kron.big.hi = vec[2] >> 32;
-        kron.big.hi |= vec[3] << 32;
-        kron.big.hi |= (vec[4] & 0xFFFFFFFF) << 96;
+        kron.big[1] = vec[2] >> 32;
+        kron.big[1] |= vec[3] << 32;
+        kron.big[1] |= (vec[4] & 0xFFFFFFFF) << 96;
 #endif
 
         return kron;
