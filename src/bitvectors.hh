@@ -38,6 +38,29 @@ namespace bit
         return sum;
     }
 
+    inline __int576_t pad_words(__int512_t a, int n)
+    {
+        __int576_t padded;
+        for (int i = 0; i < n; i++)
+            padded.words[i] = 0;
+
+        for (int i = n; i < 9; i++)
+            padded.words[i] = a.words[i - n];
+
+        return padded;
+    }
+
+    inline __int576_t widen_512bits(__int512_t a)
+    {
+        __int576_t wide;
+        for (int i = 0; i < 8; i++)
+            wide.words[i] = a.words[i];
+
+        wide.words[8] = 0;
+
+        return wide;
+    }
+
     inline __int576_t add_576bit(__int576_t a, __int576_t b)
     {
         __int576_t sum;
@@ -162,7 +185,7 @@ namespace bit
         sum[1] = 0;
         carry = add_128bit_carry(
             { 0, carry },
-            { ahbh.words[4], ahbh.words[3] },
+            { ahbh.words[3], ahbh.words[2] },
             sum
         );
 

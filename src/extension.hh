@@ -364,48 +364,46 @@ public:
         ret.lo = _pext_u64(tmp, loextmask);
         ret.hi = _pext_u64(tmp, hiextmask);
 #else
-        __int512_t ahbh = this->mul_256bit(aa.big, bb.big);
-        __int512_t ahbl = this->mul_256bit(aa.big, { 0, bb.small });
-        __int512_t albh = this->mul_256bit({ 0, aa.small }, bb.big);
+        __int512_t ahbh = bit::mul_256bit(aa.big, bb.big);
+        __int512_t ahbl = bit::mul_256bit(aa.big, { 0, 0, 0, bb.small });
+        __int512_t albh = bit::mul_256bit({ 0, 0, 0, aa.small }, bb.big);
         uint64_t albl = aa.small * bb.small;
 
-        __int576_t prod = this->add_576bit(
-            this->lshift_512bit(ahbh, 64),
-            this->lshift_512bit(ahbl, 32)
+        __int576_t prod = bit::add_576bit(
+            bit::widen_512bits(ahbh),
+            bit::pad_words(ahbl, 4)
         );
 
-        prod = this->add_576bit(
+        prod = bit::add_576bit(
             prod,
-            this->lshift_512bit(albh, 32)
+            bit::pad_words(albh, 4)
         );
 
-        /* albl to __int576_t */
-        __int576_t small = { { {0,0}, {0,0} }, 0 };
-        small.big.lo.lo = albl;
-
-        prod = this->add_576bit(prod, small);
+        /* can't overflow */
+        prod.words[8] += albl;
 
         /* extract */
+        uint64_t tmp[3];
+        tmp[0] = 0; tmp[1] = 0; tmp[2] = 0;
 
         uint64_t extmask = 0x00C06030180C0603ull;
-        uint64_2_t tmp;
-        tmp.lo = _pext_u64(prod.big.lo.lo, extmask);
-        tmp.lo |= _pext_u64(prod.big.lo.lo >> 64, extmask) << 14;
-        tmp.lo |= _pext_u64(prod.big.lo.hi, extmask) << 28;
-        tmp.lo |= _pext_u64(prod.big.lo.hi >> 64, extmask) << 42;
+        for (int i = 0; i < 4; i++)
+            tmp[0] |= _pext_u64(prod.words[i], extmask) << (14*i);
 
-        tmp.hi = _pext_u64(prod.big.hi.lo, extmask);
-        tmp.hi |= _pext_u64(prod.big.hi.lo >> 64, extmask) << 14;
-        tmp.hi |= _pext_u64(prod.big.hi.hi, extmask) << 28;
-        tmp.hi |= _pext_u64(prod.big.hi.hi >> 64, extmask) << 42;
+        for (int i = 4; i < 8; i++)
+            tmp[1] |= _pext_u64(prod.words[i], extmask) << (14*(i-4));
+
+        tmp[2] = _pext_u64(prod.words[8], extmask);
 
         uint64_t hiextmask = 0xAAAAAAAAAAAAAAAAull;
         uint64_t loextmask = 0x5555555555555555ull;
-        ret.hi = _pext_u64(tmp.lo, hiextmask);
-        ret.hi |= _pext_u64(tmp.hi, hiextmask) << 28;
+        ret.hi = _pext_u64(tmp[0], hiextmask);
+        ret.hi |= _pext_u64(tmp[1], hiextmask) << 28;
+        ret.hi |= _pext_u64(tmp[2], hiextmask) << 56;
 
-        ret.lo = _pext_u64(tmp.lo, loextmask);
-        ret.lo |= _pext_u64(tmp.hi, loextmask) << 28;
+        ret.lo = _pext_u64(tmp[0], loextmask);
+        ret.lo |= _pext_u64(tmp[1], loextmask) << 28;
+        ret.lo |= _pext_u64(tmp[2], loextmask) << 56;
 #endif
         return ret;
     }
