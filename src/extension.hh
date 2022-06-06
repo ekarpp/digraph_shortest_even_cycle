@@ -36,12 +36,22 @@ struct __int512_t
     __int256_t lo;
 };
 
+struct __int576_t
+{
+/* LSB */
+    __int512_t big;
+/* MSB */
+    uint64_t small;
+};
+
 #if GF2_bits == 16
 typedef __int128_t kronecker_form;
 #else
 struct kronecker_form
 {
+/* MSB */
     __int256_t big;
+/* 32bit LSB */
     uint64_t small;
 };
 #endif
@@ -401,13 +411,48 @@ public:
         return ret;
     }
 
-    __int512_t add_512bit(__int512_t a, __int512_t b) const
+    __int576_t add_576bit(__int576_t a, __int576_t b) const
+    {
+        __int576_t sum;
+        char carry = 0;
+
+        sum.big = add_512bit(a.big, b.big, &carry);
+        sum.small = a.small + b.small + carry;
+
+        return sum;
+    }
+
+    /* i has to be <= 128 */
+    __int576_t lshift_512bit(__int512_t a, int i) const
+    {
+        __int512_t big;
+
+        big.lo.lo = a.lo.lo << i;
+
+        big.lo.hi = a.lo.hi << i;
+        big.lo.hi |= a.lo.lo >> (128 - i);
+
+        big.hi.lo = a.hi.lo << i;
+        big.hi.lo |= a.lo.hi >> (128 - i);
+
+        big.hi.hi = a.hi.hi << i;
+        big.hi.hi |= a.hi.lo >> (128 - i);
+
+        uint64_t small = a.hi.hi >> (128 - i);
+
+        __int576_t ret;
+        ret.big = big;
+        ret.small = small;
+
+        return ret;
+    }
+
+    __int512_t add_512bit(__int512_t a, __int512_t b, char *carry) const
     {
 
         __int512_t sum;
-        char carry = 0;
-        sum.lo = add_256bit(a.lo, b.lo, &carry);
-        sum.hi = add_256bit(a.hi, b.hi, &carry);
+        sum.lo = add_256bit(a.lo, b.lo, carry);
+        sum.hi = add_256bit(a.hi, b.hi, carry);
         return sum;
     }
 
@@ -439,16 +484,17 @@ public:
         return sum;
     }
 
-#if GF2_bits == 16
+
     /* only works if deg <= 15 for a AND b */
     uint64_2_t kronecker_mul(uint64_2_t a, uint64_2_t b) const
     {
+        uint64_2_t ret;
         /* we use different representation of polynomials than before here.
          * each bit string can be split to sets of 2 bits where each set
          * corresponds to a coefficient modulo 4. */
         kronecker_form aa = this->kronecker_substitution(a);
         kronecker_form bb = this->kronecker_substitution(b);
-
+#if GF2_bits == 16
         __int256_t prod = this->mul_128bit(aa, bb);
 
         /* first store the interesting bits to a uint64_t,
@@ -462,15 +508,57 @@ public:
         tmp |= _pext_u64(prod.hi >> 64, extmask) << 48;
 
         /* extract the usual hi/lo representation */
-        uint64_2_t ret;
         uint64_t hiextmask = 0xAAAAAAAAAAAAAAAAull;
         uint64_t loextmask = 0x5555555555555555ull;
         ret.lo = _pext_u64(tmp, loextmask);
         ret.hi = _pext_u64(tmp, hiextmask);
+#else
+        __int512_t ahbh = this->mul_256bit(aa.big, bb.big);
+        __int512_t ahbl = this->mul_256bit(aa.big, { 0, bb.small });
+        __int512_t albh = this->mul_256bit({ 0, aa.small }, bb.big);
+        uint64_t albl = aa.small * bb.small;
 
+        __int576_t prod = this->add_576bit(
+            this->lshift_512bit(ahbh, 64),
+            this->lshift_512bit(ahbl, 32)
+        );
+
+        prod = this->add_576bit(
+            prod,
+            this->lshift_512bit(albh, 32)
+        );
+
+        /* albl to __int576_t */
+        __int576_t small = { { {0,0}, {0,0} }, 0 };
+        small.big.lo.lo = albl;
+
+        prod = this->add_576bit(prod, small);
+
+        /* extract */
+
+        uint64_t extmask = 0x00C06030180C0603ull;
+        uint64_2_t tmp;
+        tmp.lo = _pext_u64(prod.big.lo.lo, extmask);
+        tmp.lo |= _pext_u64(prod.big.lo.lo >> 64, extmask) << 14;
+        tmp.lo |= _pext_u64(prod.big.lo.hi, extmask) << 28;
+        tmp.lo |= _pext_u64(prod.big.lo.hi >> 64, extmask) << 42;
+
+        tmp.hi = _pext_u64(prod.big.hi.lo, extmask);
+        tmp.hi |= _pext_u64(prod.big.hi.lo >> 64, extmask) << 14;
+        tmp.hi |= _pext_u64(prod.big.hi.hi, extmask) << 28;
+        tmp.hi |= _pext_u64(prod.big.hi.hi >> 64, extmask) << 42;
+
+        uint64_t hiextmask = 0xAAAAAAAAAAAAAAAAull;
+        uint64_t loextmask = 0x5555555555555555ull;
+        ret.hi = _pext_u64(tmp.lo, hiextmask);
+        ret.hi |= _pext_u64(tmp.hi, hiextmask) << 28;
+
+        ret.lo = _pext_u64(tmp.lo, loextmask);
+        ret.lo |= _pext_u64(tmp.hi, loextmask) << 28;
+#endif
         return ret;
     }
-#endif
+
     kronecker_form kronecker_substitution(uint64_2_t x) const
     {
         /* combine lo and hi to single uint64_t
