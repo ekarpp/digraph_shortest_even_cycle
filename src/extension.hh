@@ -365,8 +365,8 @@ public:
         ret.hi = _pext_u64(tmp, hiextmask);
 #else
         __int512_t ahbh = bit::mul_256bit(aa.big, bb.big);
-        __int512_t ahbl = bit::mul_256bit(aa.big, { bb.small, 0, 0, 0 });
-        __int512_t albh = bit::mul_256bit({ aa.small, 0, 0, 0 }, bb.big);
+        __int512_t ahbl = bit::mul_256bit_64bit(aa.big, bb.small);
+        __int512_t albh = bit::mul_256bit_64bit(bb.big, aa.small);
         uint64_t albl = aa.small * bb.small;
 
         __int576_t prod = bit::add_576bit(

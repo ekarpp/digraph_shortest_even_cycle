@@ -118,6 +118,44 @@ namespace bit
         return ret;
     }
 
+    inline __int512_t mul_256bit_64bit(__int256_t a, uint64_t b)
+    {
+        __int256_t ahbl = bit::mul_128bit(
+            { a.words[2], a.words[3] },
+            { b, 0 }
+        );
+
+        __int256_t albl = bit::mul_128bit(
+            { a.words[0], a.words[1] },
+            { b, 0}
+        );
+
+        __int256_t mid;
+        unsigned char carry = 0;
+        long long unsigned sum[2];
+        carry = add_128bit_carry(
+            { albl.words[2], 0 },
+            { ahbl.words[0], ahbl.words[1] },
+            sum
+        );
+
+        mid.words[0] = sum[0];
+        mid.words[1] = sum[1];
+        mid.words[2] = carry;
+
+        __int512_t ret;
+        ret.words[0] = albl.words[0];
+        ret.words[1] = albl.words[1];
+        ret.words[2] = mid.words[0];
+        ret.words[3] = mid.words[1];
+        ret.words[4] = mid.words[2] + ahbl.words[2];
+        ret.words[5] = 0;
+        ret.words[6] = 0;
+        ret.words[7] = 0;
+
+        return ret;
+    }
+
     inline __int512_t mul_256bit(__int256_t a, __int256_t b)
     {
         __int256_t ahbh = bit::mul_128bit(
