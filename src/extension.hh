@@ -452,13 +452,12 @@ public:
          * to make the bitstring continuous */
         for (int i = 0; i < 3; i++)
         {
-            uint64_t mask = (1 << (i+1)) - 1;
             kron.big.words[i] >>= i;
-            kron.big.words[i] |= (kron.big.words[i+1] & mask) << (63 - i);
+            kron.big.words[i] |= kron.big.words[i+1] << (63 - i);
         }
         kron.small = _pdep_u64((comb >> 56) & 0xFF, extmask);
         kron.big.words[3] >>= 3;
-        kron.big.words[3] |= (kron.small & 0xF) << 60;
+        kron.big.words[3] |= kron.small << 60;
         kron.small >>= 4;
 #endif
 
