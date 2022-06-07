@@ -383,6 +383,17 @@ public:
         prod.words[8] += albl;
 
         /* extract */
+
+        /* append zero bit to MSB of each word
+         * to make each word contain exactly 7 coefficients:
+         * 7*9 + 1 = 63 + 1 = 64 */
+
+        for (int i = 8; i > 0; i--)
+        {
+            prod.words[i] <<= i;
+            prod.words[i] |= prod.words[i-1] >> (64 - i);
+        }
+
         uint64_t tmp[3];
         tmp[0] = 0; tmp[1] = 0; tmp[2] = 0;
 
@@ -431,11 +442,14 @@ public:
 #else
         /* each coefficients takes 9 bits.
          * we have <= 32 coefficients. */
+
         /* mask has 2x ones 7x zeros repeating */
         extmask = 0x00C06030180C0603ull;
         for (int i = 0; i < 4; i++)
             kron.big.words[i] = _pdep_u64((comb >> (i*14)) & 0x3FFF, extmask);
 
+        /* remove the MSB zero from each word
+         * to make the bitstring continuous */
         for (int i = 0; i < 3; i++)
         {
             uint64_t mask = (1 << (i+1)) - 1;
