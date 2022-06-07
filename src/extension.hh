@@ -413,7 +413,7 @@ public:
         /* combine lo and hi to single uint64_t
          * where 2 bits represent single coefficient.
          * the "more traditional" bit representation for polynomials */
-        uint64_t extmask = 0x55555555;
+        uint64_t extmask = 0x5555555555555555ull;
         uint64_t comb = _pdep_u64(x.lo, extmask);
         comb |= _pdep_u64(x.hi, extmask << 1);
 
