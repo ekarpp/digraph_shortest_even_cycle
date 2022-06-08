@@ -13,10 +13,10 @@
 
 namespace util
 {
-/*    inline int log2(uint64_t a)
+    inline int log2(uint64_t a)
     {
         return 63 - __builtin_clzl(a);
-    }*/
+    }
 
     /* given an adjacency list for an undirected graph,
      * directs it such that edges are made one way
