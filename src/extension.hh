@@ -585,4 +585,12 @@ public:
     }
 };
 
+namespace util
+{
+    inline Extension_element tau(Extension_element sigma, Extension_element v)
+    {
+        return sigma.project().inv().lift() * v;
+    }
+}
+
 #endif

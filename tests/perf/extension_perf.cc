@@ -7,6 +7,7 @@
 
 #include "../../src/global.hh"
 #include "../../src/extension.hh"
+#include "../../src/gf.hh"
 #include "../../src/util.hh"
 
 using namespace std;

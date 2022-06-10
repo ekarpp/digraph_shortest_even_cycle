@@ -6,6 +6,7 @@
 #include <bitset>
 #include <iostream>
 #include <immintrin.h>
+#include <set>
 
 #include "global.hh"
 
@@ -282,5 +283,25 @@ public:
         std::cout << std::bitset<8>(this->repr) << std::endl;
     }
 };
+
+namespace util
+{
+    /* returns n distinct random elements from
+     * global::F. (use LSFR?) */
+    inline std::vector<GF_element> distinct_elements(int n)
+    {
+        std::vector<GF_element> vec(n);
+        std::set<uint64_t> have;
+        for (int i = 0; i < n; i++)
+        {
+            GF_element e = global::F.random();
+            while (have.count(e.get_repr()) == 1)
+                e = global::F.random();
+            vec[i] = e;
+            have.insert(e.get_repr());
+        }
+        return vec;
+    }
+}
 
 #endif
