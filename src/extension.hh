@@ -271,11 +271,7 @@ public:
 
     uint64_2_t mul(uint64_2_t a, uint64_2_t b) const
     {
-#if GF2_bits == 16
         return kronecker_mul(a, b);
-#else
-        return fast_mul(a, b);
-#endif
     }
 
     uint64_2_t ref_mul(uint64_2_t a, uint64_2_t b) const
