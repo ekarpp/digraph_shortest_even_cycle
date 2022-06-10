@@ -9,6 +9,7 @@
 #include <set>
 
 #include "global.hh"
+#include "util.hh"
 
 /* forward declare */
 class GF_element;
@@ -32,10 +33,10 @@ private:
     uint64_t quo(uint64_t a, uint64_t b) const
     {
         uint64_t q = 0b0;
-        int degb = 63 - __builtin_clzl(b);
+        int degb = util::log2(b);
         while (a >= b)
         {
-            int shift = 63 - __builtin_clzl(a);
+            int shift = util::log2(a);
             shift -= degb;
             /* shift = deg(a) - deg(b) */
             q ^= (1ll << shift);
