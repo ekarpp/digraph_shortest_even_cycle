@@ -72,7 +72,7 @@ private:
             };
 
             q = this->add(q, s);
-            a = this->subtract(a, this->mul(s, b));
+            a = this->subtract(a, this->fast_mul(s, b));
 
             dega = std::max(util::log2(a.lo), util::log2(a.hi));
         }
@@ -148,7 +148,7 @@ public:
             r_prime = this->rem(this->mul(r_prime, this->rem(r)));
 
         // deg <= 3n - 1, overflow when 3n - 1 > 64 <=> n > 65 / 4 ~ 21.667
-        this->n_prime = this->mul(r, r_prime);
+        this->n_prime = this->fast_mul(r, r_prime);
         this->n_prime = this->quo(this->n_prime, { 0x0, this->mod });
 #endif
 
@@ -217,8 +217,10 @@ public:
         r = { r.hi & this->mask, r.lo & this->mask };
         return this->subtract(lo, r);
 #else
+        /* deg n-2 * deg n*/
         uint64_2_t r = this->mul(hi, this->q_plus);
         r = { r.hi >> this->n, r.lo >> this->n };
+        /* deg n-1 * deg n - 2*/
         r = this->mul(r, this->mod_ast);
         r = { r.hi & this->mask, r.lo & this->mask };
         return this->subtract(lo, r);
