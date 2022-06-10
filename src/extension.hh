@@ -190,7 +190,6 @@ public:
         uint64_2_t r = this->add(tmp, { tmp.hi << 2, tmp.lo << 2 });
         r = this->add(r, { tmp.hi << 3, tmp.lo << 3 });
         r = this->add(r, { tmp.hi << 5, tmp.lo << 5 });
-        r = { r.hi & this->mask, r.lo & this->mask };
 #elif GF2_bits == 32
         uint64_2_t tmp = { hi.hi >> 30, hi.lo >> 30 };
         tmp = this->add(tmp, { hi.hi >> 29, hi.lo >> 29 });
@@ -200,15 +199,14 @@ public:
         uint64_2_t r = this->add(tmp, { tmp.hi << 2, tmp.lo << 2 });
         r = this->add(r, { tmp.hi << 3, tmp.lo << 3 });
         r = this->add(r, { tmp.hi << 7, tmp.lo << 7 });
-        r = { r.hi & this->mask, r.lo & this->mask };
 #else
         /* deg n-2 * deg n*/
         uint64_2_t r = this->mul(hi, this->q_plus);
         r = { r.hi >> this->n, r.lo >> this->n };
         /* deg n-1 * deg n - 2*/
         r = this->mul(r, this->mod_ast);
-        r = { r.hi & this->mask, r.lo & this->mask };
 #endif
+        r = { r.hi & this->mask, r.lo & this->mask };
         return this->subtract(lo, r);
     }
 

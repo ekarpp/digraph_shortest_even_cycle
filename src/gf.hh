@@ -99,20 +99,16 @@ public:
 #if GF2_bits == 16
         uint64_t r = hi ^ (hi >> 14) ^ (hi >> 13) ^ (hi >> 11);
         r ^= (r << 2) ^ (r << 3) ^ (r << 5);
-        r ^= lo;
-        return r & this->mask;
 #elif GF2_bits == 32
         uint64_t r = hi ^ (hi >> 30) ^ (hi >> 29) ^ (hi >> 25);
         r ^= (r << 2) ^ (r << 3) ^ (r << 7);
-        r ^= lo;
-        return r & this->mask;
 #else
         uint64_t r = this->clmul(hi, this->q_plus);
         r >>= this->n;
         r = this->clmul(r, this->mod_ast);
+#endif
         r &= this->mask;
         return r ^ lo;
-#endif
     }
 
     /* returns s s.t. for some t: s*a + t*field.mod = gcd(field.mod, a)
