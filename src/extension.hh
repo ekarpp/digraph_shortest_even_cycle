@@ -7,6 +7,7 @@
 #include <immintrin.h>
 
 #include "gf.hh"
+#include "util.hh"
 #include "global.hh"
 #include "bitvectors.hh"
 
@@ -59,8 +60,8 @@ private:
     uint64_2_t quo(uint64_2_t a, uint64_2_t b) const
     {
         uint64_2_t q = { 0, 0 };
-        int dega = 63 - std::min(__builtin_clzl(a.lo), __builtin_clzl(a.hi));
-        int degb = 63 - std::min(__builtin_clzl(b.lo), __builtin_clzl(b.hi));
+        int dega = std::max(util::log2(a.lo), util::log2(a.hi));
+        int degb = std::max(util::log2(b.lo), util::log2(b.hi));
 
         while (dega >= degb)
         {
@@ -73,7 +74,7 @@ private:
             q = this->add(q, s);
             a = this->subtract(a, this->mul(s, b));
 
-            dega = 63 - std::min(__builtin_clzl(a.lo), __builtin_clzl(a.hi));
+            dega = std::max(util::log2(a.lo), util::log2(a.hi));
         }
 
         return q;
@@ -178,7 +179,7 @@ public:
     {
         while (a.lo > this->mask || a.hi > this->mask)
         {
-            int shift = 63 - std::min(__builtin_clzl(a.lo), __builtin_clzl(a.hi));
+            int shift = std::max(util::log2(a.lo), util::log2(a.hi));
             shift -= this->n;
             /* mod has coefficients modulo 2, thus its negation
              * is just it applied to hi and lo (see negate function)*/
