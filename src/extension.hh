@@ -19,7 +19,6 @@ class Extension_element;
  * each bit in lo is the low bit of the mod 4 coefficient.
  * similarly for hi
  */
-/* vectorize with AVX? NO */
 struct uint64_2_t
 {
     uint64_t hi;
@@ -78,18 +77,6 @@ private:
         }
 
         return q;
-    }
-
-    void print(uint64_2_t a) const
-    {
-        for (int i = 63; i >= 0; i--)
-        {
-            uint64_t v = (a.hi >> i) & 1;
-            v <<= 1;
-            v |= (a.lo >> i) & 1;
-            std::cout << v;
-        }
-        std::cout << std::endl;
     }
 
 public:
@@ -204,7 +191,6 @@ public:
         r = this->add(r, { tmp.hi << 3, tmp.lo << 3 });
         r = this->add(r, { tmp.hi << 5, tmp.lo << 5 });
         r = { r.hi & this->mask, r.lo & this->mask };
-        return this->subtract(lo, r);
 #elif GF2_bits == 32
         uint64_2_t tmp = { hi.hi >> 30, hi.lo >> 30 };
         tmp = this->add(tmp, { hi.hi >> 29, hi.lo >> 29 });
@@ -215,7 +201,6 @@ public:
         r = this->add(r, { tmp.hi << 3, tmp.lo << 3 });
         r = this->add(r, { tmp.hi << 7, tmp.lo << 7 });
         r = { r.hi & this->mask, r.lo & this->mask };
-        return this->subtract(lo, r);
 #else
         /* deg n-2 * deg n*/
         uint64_2_t r = this->mul(hi, this->q_plus);
@@ -223,8 +208,8 @@ public:
         /* deg n-1 * deg n - 2*/
         r = this->mul(r, this->mod_ast);
         r = { r.hi & this->mask, r.lo & this->mask };
-        return this->subtract(lo, r);
 #endif
+        return this->subtract(lo, r);
     }
 
     uint64_2_t mont_rem(uint64_2_t a) const
@@ -352,10 +337,9 @@ public:
          * it fits, as we have deg <= 15+15 and each coefficient
          * uses two bits. */
         uint64_t extmask = 0x0303030303030303ull;
-        uint64_t tmp = _pext_u64(prod.words[0], extmask);
-        tmp |= _pext_u64(prod.words[1], extmask) << 16;
-        tmp |= _pext_u64(prod.words[2], extmask) << 32;
-        tmp |= _pext_u64(prod.words[3], extmask) << 48;
+        uint64_t tmp = 0;
+        for (int i = 0; i < 4; i++)
+            tmp |= _pext_u64(prod.words[i], extmask) << (16*i);
 
         /* extract the usual hi/lo representation */
         uint64_t hiextmask = 0xAAAAAAAAAAAAAAAAull;
@@ -407,13 +391,12 @@ public:
 
         uint64_t hiextmask = 0xAAAAAAAAAAAAAAAAull;
         uint64_t loextmask = 0x5555555555555555ull;
-        ret.hi = _pext_u64(tmp[0], hiextmask);
-        ret.hi |= _pext_u64(tmp[1], hiextmask) << 28;
-        ret.hi |= _pext_u64(tmp[2], hiextmask) << 56;
-
-        ret.lo = _pext_u64(tmp[0], loextmask);
-        ret.lo |= _pext_u64(tmp[1], loextmask) << 28;
-        ret.lo |= _pext_u64(tmp[2], loextmask) << 56;
+        ret.hi = 0; ret.lo = 0;
+        for (int i = 0; i < 3; i++)
+        {
+            ret.hi |= _pext_u64(tmp[i], hiextmask) << (28*i);
+            ret.lo |= _pext_u64(tmp[i], loextmask) << (28*i);
+        }
 #endif
         return ret;
     }
@@ -507,7 +490,6 @@ public:
 
     Extension_element operator-(const Extension_element &other) const
     {
-        /* turn other to the additive inverse and then just add */
         return Extension_element(
             global::E.subtract(this->repr, other.get_repr())
         );
@@ -522,7 +504,6 @@ public:
     Extension_element operator*(const Extension_element &other) const
     {
         uint64_2_t prod = global::E.mul(this->repr, other.get_repr());
-        /* use rem in initializer? same for GF */
         return Extension_element(global::E.rem(prod));
     }
 
