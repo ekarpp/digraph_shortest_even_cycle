@@ -31,7 +31,7 @@ typedef uint128_t kronecker_form;
 struct kronecker_form
 {
 /* MSB */
-    __int256_t big;
+    uint256_t big;
 /* 32bit LSB */
     uint64_t small;
 };
@@ -328,7 +328,7 @@ public:
         kronecker_form aa = this->kronecker_substitution(a);
         kronecker_form bb = this->kronecker_substitution(b);
 #if GF2_bits == 16
-        __int256_t prod = bit::mul_128bit(aa, bb);
+        uint256_t prod = bit::mul_128bit(aa, bb);
 
         /* first store the interesting bits to a uint64_t,
          * that is the first two bits of each 8 bit limb.
@@ -345,12 +345,12 @@ public:
         ret.lo = _pext_u64(tmp, loextmask);
         ret.hi = _pext_u64(tmp, hiextmask);
 #else
-        __int512_t ahbh = bit::mul_256bit(aa.big, bb.big);
-        __int512_t ahbl = bit::mul_256bit_64bit(aa.big, bb.small);
-        __int512_t albh = bit::mul_256bit_64bit(bb.big, aa.small);
+        uint512_t ahbh = bit::mul_256bit(aa.big, bb.big);
+        uint512_t ahbl = bit::mul_256bit_64bit(aa.big, bb.small);
+        uint512_t albh = bit::mul_256bit_64bit(bb.big, aa.small);
         uint64_t albl = aa.small * bb.small;
 
-        __int576_t prod = bit::add_576bit(
+        uint576_t prod = bit::add_576bit(
             bit::widen_512bits(ahbh),
             bit::pad_words(ahbl, 4)
         );

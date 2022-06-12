@@ -4,22 +4,22 @@
 
 struct uint128_t
 {
-    long long unsigned int words[2];
+    unsigned long long words[2];
 };
 
-struct __int256_t
+struct uint256_t
 {
-    long long unsigned int words[4];
+    unsigned long long words[4];
 };
 
-struct __int512_t
+struct uint512_t
 {
-    long long unsigned int words[8];
+    unsigned long long words[8];
 };
 
-struct __int576_t
+struct uint576_t
 {
-    long long unsigned int words[9];
+    unsigned long long words[9];
 };
 
 #define ADD_WORDS(n)                                                           \
@@ -31,16 +31,16 @@ struct __int576_t
 
 namespace bit
 {
-    inline __int512_t add_512bit(__int512_t a, __int512_t b)
+    inline uint512_t add_512bit(uint512_t a, uint512_t b)
     {
-        __int512_t sum;
+        uint512_t sum;
         ADD_WORDS(8)
         return sum;
     }
 
-    inline __int576_t pad_words(__int512_t a, int n)
+    inline uint576_t pad_words(uint512_t a, int n)
     {
-        __int576_t padded;
+        uint576_t padded;
         for (int i = 0; i < n; i++)
             padded.words[i] = 0;
 
@@ -50,9 +50,9 @@ namespace bit
         return padded;
     }
 
-    inline __int576_t widen_512bits(__int512_t a)
+    inline uint576_t widen_512bits(uint512_t a)
     {
-        __int576_t wide;
+        uint576_t wide;
         for (int i = 0; i < 8; i++)
             wide.words[i] = a.words[i];
 
@@ -61,17 +61,17 @@ namespace bit
         return wide;
     }
 
-    inline __int576_t add_576bit(__int576_t a, __int576_t b)
+    inline uint576_t add_576bit(uint576_t a, uint576_t b)
     {
-        __int576_t sum;
+        uint576_t sum;
         ADD_WORDS(9)
         return sum;
     }
 
     /* pos <= 64 */
-    inline __int576_t lshift_512bit(__int512_t a, int pos)
+    inline uint576_t lshift_512bit(uint512_t a, int pos)
     {
-        __int576_t shift;
+        uint576_t shift;
         shift.words[0] = a.words[0] << pos;
         for (int i = 1; i < 8; i++)
         {
@@ -90,7 +90,7 @@ namespace bit
         return carry;
     }
 
-    inline __int256_t mul_128bit(uint128_t a, uint128_t b)
+    inline uint256_t mul_128bit(uint128_t a, uint128_t b)
     {
         /* see https://stackoverflow.com/a/26855440 for logic. */
         uint128_t ahbh, ahbl, albh, albl;
@@ -105,7 +105,7 @@ namespace bit
         mid.words[1] +=
             _addcarry_u64(0, mid.words[0], albl.words[1], mid.words);
 
-        __int256_t ret;
+        uint256_t ret;
         ret.words[0] = albl.words[0];
         ret.words[1] = mid.words[0];
 
@@ -124,19 +124,19 @@ namespace bit
         return ret;
     }
 
-    inline __int512_t mul_256bit_64bit(__int256_t a, uint64_t b)
+    inline uint512_t mul_256bit_64bit(uint256_t a, uint64_t b)
     {
-        __int256_t ahbl = bit::mul_128bit(
+        uint256_t ahbl = bit::mul_128bit(
             { a.words[2], a.words[3] },
             { b, 0 }
         );
 
-        __int256_t albl = bit::mul_128bit(
+        uint256_t albl = bit::mul_128bit(
             { a.words[0], a.words[1] },
             { b, 0}
         );
 
-        __int256_t mid;
+        uint256_t mid;
         unsigned char carry = 0;
         long long unsigned sum[2];
         carry = add_128bit_carry(
@@ -149,7 +149,7 @@ namespace bit
         mid.words[1] = sum[1];
         mid.words[2] = carry;
 
-        __int512_t ret;
+        uint512_t ret;
         ret.words[0] = albl.words[0];
         ret.words[1] = albl.words[1];
         ret.words[2] = mid.words[0];
@@ -162,26 +162,26 @@ namespace bit
         return ret;
     }
 
-    inline __int512_t mul_256bit(__int256_t a, __int256_t b)
+    inline uint512_t mul_256bit(uint256_t a, uint256_t b)
     {
-        __int256_t ahbh = bit::mul_128bit(
+        uint256_t ahbh = bit::mul_128bit(
             { a.words[2], a.words[3] },
             { b.words[2], b.words[3] }
         );
-        __int256_t ahbl = bit::mul_128bit(
+        uint256_t ahbl = bit::mul_128bit(
             { a.words[2], a.words[3] },
             { b.words[0], b.words[1] }
         );
-        __int256_t albh = bit::mul_128bit(
+        uint256_t albh = bit::mul_128bit(
             { a.words[0], a.words[1] },
             { b.words[2], b.words[3] }
         );
-        __int256_t albl = bit::mul_128bit(
+        uint256_t albl = bit::mul_128bit(
             { a.words[0], a.words[1] },
             { b.words[0], b.words[1] }
         );
 
-        __int256_t mid;
+        uint256_t mid;
         unsigned char carry = 0;
         long long unsigned int sum[2];
         carry = add_128bit_carry(
@@ -198,7 +198,7 @@ namespace bit
         mid.words[1] = sum[1];
         mid.words[2] = carry;
 
-        __int512_t ret;
+        uint512_t ret;
         ret.words[0] = albl.words[0];
         ret.words[1] = albl.words[1];
         ret.words[2] = mid.words[0];
