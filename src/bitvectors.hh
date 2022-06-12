@@ -4,7 +4,7 @@
 
 struct uint128_t
 {
-    uint64_t words[2];
+    long long unsigned int words[2];
 };
 
 struct __int256_t
@@ -92,28 +92,34 @@ namespace bit
 
     inline __int256_t mul_128bit(uint128_t a, uint128_t b)
     {
-        __int128_t mask64b = 0xFFFFFFFFFFFFFFFFull;
-
-        __int128_t ah = a.words[1];
-        __int128_t al = a.words[0];
-        __int128_t bh = b.words[1];
-        __int128_t bl = b.words[0];
-
         /* see https://stackoverflow.com/a/26855440 for logic. */
+        uint128_t ahbh, ahbl, albh, albl;
+        ahbh.words[0] = _mulx_u64(a.words[1], b.words[1], ahbh.words + 1);
+        ahbl.words[0] = _mulx_u64(a.words[1], b.words[0], ahbl.words + 1);
+        albh.words[0] = _mulx_u64(a.words[0], b.words[1], albh.words + 1);
+        albl.words[0] = _mulx_u64(a.words[0], b.words[0], albl.words + 1);
 
-        __int128_t ahbh = ah*bh;
-        __int128_t ahbl = ah*bl;
-        __int128_t albh = al*bh;
-        __int128_t albl = al*bl;
-
-        __int128_t mid = (albl >> 64) + (ahbl & mask64b) + (albh & mask64b);
+        uint128_t mid;
+        mid.words[1] =
+            _addcarry_u64(0, ahbl.words[0], albh.words[0], mid.words);
+        mid.words[1] +=
+            _addcarry_u64(0, mid.words[0], albl.words[1], mid.words);
 
         __int256_t ret;
-        ret.words[0] = albl & mask64b;
-        ret.words[1] = mid & mask64b;
-        __int128_t hi = ahbh + (ahbl >> 64) + (albh >> 64) + (mid >> 64);
-        ret.words[2] = hi & mask64b;
-        ret.words[3] = hi >> 64;
+        ret.words[0] = albl.words[0];
+        ret.words[1] = mid.words[0];
+
+        uint128_t hi;
+        hi.words[1] = ahbh.words[1];
+        hi.words[1] +=
+            _addcarry_u64(0, ahbh.words[0], ahbl.words[1], hi.words);
+        hi.words[1] +=
+            _addcarry_u64(0, hi.words[0], albh.words[1], hi.words);
+        hi.words[1] +=
+            _addcarry_u64(0, hi.words[0], mid.words[1], hi.words);
+
+        ret.words[2] = hi.words[0];
+        ret.words[3] = hi.words[1];
 
         return ret;
     }
