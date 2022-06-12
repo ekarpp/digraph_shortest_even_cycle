@@ -53,10 +53,10 @@ int main(int argc, char **argv)
     global::E.init();
 #endif
 
-    vector<uint64_2_t> a(t);
-    vector<uint64_2_t> b(t);
-    vector<uint64_2_t> p(t);
-    vector<uint64_2_t> r(t);
+    vector<extension_repr> a(t);
+    vector<extension_repr> b(t);
+    vector<extension_repr> p(t);
+    vector<extension_repr> r(t);
 
     for (uint64_t i = 0; i < t; i++)
     {

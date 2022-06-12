@@ -73,8 +73,8 @@ void Extension_test::test_fast_mul()
         Extension_element a = global::E.random();
         Extension_element b = global::E.random();
 
-        uint64_2_t ref = global::E.ref_mul(a.get_repr(), b.get_repr());
-        uint64_2_t fast = global::E.fast_mul(a.get_repr(), b.get_repr());
+        extension_repr ref = global::E.ref_mul(a.get_repr(), b.get_repr());
+        extension_repr fast = global::E.fast_mul(a.get_repr(), b.get_repr());
 
         if (fast.hi != ref.hi || fast.lo != ref.lo)
             err++;
@@ -91,8 +91,8 @@ void Extension_test::test_kronecker_mul()
         Extension_element a = global::E.random();
         Extension_element b = global::E.random();
 
-        uint64_2_t ref = global::E.ref_mul(a.get_repr(), b.get_repr());
-        uint64_2_t kron = global::E.kronecker_mul(a.get_repr(), b.get_repr());
+        extension_repr ref = global::E.ref_mul(a.get_repr(), b.get_repr());
+        extension_repr kron = global::E.kronecker_mul(a.get_repr(), b.get_repr());
 
         if (kron.hi != ref.hi || kron.lo != ref.lo)
             err++;
@@ -108,10 +108,10 @@ void Extension_test::test_intel_rem()
     {
         Extension_element a = global::E.random();
         Extension_element b = global::E.random();
-        uint64_2_t v = global::E.fast_mul(a.get_repr(), b.get_repr());
+        extension_repr v = global::E.fast_mul(a.get_repr(), b.get_repr());
 
-        uint64_2_t euclid = global::E.euclid_rem(v);
-        uint64_2_t intel = global::E.intel_rem(v);
+        extension_repr euclid = global::E.euclid_rem(v);
+        extension_repr intel = global::E.intel_rem(v);
 
         if (euclid.hi != intel.hi || euclid.lo != intel.lo)
             err++;
@@ -125,17 +125,17 @@ void Extension_test::test_mont_rem()
     int err = 0;
     for (int i = 0; i < this->tests; i++)
     {
-        uint64_2_t a = {
+        extension_repr a = {
             global::randgen() & global::E.get_mask(),
             global::randgen() & global::E.get_mask()
         };
 
-        uint64_2_t b = {
+        extension_repr b = {
             global::randgen() & global::E.get_mask(),
             global::randgen() & global::E.get_mask()
         };
 
-        uint64_2_t mont = global::E.mont_reduce(
+        extension_repr mont = global::E.mont_reduce(
             global::E.mont_rem(
                 global::E.mul(
                     global::E.mont_form(a),
@@ -144,7 +144,7 @@ void Extension_test::test_mont_rem()
             )
         );
 
-        uint64_2_t ref = global::E.euclid_rem(
+        extension_repr ref = global::E.euclid_rem(
             global::E.mul(a, b)
         );
 

@@ -19,7 +19,7 @@ class Extension_element;
  * each bit in lo is the low bit of the mod 4 coefficient.
  * similarly for hi
  */
-struct uint64_2_t
+struct extension_repr
 {
     uint64_t hi;
     uint64_t lo;
@@ -48,24 +48,24 @@ private:
     uint64_t mod;
     uint64_t mask;
 
-    uint64_2_t mod_ast;
-    uint64_2_t q_plus;
+    extension_repr mod_ast;
+    extension_repr q_plus;
 
-    uint64_2_t n_prime;
-    uint64_2_t r_squared;
+    extension_repr n_prime;
+    extension_repr r_squared;
 
     /* euclidean division, only used once during initialization.
      * b has to be monic for this to work */
-    uint64_2_t quo(uint64_2_t a, uint64_2_t b) const
+    extension_repr quo(extension_repr a, extension_repr b) const
     {
-        uint64_2_t q = { 0, 0 };
+        extension_repr q = { 0, 0 };
         int dega = std::max(util::log2(a.lo), util::log2(a.hi));
         int degb = std::max(util::log2(b.lo), util::log2(b.hi));
 
         while (dega >= degb)
         {
 
-            uint64_2_t s = {
+            extension_repr s = {
                 (a.hi & (1ll << dega)) >> degb,
                 (a.lo & (1ll << dega)) >> degb
             };
@@ -123,13 +123,13 @@ public:
         this->r_squared = this->rem(this->r_squared);
 
         // deg == 2*n
-        uint64_2_t r = { 0x0, 1ull << (this->n*2) };
+        extension_repr r = { 0x0, 1ull << (this->n*2) };
         int N = 1 << this->n;
         N -= 1;
         N *= 2;
 
         // deg <= n-1
-        uint64_2_t r_prime = { 0x0, 0x1 };
+        extension_repr r_prime = { 0x0, 0x1 };
         /* lazy... */
         for (int i = 0; i < N - 1; i++)
             r_prime = this->rem(this->mul(r_prime, this->rem(r)));
@@ -157,12 +157,12 @@ public:
     Extension_element one() const;
     Extension_element random() const;
 
-    uint64_2_t rem(uint64_2_t a) const
+    extension_repr rem(extension_repr a) const
     {
         return intel_rem(a);
     }
 
-    uint64_2_t euclid_rem(uint64_2_t a) const
+    extension_repr euclid_rem(extension_repr a) const
     {
         while (a.lo > this->mask || a.hi > this->mask)
         {
@@ -176,32 +176,32 @@ public:
     }
 
     /* https://dl.acm.org/doi/10.1016/j.ipl.2010.04.011 */
-    uint64_2_t intel_rem(uint64_2_t a) const
+    extension_repr intel_rem(extension_repr a) const
     {
-        uint64_2_t hi = { a.hi >> this->n, a.lo >> this->n };
-        uint64_2_t lo = { a.hi & this->mask, a.lo & this->mask };
+        extension_repr hi = { a.hi >> this->n, a.lo >> this->n };
+        extension_repr lo = { a.hi & this->mask, a.lo & this->mask };
 
 #if GF2_bits == 16
-        uint64_2_t tmp = { hi.hi >> 14, hi.lo >> 14 };
+        extension_repr tmp = { hi.hi >> 14, hi.lo >> 14 };
         tmp = this->add(tmp, { hi.hi >> 13, hi.lo >> 13 });
         tmp = this->add(tmp, { hi.hi >> 11, hi.lo >> 11 });
         tmp = this->subtract(hi, tmp);
 
-        uint64_2_t r = this->add(tmp, { tmp.hi << 2, tmp.lo << 2 });
+        extension_repr r = this->add(tmp, { tmp.hi << 2, tmp.lo << 2 });
         r = this->add(r, { tmp.hi << 3, tmp.lo << 3 });
         r = this->add(r, { tmp.hi << 5, tmp.lo << 5 });
 #elif GF2_bits == 32
-        uint64_2_t tmp = { hi.hi >> 30, hi.lo >> 30 };
+        extension_repr tmp = { hi.hi >> 30, hi.lo >> 30 };
         tmp = this->add(tmp, { hi.hi >> 29, hi.lo >> 29 });
         tmp = this->add(tmp, { hi.hi >> 25, hi.lo >> 25 });
         tmp = this->subtract(hi, tmp);
 
-        uint64_2_t r = this->add(tmp, { tmp.hi << 2, tmp.lo << 2 });
+        extension_repr r = this->add(tmp, { tmp.hi << 2, tmp.lo << 2 });
         r = this->add(r, { tmp.hi << 3, tmp.lo << 3 });
         r = this->add(r, { tmp.hi << 7, tmp.lo << 7 });
 #else
         /* deg n-2 * deg n*/
-        uint64_2_t r = this->mul(hi, this->q_plus);
+        extension_repr r = this->mul(hi, this->q_plus);
         r = { r.hi >> this->n, r.lo >> this->n };
         /* deg n-1 * deg n - 2*/
         r = this->mul(r, this->mod_ast);
@@ -210,38 +210,38 @@ public:
         return this->subtract(lo, r);
     }
 
-    uint64_2_t mont_rem(uint64_2_t a) const
+    extension_repr mont_rem(extension_repr a) const
     {
         /* d-1 deg * d-1 deg */
-        uint64_2_t u = this->mul(a, this->n_prime);
+        extension_repr u = this->mul(a, this->n_prime);
 
         u.hi &= this->mask;
         u.lo &= this->mask;
         /* d deg * d-1 deg */
-        uint64_2_t c = this->add(a, this->fast_mul(u, {0, this->mod}));
+        extension_repr c = this->add(a, this->fast_mul(u, {0, this->mod}));
 
         c.hi >>= this->n;
         c.lo >>= this->n;
         return c;
     }
 
-    uint64_2_t mont_form(uint64_2_t a) const
+    extension_repr mont_form(extension_repr a) const
     {
         return this->mont_rem(this->mul(a, this->r_squared));
     }
 
-    uint64_2_t mont_reduce(uint64_2_t a) const
+    extension_repr mont_reduce(extension_repr a) const
     {
         return this->mont_rem(this->mul(a, { 0, 1 }));
     }
 
-    uint64_2_t add(uint64_2_t a, uint64_2_t b) const
+    extension_repr add(extension_repr a, extension_repr b) const
     {
         uint64_t carry = a.lo & b.lo;
         return { carry ^ a.hi ^ b.hi, a.lo ^ b.lo };
     }
 
-    uint64_2_t negate(uint64_2_t a) const
+    extension_repr negate(extension_repr a) const
     {
         return {
             a.lo ^ a.hi,
@@ -249,30 +249,30 @@ public:
         };
     }
 
-    uint64_2_t subtract(uint64_2_t a, uint64_2_t b) const
+    extension_repr subtract(extension_repr a, extension_repr b) const
     {
         return this->add(a, this->negate(b));
     }
 
-    uint64_2_t mul(uint64_2_t a, uint64_2_t b) const
+    extension_repr mul(extension_repr a, extension_repr b) const
     {
         return kronecker_mul(a, b);
     }
 
-    uint64_2_t ref_mul(uint64_2_t a, uint64_2_t b) const
+    extension_repr ref_mul(extension_repr a, extension_repr b) const
     {
-        uint64_2_t c = { 0, 0 };
+        extension_repr c = { 0, 0 };
 
         for (int i = 0; i <= global::E.get_n(); i++)
         {
-            uint64_2_t tmp = { 0, 0 };
+            extension_repr tmp = { 0, 0 };
             if ((a.hi >> i) & 1)
                 tmp.hi = this->mask;
             if ((a.lo >> i) & 1)
                 tmp.lo = this->mask;
 
             /* 2 bit carryless multiplier */
-            uint64_2_t aib = {
+            extension_repr aib = {
                 (b.lo & tmp.hi) ^ (b.hi & tmp.lo),
                 b.lo & tmp.lo
             };
@@ -285,7 +285,7 @@ public:
         return c;
     }
 
-    uint64_2_t fast_mul(uint64_2_t a, uint64_2_t b) const
+    extension_repr fast_mul(extension_repr a, extension_repr b) const
     {
         /* clean this up */
         __m128i aa = _mm_set_epi64x(a.hi, a.lo);
@@ -319,9 +319,9 @@ public:
     }
 
     /* only works if deg <= 15 for a AND b */
-    uint64_2_t kronecker_mul(uint64_2_t a, uint64_2_t b) const
+    extension_repr kronecker_mul(extension_repr a, extension_repr b) const
     {
-        uint64_2_t ret;
+        extension_repr ret;
         /* we use different representation of polynomials than before here.
          * each bit string can be split to sets of 2 bits where each set
          * corresponds to a coefficient modulo 4. */
@@ -399,7 +399,7 @@ public:
         return ret;
     }
 
-    kronecker_form kronecker_substitution(uint64_2_t x) const
+    kronecker_form kronecker_substitution(extension_repr x) const
     {
         /* combine lo and hi to single uint64_t
          * where 2 bits represent single coefficient.
@@ -453,7 +453,7 @@ public:
 class Extension_element
 {
 private:
-    uint64_2_t repr;
+    extension_repr repr;
 
 public:
     Extension_element() { };
@@ -463,7 +463,7 @@ public:
         this->repr = { hi, lo };
     }
 
-    Extension_element(const uint64_2_t repr)
+    Extension_element(const extension_repr repr)
     {
         this->repr = repr;
     }
@@ -501,13 +501,13 @@ public:
 
     Extension_element operator*(const Extension_element &other) const
     {
-        uint64_2_t prod = global::E.mul(this->repr, other.get_repr());
+        extension_repr prod = global::E.mul(this->repr, other.get_repr());
         return Extension_element(global::E.rem(prod));
     }
 
     Extension_element &operator*=(const Extension_element &other)
     {
-        uint64_2_t prod = global::E.mul(this->repr, other.get_repr());
+        extension_repr prod = global::E.mul(this->repr, other.get_repr());
         this->repr = global::E.rem(prod);
         return *this;
     }
@@ -536,7 +536,7 @@ public:
 
     uint64_t get_lo() const { return this->repr.lo; }
     uint64_t get_hi() const { return this->repr.hi; }
-    uint64_2_t get_repr() const { return this->repr; }
+    extension_repr get_repr() const { return this->repr; }
 
     Extension_element &operator=(const Extension_element &other)
     {
