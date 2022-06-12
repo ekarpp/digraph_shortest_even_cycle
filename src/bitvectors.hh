@@ -2,6 +2,9 @@
 #ifndef BITVECTOR_H
 #define BITVECTOR_H
 
+#include <stdint.h>
+#include <immintrin.h>
+
 struct uint128_t
 {
     unsigned long long words[2];
