@@ -113,15 +113,13 @@ namespace bit
         unsigned long long sum[2];
         /* add carry to hi of product */
         prod.words[3] += add_128bit_carry(ahbl, albh, sum);
+        prod.words[3] += add_128bit_carry(
+            { sum[0], sum[1] },
+            { prod.words[1], prod.words[2] },
+            prod.words + 1
+        );
 
-        /* contains the middle 128 bits from sum of ahbl and albh */
-        uint256_t mid;
-        mid.words[0] = 0;
-        mid.words[1] = sum[0];
-        mid.words[2] = sum[1];
-        mid.words[3] = 0;
-
-        return add_256bit(prod, mid);
+        return prod;
     }
 
     inline uint512_t mul_256bit_64bit(uint256_t a, uint64_t b)
