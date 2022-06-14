@@ -48,16 +48,22 @@ int main(int argc, char** argv)
     bool geng = false;
     int dim = 10;
     int tests = 10000;
-    int n = 10;
     int opt;
 
+#if GF2_bits == 0
+    int n = 10;
     while ((opt = getopt(argc, argv, "cxsuegfmn:d:t:")) != -1)
+#else
+    while ((opt = getopt(argc, argv, "cxsuegfmd:t:")) != -1)
+#endif
     {
         switch (opt)
         {
+#if GF2_bits == 0
         case 'n':
             n = stoi(optarg);
             break;
+#endif
         case 'c':
             geng = true;
             break;
