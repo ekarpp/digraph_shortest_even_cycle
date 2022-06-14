@@ -126,40 +126,25 @@ namespace bit
 
     inline uint512_t mul_256bit_64bit(uint256_t a, uint64_t b)
     {
-        uint256_t ahbl = bit::mul_128bit(
-            { a.words[2], a.words[3] },
-            { b, 0 }
-        );
+        /*
+          (a0 +  a1 x^64  + a2 x^128 + a3 x^192)b =
+          a0 b + a1 b x^64 + a2 b x^128 + a3 b x^192
+         */
+        uint512_t prod_even;
+        prod_even.words[0] = _mulx_u64(a.words[0], b, prod_even.words + 1);
+        prod_even.words[2] = _mulx_u64(a.words[2], b, prod_even.words + 3);
 
-        uint256_t albl = bit::mul_128bit(
-            { a.words[0], a.words[1] },
-            { b, 0}
-        );
+        prod_even.words[4] = 0; prod_even.words[5] = 0;
+        prod_even.words[6] = 0; prod_even.words[7] = 0;
 
-        uint256_t mid;
-        unsigned char carry = 0;
-        long long unsigned sum[2];
-        carry = add_128bit_carry(
-            { albl.words[2], 0 },
-            { ahbl.words[0], ahbl.words[1] },
-            sum
-        );
+        uint512_t prod_odd;
+        prod_odd.words[1] = _mulx_u64(a.words[1], b, prod_odd.words + 2);
+        prod_odd.words[3] = _mulx_u64(a.words[3], b, prod_odd.words + 4);
 
-        mid.words[0] = sum[0];
-        mid.words[1] = sum[1];
-        mid.words[2] = carry;
+        prod_odd.words[0] = 0; prod_odd.words[5] = 0;
+        prod_odd.words[6] = 0; prod_odd.words[7] = 0;
 
-        uint512_t ret;
-        ret.words[0] = albl.words[0];
-        ret.words[1] = albl.words[1];
-        ret.words[2] = mid.words[0];
-        ret.words[3] = mid.words[1];
-        ret.words[4] = mid.words[2] + ahbl.words[2];
-        ret.words[5] = 0;
-        ret.words[6] = 0;
-        ret.words[7] = 0;
-
-        return ret;
+        return add_512bit(prod_even, prod_odd);
     }
 
     inline uint512_t mul_256bit(uint256_t a, uint256_t b)
