@@ -92,7 +92,7 @@ namespace bit
         return shift;
     }
 
-    inline char add_128bit_carry(uint128_t a, uint128_t b, long long unsigned int *sum)
+    inline char add_128bit_carry(uint128_t a, uint128_t b, unsigned long long *sum)
     {
         char carry = 0;
         carry = _addcarry_u64(carry, a.words[0], b.words[0], sum);
