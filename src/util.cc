@@ -6,10 +6,7 @@
 #include <algorithm>
 
 #include "util.hh"
-#include "extension.hh"
-#include "gf.hh"
 #include "global.hh"
-#include "polynomial.hh"
 
 using namespace std;
 
