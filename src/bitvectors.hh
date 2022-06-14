@@ -34,10 +34,17 @@ struct uint576_t
 
 namespace bit
 {
+    inline uint256_t add_256bit(uint256_t a, uint256_t b)
+    {
+        uint256_t sum;
+        ADD_WORDS(4);
+        return sum;
+    }
+
     inline uint512_t add_512bit(uint512_t a, uint512_t b)
     {
         uint512_t sum;
-        ADD_WORDS(8)
+        ADD_WORDS(8);
         return sum;
     }
 
@@ -67,7 +74,7 @@ namespace bit
     inline uint576_t add_576bit(uint576_t a, uint576_t b)
     {
         uint576_t sum;
-        ADD_WORDS(9)
+        ADD_WORDS(9);
         return sum;
     }
 
@@ -95,36 +102,26 @@ namespace bit
 
     inline uint256_t mul_128bit(uint128_t a, uint128_t b)
     {
-        /* see https://stackoverflow.com/a/26855440 for logic. */
-        uint128_t ahbh, ahbl, albh, albl;
-        ahbh.words[0] = _mulx_u64(a.words[1], b.words[1], ahbh.words + 1);
+        uint256_t prod;
+        prod.words[0] = _mulx_u64(a.words[0], b.words[0], prod.words + 1);
+        prod.words[2] = _mulx_u64(a.words[1], b.words[1], prod.words + 3);
+
+        uint128_t ahbl, albh;
         ahbl.words[0] = _mulx_u64(a.words[1], b.words[0], ahbl.words + 1);
         albh.words[0] = _mulx_u64(a.words[0], b.words[1], albh.words + 1);
-        albl.words[0] = _mulx_u64(a.words[0], b.words[0], albl.words + 1);
 
-        uint128_t mid;
-        mid.words[1] =
-            _addcarry_u64(0, ahbl.words[0], albh.words[0], mid.words);
-        mid.words[1] +=
-            _addcarry_u64(0, mid.words[0], albl.words[1], mid.words);
+        unsigned long long sum[2];
+        /* add carry to hi of product */
+        prod.words[3] += add_128bit_carry(ahbl, albh, sum);
 
-        uint256_t ret;
-        ret.words[0] = albl.words[0];
-        ret.words[1] = mid.words[0];
+        /* contains the middle 128 bits from sum of ahbl and albh */
+        uint256_t mid;
+        mid.words[0] = 0;
+        mid.words[1] = sum[0];
+        mid.words[2] = sum[1];
+        mid.words[3] = 0;
 
-        uint128_t hi;
-        hi.words[1] = ahbh.words[1];
-        hi.words[1] +=
-            _addcarry_u64(0, ahbh.words[0], ahbl.words[1], hi.words);
-        hi.words[1] +=
-            _addcarry_u64(0, hi.words[0], albh.words[1], hi.words);
-        hi.words[1] +=
-            _addcarry_u64(0, hi.words[0], mid.words[1], hi.words);
-
-        ret.words[2] = hi.words[0];
-        ret.words[3] = hi.words[1];
-
-        return ret;
+        return add_256bit(prod, mid);
     }
 
     inline uint512_t mul_256bit_64bit(uint256_t a, uint64_t b)
