@@ -6,7 +6,6 @@
 #include "fmatrix.hh"
 #include "ematrix.hh"
 #include "extension.hh"
-#include "util.hh"
 
 using namespace std;
 

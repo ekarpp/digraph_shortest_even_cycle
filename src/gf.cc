@@ -5,7 +5,6 @@
 #include "gf.hh"
 #include "extension.hh"
 #include "global.hh"
-#include "util.hh"
 
 using namespace std;
 

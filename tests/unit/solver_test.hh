@@ -3,7 +3,6 @@
 #define SOLVER_TEST_H
 
 #include "test.hh"
-#include "../../src/solver.hh"
 
 class Solver_test : Test
 {

@@ -7,7 +7,6 @@
 #include "../../src/global.hh"
 #include "../../src/graph.hh"
 #include "../../src/solver.hh"
-#include "../../src/util.hh"
 
 using namespace std;
 

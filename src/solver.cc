@@ -6,7 +6,6 @@
 #include "solver.hh"
 #include "graph.hh"
 #include "gf.hh"
-#include "util.hh"
 #include "polynomial.hh"
 
 using namespace std;

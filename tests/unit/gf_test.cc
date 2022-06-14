@@ -3,7 +3,6 @@
 
 #include "gf_test.hh"
 #include "../../src/gf.hh"
-#include "../../src/util.hh"
 #include "../../src/global.hh"
 #include "../../src/extension.hh"
 

@@ -4,6 +4,9 @@
 
 #include "../../src/global.hh"
 #include "../../src/util.hh"
+#include "../../src/gf.hh"
+#include "../../src/extension.hh"
+
 #include "gf_test.hh"
 #include "extension_test.hh"
 #include "fmatrix_test.hh"
@@ -111,7 +114,6 @@ int main(int argc, char** argv)
         EMatrix_test em(tests);
     if (geng)
         Geng_test g;
-
 
     return 0;
 }

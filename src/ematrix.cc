@@ -4,7 +4,6 @@
 
 #include "polynomial.hh"
 #include "global.hh"
-#include "util.hh"
 #include "ematrix.hh"
 #include "fmatrix.hh"
 #include "gf.hh"

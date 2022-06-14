@@ -5,6 +5,7 @@
 #include <valarray>
 
 #include "test.hh"
+#include "../../src/gf.hh"
 #include "../../src/fmatrix.hh"
 
 class FMatrix_test : Test

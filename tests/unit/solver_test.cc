@@ -5,6 +5,7 @@
 #include "solver_test.hh"
 #include "../../src/graph.hh"
 #include "../../src/global.hh"
+#include "../../src/solver.hh"
 
 using namespace std;
 
