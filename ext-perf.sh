@@ -1,5 +1,6 @@
 #!/bin/bash
 
+hostname
 uname -a
 cat /etc/*release
 g++ --version
