@@ -57,6 +57,7 @@ int main(int argc, char **argv)
     vector<extension_repr> p(t);
     vector<extension_repr> r(t);
 
+    #pragma omp parallel for
     for (uint64_t i = 0; i < t; i++)
     {
         a[i] = {
