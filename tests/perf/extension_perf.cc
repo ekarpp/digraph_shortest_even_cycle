@@ -21,7 +21,7 @@ int main(int argc, char **argv)
     if (argc == 1)
     {
         cout << "-s $int for seed" << endl;
-        cout << "-t $int for amount of tests" << endl;
+        cout << "-t $int for amount of tests, exponent for two" << endl;
         return 0;
     }
 
@@ -37,7 +37,7 @@ int main(int argc, char **argv)
             seed = stoi(optarg);
             break;
         case 't':
-            t = stoi(optarg);
+            t <<= stoi(optarg);
             break;
         }
     }
