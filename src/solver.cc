@@ -17,6 +17,9 @@ int Solver::shortest_even_cycle(Graph G)
     vector<GF_element> gamma = util::distinct_elements(G.get_n() + 1);
     vector<GF_element> delta(G.get_n() + 1);
 
+#ifdef PARALLEL
+    #pragma omp parallel for
+#endif
     for (int l = 0; l <= G.get_n(); l++)
     {
         delta[l] = G.get_A().pcc(gamma[l]);

@@ -76,6 +76,9 @@ int main(int argc, char **argv)
     double mhz;
 
     start = omp_get_wtime();
+#ifdef PARALLEL
+    #pragma omp parallel for
+#endif
     for (uint64_t i = 0; i < t; i++)
         p[i] = global::E.ref_mul(a[i], b[i]);
     end = omp_get_wtime();
@@ -87,6 +90,9 @@ int main(int argc, char **argv)
         delta << " s or " << mhz << " Mhz" << endl;
 
     start = omp_get_wtime();
+#ifdef PARALLEL
+    #pragma omp parallel for
+#endif
     for (uint64_t i = 0; i < t; i++)
         p[i] = global::E.kronecker_mul(a[i], b[i]);
     end = omp_get_wtime();
@@ -98,6 +104,9 @@ int main(int argc, char **argv)
         delta << " s or " << mhz << " Mhz" << endl;
 
     start = omp_get_wtime();
+#ifdef PARALLEL
+    #pragma omp parallel for
+#endif
     for (uint64_t i = 0; i < t; i++)
         p[i] = global::E.fast_mul(a[i], b[i]);
     end = omp_get_wtime();
@@ -109,6 +118,9 @@ int main(int argc, char **argv)
         delta << " s or " << mhz << " Mhz" << endl;
 
     start = omp_get_wtime();
+#ifdef PARALLEL
+    #pragma omp parallel for
+#endif
     for (uint64_t i = 0; i < t; i++)
         r[i] = global::E.mont_rem(p[i]);
     end = omp_get_wtime();
@@ -120,6 +132,9 @@ int main(int argc, char **argv)
         delta << " s or " << mhz << " Mhz" << endl;
 
     start = omp_get_wtime();
+#ifdef PARALLEL
+    #pragma omp parallel for
+#endif
     for (uint64_t i = 0; i < t; i++)
         r[i] = global::E.euclid_rem(p[i]);
     end = omp_get_wtime();
@@ -131,6 +146,9 @@ int main(int argc, char **argv)
         delta << " s or " << mhz << " Mhz" << endl;
 
     start = omp_get_wtime();
+#ifdef PARALLEL
+    #pragma omp parallel for
+#endif
     for (uint64_t i = 0; i < t; i++)
         r[i] = global::E.intel_rem(p[i]);
     end = omp_get_wtime();

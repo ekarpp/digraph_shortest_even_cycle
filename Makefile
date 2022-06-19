@@ -1,5 +1,5 @@
 CXX := g++
-CXXFLAGS := -g -std=c++1z -O3 -Wall -Wextra -march=native
+CXXFLAGS := -g -std=c++1z -O3 -Wall -Wextra -march=native -fopenmp
 LDFLAGS := -fopenmp
 
 VPATH = src:tests/unit:tests/perf
@@ -36,9 +36,12 @@ digraph16:
 digraph0:
 	$(MAKE) digraphX bits=0
 
-digraphX: main$(bits).o $(OBJ)
-	$(CXX) $^ -o $@ $(LDFLAGS)
+digraphX: main$(bits).o $(OBJ) solver$(bits)PAR.o
+	$(CXX) main$(bits).o $(OBJ) -o $@ $(LDFLAGS)
 	mv $@ digraph$(bits)
+
+	$(CXX) main$(bits).o $(subst solver$(bits).o, solver$(bits)PAR.o, $(OBJ)) -o $@ $(LDFLAGS)
+	mv $@ digraph$(bits)-PAR
 
 digraph: digraph32 digraph16 digraph0
 
@@ -96,9 +99,12 @@ extension-perf16:
 extension-perf0:
 	$(MAKE) extension-perfX bits=0
 
-extension-perfX: extension_perf$(bits).o $(PERF_OBJ)
-	$(CXX) $^ -o $@ $(LDFLAGS)
+extension-perfX: extension_perf$(bits).o $(PERF_OBJ) extension_perf$(bits)PAR.o
+	$(CXX) extension_perf$(bits).o $(PERF_OBJ) -o $@ $(LDFLAGS)
 	mv $@ extension-perf$(bits)
+
+	$(CXX) extension_perf$(bits)PAR.o $(PERF_OBJ) -o $@ $(LDFLAGS)
+	mv $@ extension-perf$(bits)-PAR
 
 extension-perf: extension-perf32 extension-perf16 extension-perf0
 
@@ -166,3 +172,12 @@ geng-test: digraph-tests nauty/geng nauty/directg nauty/listg
 
 %0.o: %.cc
 	$(CXX) $(CXXFLAGS) -D GF2_bits=0 -c -o $@ $^
+
+%32PAR.o: %.cc
+	$(CXX) $(CXXFLAGS) -D GF2_bits=32 -D PARALLEL=1 -c -o $@ $^
+
+%16PAR.o: %.cc
+	$(CXX) $(CXXFLAGS) -D GF2_bits=16 -D PARALLEL=1 -c -o $@ $^
+
+%0PAR.o: %.cc
+	$(CXX) $(CXXFLAGS) -D GF2_bits=0 -D PARALLEL=1 -c -o $@ $^
