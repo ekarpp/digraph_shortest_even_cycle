@@ -15,6 +15,7 @@ PERF_OBJ := $(addsuffix $(bits).o, $(PERF_OBJ))
 TEST_OBJ := gf_test extension_test fmatrix_test util_test solver_test ematrix_test geng_test
 TEST_OBJ := $(addsuffix $(bits).o, $(TEST_OBJ))
 
+ALL_OBJ := $(OBJ) $(PERF_OBJ) $(TEST_OBJ) solver$(bits)PAR.o extension_perf$(bits)PAR.o extension_perf$(bits).o main$(bits).o gf_perf$(bits).o tests$(bits).o
 
 all: $(BIN) nauty/geng nauty/directg nauty/listg
 
@@ -22,6 +23,12 @@ all: $(BIN) nauty/geng nauty/directg nauty/listg
 clean:
 	rm -f $(addsuffix 0, $(BIN)) $(addsuffix 16, $(BIN)) $(addsuffix 32, $(BIN)) *.o *.s *.asm1 *.asm2 && cd nauty && git clean -xf && git checkout .
 
+objectsX: $(ALL_OBJ)
+
+objects:
+	$(MAKE) objectsX bits=32
+	$(MAKE) objectsX bits=16
+	$(MAKE) objectsX bits=0
 
 ###################
 # SOLVER BINARIES #
