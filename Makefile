@@ -1,3 +1,5 @@
+SHELL := /bin/bash -O extglob
+
 CXX := g++
 CXXFLAGS := -g -std=c++1z -O3 -Wall -Wextra -march=native -fopenmp
 LDFLAGS := -fopenmp
@@ -19,9 +21,16 @@ ALL_OBJ := $(OBJ) $(PERF_OBJ) $(TEST_OBJ) solver$(bits)PAR.o extension_perf$(bit
 
 all: $(BIN) nauty/geng nauty/directg nauty/listg
 
-.PHONY: clean
-clean:
-	rm -f $(addsuffix 0, $(BIN)) $(addsuffix 16, $(BIN)) $(addsuffix 32, $(BIN)) *.o *.s *.asm1 *.asm2 && cd nauty && git clean -xf && git checkout .
+CLEAN_REGEX := {0,16,32}?(-PAR)
+
+.PHONY: clean clean-bin clean-obj
+clean-obj:
+	rm -f *.o
+clean-bin:
+	rm -f $(addsuffix $(CLEAN_REGEX), $(BIN))
+clean: clean-obj clean-bin
+	rm -f *.o *.s *.asm1 *.asm2
+	cd nauty && git clean -xf && git checkout .
 
 objectsX: $(ALL_OBJ)
 
