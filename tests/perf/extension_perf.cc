@@ -57,6 +57,10 @@ int main(int argc, char **argv)
     vector<extension_repr> p(t);
     vector<extension_repr> r(t);
 
+    double start;
+    double end;
+
+    start = omp_get_wtime();
     #pragma omp parallel for
     for (uint64_t i = 0; i < t; i++)
     {
@@ -70,9 +74,9 @@ int main(int argc, char **argv)
             global::randgen() & global::E.get_mask()
         };
     }
+    end = omp_get_wtime();
+    cout << "initialized in " << end - start << " ms";
 
-    double start;
-    double end;
     double delta;
     double mhz;
 
