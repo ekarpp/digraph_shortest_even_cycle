@@ -75,7 +75,7 @@ int main(int argc, char **argv)
         };
     }
     end = omp_get_wtime();
-    cout << "initialized in " << end - start << " ms";
+    cout << "initialized in " << end - start << " s" << endl;
 
     double delta;
     double mhz;
