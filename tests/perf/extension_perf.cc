@@ -61,18 +61,32 @@ int main(int argc, char **argv)
     double end;
 
     start = omp_get_wtime();
+#if GF2_bits == 16
+    #define REPEATS 2
+#else
+    #define REPEATS 1
+#endif
     #pragma omp parallel for
-    for (uint64_t i = 0; i < t; i++)
+    for (uint64_t i = 0; i < t; i += REPEATS)
     {
-        a[i] = {
-            global::randgen() & global::E.get_mask(),
-            global::randgen() & global::E.get_mask()
-        };
+        uint64_t aa = global::randgen();
+        uint64_t bb = global::randgen();
+        for (uint64_t j = 0; j < REPEATS; j++)
+        {
+            uint64_t alo = aa >> (2*GF2_bits*j);
+            uint64_t ahi = aa >> (GF2_bits*(2*j+1));
+            a[i+j] = {
+                ahi & global::E.get_mask(),
+                alo & global::E.get_mask()
+            };
 
-        b[i] = {
-            global::randgen() & global::E.get_mask(),
-            global::randgen() & global::E.get_mask()
-        };
+            uint64_t blo = bb >> (2*GF2_bits*j);
+            uint64_t bhi = bb >> (GF2_bits*(2*j+1));
+            b[i+j] = {
+                bhi & global::E.get_mask(),
+                blo & global::E.get_mask()
+            };
+        }
     }
     end = omp_get_wtime();
     cout << "initialized in " << end - start << " s" << endl;
