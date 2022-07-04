@@ -79,6 +79,91 @@ private:
         return q;
     }
 
+
+#define DEGA                                                              \
+{                                                                         \
+    if (a[1].hi || a[1].lo)                                               \
+        dega = 64 + std::max(util::log2(a[1].hi), util::log2(a[1].lo));   \
+    else                                                                  \
+        dega = std::max(util::log2(a[0].hi), util::log2(a[0].lo));        \
+}
+
+
+    /* returns quotient form division of r_prime * x^(2n) by mod.
+     * r_prime * x^(2n) has degree up to 3n-1 (n<32), hence this method. */
+    extension_repr dumb_quo(extension_repr r_prime) const
+    {
+        extension_repr a[2];
+        a[1].hi = r_prime.hi >> (64 - 2*this->n);
+        a[1].lo = r_prime.lo >> (64 - 2*this->n);
+        a[0].hi = r_prime.hi << (2*this->n);
+        a[0].lo = r_prime.lo << (2*this->n);
+
+        extension_repr q = { 0, 0 };
+        int degb = util::log2(this->mod);
+        int dega;
+
+        DEGA;
+        while (dega >= degb)
+        {
+            int lohi = (dega >= 64) ? 1 : 0;
+            uint64_t lo = a[lohi].lo & (1ll << (dega - lohi*64));
+            uint64_t hi = a[lohi].hi & (1ll << (dega - lohi*64));
+
+            extension_repr s;
+            if (lohi)
+            {
+                s = {
+                    hi << (64 - degb),
+                    lo << (64 - degb)
+                };
+            }
+            else
+            {
+                s = {
+                    hi >> degb,
+                    lo >> degb
+                };
+            }
+            q = this->add(q, s);
+
+            /* prod of sb, computed with 2 bit multiplier.
+             * same method as with the reference multiplication. */
+            int degc = dega - degb;
+            extension_repr tmp = { 0, 0 };
+            if (hi)
+                tmp.hi = 0xFFFFFFFFFll;
+            if (lo)
+                tmp.lo = 0xFFFFFFFFFll;
+            extension_repr sg[2];
+
+            /* tmp * g = sg[0] */
+            sg[0] = {
+                this->mod & tmp.hi,
+                this->mod & tmp.lo
+            };
+            if (dega >= 64)
+            {
+                sg[1].hi = sg[0].hi >> (64 - degc);
+                sg[1].lo = sg[0].lo >> (64 - degc);
+            }
+            else
+            {
+                sg[1] = { 0, 0 };
+            }
+
+            sg[0].hi <<= degc;
+            sg[0].lo <<= degc;
+
+            a[1] = this->subtract(a[1], sg[1]);
+            a[0] = this->subtract(a[0], sg[0]);
+
+            DEGA;
+        }
+
+        return q;
+    }
+
 public:
     Extension() {}
 
@@ -143,8 +228,7 @@ public:
         }
 
         // deg <= 3n - 1, overflow when 3n - 1 > 64 <=> n > 65 / 4 ~ 21.667
-        this->n_prime = this->fast_mul(r, r_prime);
-        this->n_prime = this->quo(this->n_prime, { 0x0, this->mod });
+        this->n_prime = this->dumb_quo(r_prime);
 #endif
 
         if (global::output)
