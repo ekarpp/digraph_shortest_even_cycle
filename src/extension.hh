@@ -129,10 +129,18 @@ public:
         N *= 2;
 
         // deg <= n-1
-        extension_repr r_prime = { 0x0, 0x1 };
-        /* lazy... */
-        for (int i = 0; i < N - 1; i++)
-            r_prime = this->rem(this->mul(r_prime, this->rem(r)));
+        extension_repr r_rem = this->rem(r);
+        extension_repr r_prime = r_rem;
+
+        N--;
+        long idx = 1ll << (util::log2(N) - 1);
+        while (idx > 1)
+        {
+            r_prime = this->rem(this->mul(r_prime, r_prime));
+            if (N & idx)
+                r_prime = this->rem(this->mul(r_prime, r_rem));
+            idx >>= 1;
+        }
 
         // deg <= 3n - 1, overflow when 3n - 1 > 64 <=> n > 65 / 4 ~ 21.667
         this->n_prime = this->fast_mul(r, r_prime);
