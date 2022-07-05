@@ -167,12 +167,12 @@ geng-test: digraph-tests nauty/geng nauty/directg nauty/listg
 #############
 
 %.s: %.cc
-	$(CXX) -S $(CXXFLAGS) -fverbose-asm $^
+	$(CXX) -D GF2_bits=16 -S $(CXXFLAGS) -fverbose-asm $^
 
 %.asm1: %.s
 	c++filt < $^ > $@
 
-%.asm2: %.o
+%.asm2: %16.o
 	objdump -d -S $^ > $@
 
 
