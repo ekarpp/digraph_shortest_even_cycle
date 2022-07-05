@@ -55,6 +55,7 @@ int main(int argc, char **argv)
 
     vector<extension_repr> a(t);
     vector<extension_repr> b(t);
+    vector<extension_repr> p(t);
 
     double start;
     double end;
@@ -92,21 +93,18 @@ int main(int argc, char **argv)
 
     double delta;
     double mhz;
-    extension_repr tmp;
 
     start = omp_get_wtime();
 #ifdef PARALLEL
     #pragma omp parallel for
 #endif
     for (uint64_t i = 0; i < t; i++)
-        tmp = global::E.ref_mul(a[i], b[i]);
+        p[i] = global::E.ref_mul(a[i], b[i]);
     end = omp_get_wtime();
     delta = (end - start);
     mhz = t / delta;
     mhz /= 1e6;
 
-    // so compiler wont optimize the loop
-    cout << tmp.hi << " discard me" << endl;
     cout << t << " ref multiplications in time: " <<
         delta << " s or " << mhz << " Mhz" << endl;
 
@@ -115,14 +113,12 @@ int main(int argc, char **argv)
     #pragma omp parallel for
 #endif
     for (uint64_t i = 0; i < t; i++)
-        tmp = global::E.kronecker_mul(a[i], b[i]);
+        p[i] = global::E.kronecker_mul(a[i], b[i]);
     end = omp_get_wtime();
     delta = (end - start);
     mhz = t / delta;
     mhz /= 1e6;
 
-    // so compiler wont optimize the loop
-    cout << tmp.hi << " discard me" << endl;
     cout << t << " kronecker multiplications in time: " <<
         delta << " s or " << mhz << " Mhz" << endl;
 
@@ -131,7 +127,7 @@ int main(int argc, char **argv)
     #pragma omp parallel for
 #endif
     for (uint64_t i = 0; i < t; i++)
-        a[i] = global::E.fast_mul(a[i], b[i]);
+        p[i] = global::E.fast_mul(a[i], b[i]);
     end = omp_get_wtime();
     delta = (end - start);
     mhz = t / delta;
@@ -145,14 +141,12 @@ int main(int argc, char **argv)
     #pragma omp parallel for
 #endif
     for (uint64_t i = 0; i < t; i++)
-        tmp = global::E.mont_rem(a[i]);
+        a[i] = global::E.mont_rem(p[i]);
     end = omp_get_wtime();
     delta = (end - start);
     mhz = t / delta;
     mhz /= 1e6;
 
-    // so compiler wont optimize the loop
-    cout << tmp.hi << " discard me" << endl;
     cout << t << " mont remainders in time: " <<
         delta << " s or " << mhz << " Mhz" << endl;
 
@@ -161,14 +155,12 @@ int main(int argc, char **argv)
     #pragma omp parallel for
 #endif
     for (uint64_t i = 0; i < t; i++)
-        tmp = global::E.euclid_rem(a[i]);
+        a[i] = global::E.euclid_rem(p[i]);
     end = omp_get_wtime();
     delta = (end - start);
     mhz = t / delta;
     mhz /= 1e6;
 
-    // so compiler wont optimize the loop
-    cout << tmp.hi << " discard me" << endl;
     cout << t << " euclid remainders in time: " <<
         delta << " s or " << mhz << " Mhz" << endl;
 
@@ -177,7 +169,7 @@ int main(int argc, char **argv)
     #pragma omp parallel for
 #endif
     for (uint64_t i = 0; i < t; i++)
-        a[i] = global::E.intel_rem(a[i]);
+        a[i] = global::E.intel_rem(p[i]);
     end = omp_get_wtime();
     delta = (end - start);
     mhz = t / delta;
