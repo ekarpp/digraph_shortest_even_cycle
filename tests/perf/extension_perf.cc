@@ -67,7 +67,10 @@ int main(int argc, char **argv)
 #else
     #define REPEATS 1
 #endif
+
+#ifdef PARALLEL
     #pragma omp parallel for
+#endif
     for (uint64_t i = 0; i < t; i += REPEATS)
     {
         uint64_t aa = global::randgen();
