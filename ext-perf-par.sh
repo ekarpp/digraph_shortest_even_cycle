@@ -5,7 +5,7 @@
 #SBATCH --partition=batch-hsw
 #SBATCH --cpus-per-task=24
 #SBATCH --ntasks=1
-#SBATCH --output=ext-perf-seq.out
+#SBATCH --output=ext-perf-par.out
 
 hostname
 uname -a
