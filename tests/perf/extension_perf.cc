@@ -46,6 +46,7 @@ int main(int argc, char **argv)
     global::randgen.init(seed);
 #if GF2_bits == 0
     int n = 24;
+    cout << "E^" << n << endl;
     uint64_t mod = util::irred_poly(n);
     global::E.init(n, mod);
 #else
