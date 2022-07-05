@@ -142,12 +142,10 @@ int main(int argc, char **argv)
     start = omp_get_wtime();
 #ifdef PARALLEL
     #pragma omp parallel for
-    for (uint64_t i = 0; i < t; i++)
-        a[i] = global::E.fast_mul(a[i], b[i]);
-#else
-    for (uint64_t i = 0; i < t; i++)
-        a[i] = global::E.fast_mul(a[i], b[i]);
 #endif
+    for (uint64_t i = 0; i < t; i++)
+        a[i] = global::E.fast_mul(a[i], b[i]);
+
     end = omp_get_wtime();
     delta = (end - start);
     mhz = t / delta;
@@ -201,12 +199,10 @@ int main(int argc, char **argv)
     start = omp_get_wtime();
 #ifdef PARALLEL
     #pragma omp parallel for
-    for (uint64_t i = 0; i < t; i++)
-        a[i] = global::E.intel_rem(a[i]);
-#else
-    for (uint64_t i = 0; i < t; i++)
-        a[i] = global::E.intel_rem(a[i]);
 #endif
+    for (uint64_t i = 0; i < t; i++)
+        a[i] = global::E.intel_rem(a[i]);
+
 
     end = omp_get_wtime();
     delta = (end - start);
