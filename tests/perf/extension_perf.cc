@@ -55,8 +55,6 @@ int main(int argc, char **argv)
 
     vector<extension_repr> a(t);
     vector<extension_repr> b(t);
-    vector<extension_repr> p(t);
-    vector<extension_repr> r(t);
 
     double start;
     double end;
@@ -97,13 +95,14 @@ int main(int argc, char **argv)
 
     double delta;
     double mhz;
+    extension_repr tmp;
 
     start = omp_get_wtime();
 #ifdef PARALLEL
     #pragma omp parallel for
 #endif
     for (uint64_t i = 0; i < t; i++)
-        p[i] = global::E.ref_mul(a[i], b[i]);
+        tmp = global::E.ref_mul(a[i], b[i]);
     end = omp_get_wtime();
     delta = (end - start);
     mhz = t / delta;
@@ -117,7 +116,7 @@ int main(int argc, char **argv)
     #pragma omp parallel for
 #endif
     for (uint64_t i = 0; i < t; i++)
-        p[i] = global::E.kronecker_mul(a[i], b[i]);
+        tmp = global::E.kronecker_mul(a[i], b[i]);
     end = omp_get_wtime();
     delta = (end - start);
     mhz = t / delta;
@@ -131,7 +130,7 @@ int main(int argc, char **argv)
     #pragma omp parallel for
 #endif
     for (uint64_t i = 0; i < t; i++)
-        p[i] = global::E.fast_mul(a[i], b[i]);
+        a[i] = global::E.fast_mul(a[i], b[i]);
     end = omp_get_wtime();
     delta = (end - start);
     mhz = t / delta;
@@ -145,7 +144,7 @@ int main(int argc, char **argv)
     #pragma omp parallel for
 #endif
     for (uint64_t i = 0; i < t; i++)
-        r[i] = global::E.mont_rem(p[i]);
+        tmp = global::E.mont_rem(a[i]);
     end = omp_get_wtime();
     delta = (end - start);
     mhz = t / delta;
@@ -159,7 +158,7 @@ int main(int argc, char **argv)
     #pragma omp parallel for
 #endif
     for (uint64_t i = 0; i < t; i++)
-        r[i] = global::E.euclid_rem(p[i]);
+        tmp = global::E.euclid_rem(a[i]);
     end = omp_get_wtime();
     delta = (end - start);
     mhz = t / delta;
@@ -173,7 +172,7 @@ int main(int argc, char **argv)
     #pragma omp parallel for
 #endif
     for (uint64_t i = 0; i < t; i++)
-        r[i] = global::E.intel_rem(p[i]);
+        tmp = global::E.intel_rem(a[i]);
     end = omp_get_wtime();
     delta = (end - start);
     mhz = t / delta;
