@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --time=00:10:00
-#SBATCH --mem=66G
+#SBATCH --mem=35G
 #SBATCH --partition=batch-hsw
 #SBATCH --cpus-per-task=24
 #SBATCH --ntasks=1
