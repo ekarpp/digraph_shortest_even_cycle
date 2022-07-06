@@ -66,7 +66,7 @@ int main(void)
             csum += vec[j];
         sums[i] = csum;
     }
-    for (int i = 0; i < threads; i++)
+    for (int i = 0; i < cores; i++)
         sum += sums[i];
     end = omp_get_wtime();
     cout << sum << endl;
