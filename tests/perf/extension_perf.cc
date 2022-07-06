@@ -51,7 +51,7 @@ int main(int argc, char **argv)
             break;
         case 't':
             exp = stoi(optarg);
-            t <<= n;
+            t <<= exp;
             break;
         }
     }
