@@ -21,8 +21,13 @@ make test16
 REPEATS=6
 DEG=6
 
+SEED=123
+
 for v in 16 24 32 40 48 56 64
 do
+    rm graphs/erdos_renyi/er*
+    rm graphs/config/cm*
+
     echo $v
 
     # MAKE THESE BEFORE
@@ -36,28 +41,24 @@ do
     echo "COMPLETE"
     for (( i=1; i<=$REPEATS; i++ ))
     do
-	./digraph16-PAR -qtf graphs/complete/k$v -s $RANDOM
+	./digraph16-PAR -qtf graphs/complete/k$v -s $SEED
     done
 
     echo "CYCLE"
     for (( i=1; i<=$REPEATS; i++ ))
     do
-	./digraph16-PAR -qtf graphs/cycle/c$v -s $RANDOM
+	./digraph16-PAR -qtf graphs/cycle/c$v -s $SEED
     done
-
-
 
     echo "CONFIG"
     for file in graphs/config/*
     do
-	./digraph16-PAR -uqtf $file -s $RANDOM
+	./digraph16-PAR -uqtf $file -s $SEED
     done
-    rm graphs/config/cm*
 
     echo "ERDOS"
     for file in graphs/erdos_renyi/*
     do
-	./digraph16-PAR -uqtf $file -s $RANDOM
+	./digraph16-PAR -uqtf $file -s $SEED
     done
-    rm graphs/erdos_renyi/er*
 done
