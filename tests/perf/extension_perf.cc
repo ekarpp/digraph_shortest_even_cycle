@@ -15,10 +15,10 @@
         a[i] = aa[i];                  \
 }
 
-#define COMP_OPT                                \
-{                                               \
-    if (n == 0x6fabc73829101)                   \
-        cout << a[n].hi << a[n].lo << endl;     \
+#define COMP_OPT                                    \
+{                                                   \
+    if (exp == 0x6fabc73829101)                     \
+        cout << a[exp].hi << a[exp].lo << endl;     \
 }
 
 using namespace std;
@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     uint64_t seed = time(nullptr);
 
     uint64_t t = 1;
-    int n = 1;
+    int exp = 1;
     int opt;
     while ((opt = getopt(argc, argv, "s:t:")) != -1)
     {
@@ -50,7 +50,7 @@ int main(int argc, char **argv)
             seed = stoi(optarg);
             break;
         case 't':
-            n = stoi(optarg);
+            exp = stoi(optarg);
             t <<= n;
             break;
         }
