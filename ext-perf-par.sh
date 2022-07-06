@@ -6,7 +6,7 @@
 #SBATCH --cpus-per-task=24
 #SBATCH --ntasks=1
 #SBATCH --output=ext-perf-par.out
-module load gcc/11.2.0
+module load gcc/9.4.0
 
 hostname
 uname -a
