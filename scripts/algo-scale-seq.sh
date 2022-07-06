@@ -7,7 +7,6 @@
 #SBATCH --ntasks=1
 #SBATCH --output=algo-sqale-seq.out
 
-: '
 hostname
 uname -a
 cat /etc/*release
@@ -18,11 +17,11 @@ make digraph-tests16
 make digraph16
 
 make test16
-'
+
 REPEATS=6
 DEG=6
 
-for v in 16 #24 32 40 48 56 64
+for v in 16 24 32 40 48 56 64
 do
     echo $v
 
