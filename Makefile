@@ -6,7 +6,7 @@ LDFLAGS := -fopenmp
 
 VPATH = src:tests/unit:tests/perf
 
-BIN := digraph digraph-tests extension-perf gf-perf
+BIN := digraph digraph-tests extension-perf gf-perf mem-bench
 
 OBJ := graph util gf extension fmatrix ematrix polynomial solver
 OBJ := $(addsuffix $(bits).o, $(OBJ))
@@ -124,6 +124,12 @@ extension-perfX: extension_perf$(bits).o $(PERF_OBJ) extension_perf$(bits)PAR.o
 
 extension-perf: extension-perf32 extension-perf16 extension-perf0
 
+#############
+# MEM BENCH #
+#############
+
+mem-bench: mem_bench.o
+	$(CXX) $^ $(LDFLAGS) -o $@
 
 #########
 # NAUTY #

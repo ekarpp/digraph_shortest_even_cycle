@@ -13,6 +13,7 @@ digraph-tests*
 digraph-scale*
 extension-perf*
 gf-perf*
+mem-bench
 
 # geng failure graphs, can be big
 geng-fail
