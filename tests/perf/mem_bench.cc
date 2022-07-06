@@ -53,18 +53,18 @@ int main(void)
 
     uint64_t sums[128];
     sum = 0;
-    int threads = omp_get_num_threads();
-    uint64_t block_size = N / threads;
+    int cores = omp_get_num_procs();
+    uint64_t block_size = N / cores;
     start = omp_get_wtime();
     #pragma omp parallel for
-    for (int i = 0; i < threads; i++)
+    for (int i = 0; i < cores; i++)
     {
-        uint64_t tsum = 0;
+        uint64_t csum = 0;
         uint64_t start = block_size * i;
         uint64_t end = block_size * (i + 1) - 1;
         for (uint64_t j = start; j < end; j++)
-            tsum += vec[j];
-        sums[i] = tsum;
+            csum += vec[j];
+        sums[i] = csum;
     }
     for (int i = 0; i < threads; i++)
         sum += sums[i];
