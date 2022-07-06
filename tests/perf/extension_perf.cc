@@ -132,7 +132,6 @@ int main(int argc, char **argv)
     vector<extension_repr> a(t);
     vector<extension_repr> b(t);
     vector<extension_repr> aa(t);
-    vector<extension_repr> w(t);
 
     double start;
     double end;
