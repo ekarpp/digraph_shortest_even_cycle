@@ -7,8 +7,8 @@
 using namespace std;
 
 // 500 mil = 4 GB (500mil * 8B = 4 bil)
-#define N 500000000ull
-#define GBS (N*8 / 1e9)
+#define N (1ull << 29)
+#define GIBS (N*8 / (1ull << 30))
 
 int main(void)
 {
@@ -23,8 +23,9 @@ int main(void)
     end = omp_get_wtime();
 
     delta = end - start;
-    cout << "wrote sequentially " << GBS
-         << " GB in " << delta << " seconds." << endl;
+    cout << "wrote sequentially " << GIBS
+         << " GiB in " << delta << " seconds, "
+         << GIBS / delta << " GiB / s." << endl;
 
     uint64_t sum = 0;
     start = omp_get_wtime();
@@ -34,8 +35,9 @@ int main(void)
     cout << sum << endl;
 
     delta = end - start;
-    cout << "read sequentially " << GBS
-         << " GB in " << delta << " seconds." << endl;
+    cout << "read sequentially " << GIBS
+         << " GiB in " << delta << " seconds, "
+         << GIBS / delta << " GiB / s." << endl;
 
     val = time(nullptr);
     start = omp_get_wtime();
@@ -45,14 +47,16 @@ int main(void)
     end = omp_get_wtime();
 
     delta = end - start;
-    cout << "wrote parallelly " << GBS
-         << " GB in " << delta << " seconds." << endl;
+    cout << "wrote parallelly " << GIBS
+         << " GiB in " << delta << " seconds, "
+         << GIBS / delta << " GiB / s." << endl;
 
     uint64_t sums[128];
     sum = 0;
     int threads = omp_get_num_threads();
     uint64_t block_size = N / threads;
     start = omp_get_wtime();
+    #pragma omp parallel for
     for (int i = 0; i < threads; i++)
     {
         uint64_t tsum = 0;
@@ -68,8 +72,9 @@ int main(void)
     cout << sum << endl;
 
     delta = end - start;
-    cout << "read parallelly " << GBS
-         << " GB in " << delta << " seconds." << endl;
+    cout << "read parallelly " << GIBS
+         << " GiB in " << delta << " seconds, "
+         << GIBS / delta << " GiB / s." << endl;
 
     return 0;
 }
