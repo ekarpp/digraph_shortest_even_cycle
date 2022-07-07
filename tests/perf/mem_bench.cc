@@ -7,6 +7,7 @@
 
 using namespace std;
 
+#define CORES 24
 // 4 GiBs
 #define N (1ull << 29)
 #define GIBS (N*8 / (1ull << 30))
@@ -95,7 +96,7 @@ int main(void)
          << GIBS / delta << " GiB / s." << endl;
 
     uint64_t sums[omp_get_num_procs()];
-    int cores = omp_get_num_procs();
+    int cores = CORES;
     uint64_t block_size = N / cores;
     start_t = omp_get_wtime();
     #pragma omp parallel for
