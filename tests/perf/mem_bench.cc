@@ -80,18 +80,7 @@ int main(void)
          << " GiB in " << delta << " seconds, "
          << GIBS / delta << " GiB / s." << endl;
 
-
-    start_t = omp_get_wtime();
-    for (uint64_t i = 0; i < N; i++)
-        sum += vec[idx[i]];
-    end_t = omp_get_wtime();
-    cout << sum << endl;
-
-    delta = end_t - start_t;
-    cout << "read sequentially random cache lines " << GIBS
-         << " GiB in " << delta << " seconds, "
-         << GIBS / delta << " GiB / s." << endl;
-
+    cout << "############################" << endl;
 
     val = time(nullptr);
     start_t = omp_get_wtime();
@@ -171,7 +160,7 @@ int main(void)
     cout << sum << endl;
 
     delta = end_t - start_t;
-    cout << "read sequentially random cache lines " << GIBS
+    cout << "read parallelly random cache lines " << GIBS
          << " GiB in " << delta << " seconds, "
          << GIBS / delta << " GiB / s." << endl;
 
