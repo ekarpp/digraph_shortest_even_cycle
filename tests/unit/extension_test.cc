@@ -191,26 +191,27 @@ void Extension_test::test_packed_intel_rem()
     int err = 0;
     for (int i = 0; i < this->tests; i++)
     {
-        Extension_element a[2];
-        Extension_element b[2];
-        extension_repr v[2];
-        extension_repr euclid[2];
+        Extension_element a;
+        Extension_element b;
+        extension_repr v = { 0, 0 };
+        extension_repr euclid = { 0, 0 };
 
         for (int j = 0; j < 2; j++)
         {
-            a[j] = global::E.random();
-            b[j] = global::E.random();
-            v[j] = global::E.fast_mul(a[j].get_repr(), b[j].get_repr());
-            euclid[j] = global::E.euclid_rem(v[j]);
+            a = global::E.random();
+            b = global::E.random();
+            extension_repr tmp =
+                global::E.fast_mul(a.get_repr(), b.get_repr());
+            v.hi |= tmp.hi << (32*j);
+            v.lo |= tmp.lo << (32*j);
+            tmp = global::E.euclid_rem(tmp);
+            euclid.hi |= tmp.hi << (32*j);
+            euclid.lo |= tmp.lo << (32*j);
         }
 
-        pair<extension_repr, extension_repr> p =
-            global::E.intel_rem(pair(v[0], v[1]));
+        extension_repr intel = global::E.packed_intel_rem(v);
 
-        if (euclid[0].hi != p.first.hi ||
-            euclid[0].lo != p.first.lo ||
-            euclid[1].hi != p.second.hi ||
-            euclid[1].lo != p.second.lo)
+        if (euclid.hi != intel.hi || euclid.lo != intel.lo)
             err++;
     }
     end_test(err);

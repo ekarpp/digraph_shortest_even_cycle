@@ -303,14 +303,8 @@ public:
     }
 
 #if GF2_bits == 16
-    std::pair<extension_repr, extension_repr> intel_rem(std::pair<extension_repr, extension_repr> p) const
+    extension_repr packed_intel_rem(extension_repr a) const
     {
-        extension_repr a = p.first;
-        a.hi <<= 32;
-        a.lo <<= 32;
-        a.hi |= p.second.hi;
-        a.lo |= p.second.lo;
-
         uint64_t pack_mask = (this->mask | (this->mask << 32));
 
         extension_repr hi = {
@@ -321,6 +315,7 @@ public:
             a.hi & pack_mask,
             a.lo & pack_mask
         };
+
         uint64_t m = 0b11 | (0b11ull << 32);
         extension_repr tmp = {
             (hi.hi >> 14) & m,
@@ -348,19 +343,8 @@ public:
         r = this->add(r, { tmp.hi << 3, tmp.lo << 3 });
         r = this->add(r, { tmp.hi << 5, tmp.lo << 5 });
 
-        r = this->subtract(lo, r);
-
-        std::pair<extension_repr, extension_repr> ret;
-        ret.first = {
-            (r.hi >> 32) & this->mask,
-            (r.lo >> 32) & this->mask
-        };
-        ret.second = {
-            r.hi & this->mask,
-            r.lo & this->mask
-        };
-
-        return ret;
+        r = { r.hi & pack_mask, r.lo & pack_mask };
+        return this->subtract(lo, r);
     }
 #endif
 

@@ -247,10 +247,5 @@ int main(int argc, char **argv)
     cout << t << " intel remainders in time " <<
         delta << " s or " << mhz << " Mhz" << endl;
 
-    BENCH;
-
-    cout << t << " intel remainders in time " <<
-        delta << " s or " << mhz << " Mhz" << endl;
-
     return 0;
 }
