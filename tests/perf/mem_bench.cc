@@ -95,7 +95,7 @@ int main(void)
          << " GiB in " << delta << " seconds, "
          << GIBS / delta << " GiB / s." << endl;
 
-    uint64_t sums[omp_get_num_procs()];
+    uint64_t sums[CORES];
     int cores = CORES;
     uint64_t block_size = N / cores;
     start_t = omp_get_wtime();
