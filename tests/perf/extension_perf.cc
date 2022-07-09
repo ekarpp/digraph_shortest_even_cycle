@@ -51,6 +51,52 @@
     mhz /= 1e6;                                             \
 }
 
+#define BENCH                                               \
+{                                                           \
+    extension_repr w = {0, 0};                              \
+    if (PARALLEL) {                                         \
+        _Pragma("omp parallel for")                         \
+        for (uint64_t i = 0; i < WARMUP; i++)               \
+            w = global::E.add(w, global::E.intel_rem(a[i]));    \
+    } else {                                                \
+        for (uint64_t i = 0; i < WARMUP; i++)               \
+            w = global::E.add(w, global::E.intel_rem(a[i]));    \
+    }                                                       \
+    start = omp_get_wtime();                                \
+    if (PARALLEL) {                                         \
+        _Pragma("omp parallel for")                         \
+            for (uint64_t i = 0; i < t; i+=2)               \
+            {                                               \
+                pair<extension_repr,extension_repr> p =     \
+                    global::E.intel_rem(                    \
+                        pair(a[i], a[i+1])                  \
+                        );                                  \
+                a[i] = p.first;                             \
+                a[i+1] = p.second;                          \
+            }                                               \
+    } else {                                                \
+        for (uint64_t i = 0; i < t; i+=2)                   \
+        {                                                   \
+            pair<extension_repr,extension_repr> p =         \
+                global::E.intel_rem(                        \
+                    pair(a[i], a[i+1])                      \
+                    );                                      \
+            a[i] = p.first;                                 \
+            a[i+1] = p.second;                              \
+        }                                                   \
+    }                                                       \
+    end = omp_get_wtime();                                  \
+    if (exp == 0x6fabc73829101) {                           \
+        cout << a[exp].hi << a[exp].lo << endl;             \
+        cout << w.hi << w.lo << endl;                       \
+    }                                                       \
+    for (uint64_t i = 0; i < t; i++)                        \
+        a[i] = aa[i];                                       \
+    delta = (end - start);                                  \
+    mhz = t / delta;                                        \
+    mhz /= 1e6;                                             \
+}
+
 #define BENCH_REM(rem_func)                                 \
 {                                                           \
     extension_repr w = {0, 0};                              \
@@ -200,5 +246,11 @@ int main(int argc, char **argv)
 
     cout << t << " intel remainders in time " <<
         delta << " s or " << mhz << " Mhz" << endl;
+
+    BENCH;
+
+    cout << t << " intel remainders in time " <<
+        delta << " s or " << mhz << " Mhz" << endl;
+
     return 0;
 }

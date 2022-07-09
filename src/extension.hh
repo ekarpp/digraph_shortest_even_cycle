@@ -302,6 +302,51 @@ public:
         return this->subtract(lo, r);
     }
 
+#if GF2_bits == 16
+    std::pair<extension_repr, extension_repr> intel_rem(std::pair<extension_repr, extension_repr> p) const
+    {
+        extension_repr a = p.first;
+        a.hi <<= 32;
+        a.lo <<= 32;
+        a.hi |= p.second.hi;
+        a.lo |= p.second.lo;
+
+        uint64_t pack_mask = (this->mask | (this->mask << 32));
+
+        extension_repr hi = {
+            (a.hi >> this->n) & pack_mask,
+            (a.lo >> this->n) & pack_mask
+        };
+        extension_repr lo = {
+            a.hi & pack_mask,
+            a.lo & pack_mask
+        };
+
+        extension_repr tmp = { hi.hi >> 14, hi.lo >> 14 };
+        tmp = this->add(tmp, { hi.hi >> 13, hi.lo >> 13 });
+        tmp = this->add(tmp, { hi.hi >> 11, hi.lo >> 11 });
+        tmp = this->subtract(hi, tmp);
+
+        extension_repr r = this->add(tmp, { tmp.hi << 2, tmp.lo << 2 });
+        r = this->add(r, { tmp.hi << 3, tmp.lo << 3 });
+        r = this->add(r, { tmp.hi << 5, tmp.lo << 5 });
+
+        r = this->subtract(lo, r);
+
+        std::pair<extension_repr, extension_repr> ret;
+        ret.first = {
+            (r.hi >> 32) & this->mask,
+            (r.lo >> 32) & this->mask
+        };
+        ret.second = {
+            r.hi & this->mask,
+            r.lo & this->mask
+        };
+
+        return ret;
+    }
+#endif
+
     extension_repr mont_rem(extension_repr a) const
     {
         /* d-1 deg * d-1 deg */
