@@ -321,10 +321,27 @@ public:
             a.hi & pack_mask,
             a.lo & pack_mask
         };
-
-        extension_repr tmp = { hi.hi >> 14, hi.lo >> 14 };
-        tmp = this->add(tmp, { hi.hi >> 13, hi.lo >> 13 });
-        tmp = this->add(tmp, { hi.hi >> 11, hi.lo >> 11 });
+        uint64_t m = 0b11 | (0b11ull << 32);
+        extension_repr tmp = {
+            (hi.hi >> 14) & m,
+            (hi.lo >> 14) & m
+        };
+        m = 0b111 | (0b111ull << 32);
+        tmp = this->add(
+            tmp,
+            {
+                (hi.hi >> 13) & m,
+                (hi.lo >> 13) & m
+            }
+        );
+        m = 0b11111 | (0b11111ull << 32);
+        tmp = this->add(
+            tmp,
+            {
+                (hi.hi >> 11) & m,
+                (hi.lo >> 11) & m
+            }
+        );
         tmp = this->subtract(hi, tmp);
 
         extension_repr r = this->add(tmp, { tmp.hi << 2, tmp.lo << 2 });
