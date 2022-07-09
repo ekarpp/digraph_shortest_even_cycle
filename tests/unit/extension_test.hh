@@ -19,6 +19,10 @@ private:
     void test_is_even();
     void test_kronecker_mul();
 
+#if GF2_bits == 16
+    void test_packed_intel_rem();
+#endif
+
     void run()
     {
         test_add_inverse();
@@ -30,6 +34,9 @@ private:
         test_intel_rem();
         test_mont_rem();
         test_kronecker_mul();
+#if GF2_bits == 16
+        test_packed_intel_rem();
+#endif
     }
 
 public:

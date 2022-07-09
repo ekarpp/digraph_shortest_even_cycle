@@ -183,3 +183,36 @@ void Extension_test::test_is_even()
     }
     this->end_test(err);
 }
+
+#if GF2_bits == 16
+void Extension_test::test_packed_intel_rem()
+{
+    cout << "test packed intel rem: ";
+    int err = 0;
+    for (int i = 0; i < this->tests; i++)
+    {
+        Extension_element a[2];
+        Extension_element b[2];
+        extension_repr v[2];
+        extension_repr euclid[2];
+
+        for (int j = 0; j < 2; j++)
+        {
+            a[j] = global::E.random();
+            b[j] = global::E.random();
+            v[j] = global::E.fast_mul(a[j].get_repr(), b[j].get_repr());
+            euclid[j] = global::E.euclid_rem(v[j]);
+        }
+
+        pair<extension_repr, extension_repr> p =
+            global::E.intel_rem(pair(v[0], v[1]));
+
+        if (euclid[0].hi != p.first.hi ||
+            euclid[0].lo != p.first.lo ||
+            euclid[1].hi != p.second.hi ||
+            euclid[1].lo != p.second.lo)
+            err++;
+    }
+    end_test(err);
+}
+#endif
