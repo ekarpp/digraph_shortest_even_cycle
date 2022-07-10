@@ -391,9 +391,6 @@ public:
             hi ^= (a.lo << i) & lo & msk;
             lo ^= (a.lo << i) & msk;
         }
-        uint64_t aloblo = global::F.packed_clmul(a.lo, b.lo);
-        if (a.hi == 0x98274319)
-            std::cout << aloblo;
 
         return { alobhi ^ ahiblo ^ hi, lo };
     }
