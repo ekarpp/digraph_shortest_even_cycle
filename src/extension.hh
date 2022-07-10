@@ -19,10 +19,59 @@ class Extension_element;
  * each bit in lo is the low bit of the mod 4 coefficient.
  * similarly for hi
  */
-struct extension_repr
+class extension_repr
 {
+public:
     uint64_t hi;
     uint64_t lo;
+
+    extension_repr &operator>>=(int n)
+    {
+        this->hi >>= n;
+        this->lo >>= n;
+
+        return *this;
+    }
+
+    extension_repr &operator<<=(int n)
+    {
+        this->hi <<= n;
+        this->lo <<= n;
+
+        return *this;
+    }
+
+    extension_repr &operator&=(uint64_t m)
+    {
+        this->hi &= m;
+        this->lo &= m;
+
+        return *this;
+    }
+
+    extension_repr operator>>(int n)
+    {
+        return { this->hi >> n, this->lo >> n };
+    }
+
+    extension_repr operator<<(int n)
+    {
+        return { this->hi << n, this->lo << n };
+    }
+
+    extension_repr operator&(uint64_t m)
+    {
+        return { this->hi & m, this->lo & m };
+    }
+
+    extension_repr shiftr_and(int n, uint64_t m)
+    {
+        return {
+            (this->hi >> n) & m,
+            (this->lo >> n) & m
+        };
+    }
+
 };
 
 #if GF2_bits == 16
@@ -94,10 +143,8 @@ private:
     extension_repr dumb_quo(extension_repr r_prime) const
     {
         extension_repr a[2];
-        a[1].hi = r_prime.hi >> (64 - 2*this->n);
-        a[1].lo = r_prime.lo >> (64 - 2*this->n);
-        a[0].hi = r_prime.hi << (2*this->n);
-        a[0].lo = r_prime.lo << (2*this->n);
+        a[1] = r_prime >> (64 - 2*this->n);
+        a[0] = r_prime << (2*this->n);
 
         extension_repr q = { 0, 0 };
         int degb = util::log2(this->mod);
@@ -138,22 +185,13 @@ private:
             extension_repr sg[2];
 
             /* tmp * g = sg[0] */
-            sg[0] = {
-                this->mod & tmp.hi,
-                this->mod & tmp.lo
-            };
+            sg[0] = tmp & this->mod;
             if (dega >= 64)
-            {
-                sg[1].hi = sg[0].hi >> (64 - degc);
-                sg[1].lo = sg[0].lo >> (64 - degc);
-            }
+                sg[1] = sg[0] >> (64 - degc);
             else
-            {
                 sg[1] = { 0, 0 };
-            }
 
-            sg[0].hi <<= degc;
-            sg[0].lo <<= degc;
+            sg[0] <<= degc;
 
             a[1] = this->subtract(a[1], sg[1]);
             a[0] = this->subtract(a[0], sg[0]);
@@ -274,31 +312,31 @@ public:
         extension_repr lo = { a.hi & this->mask, a.lo & this->mask };
 
 #if GF2_bits == 16
-        extension_repr tmp = { hi.hi >> 14, hi.lo >> 14 };
-        tmp = this->add(tmp, { hi.hi >> 13, hi.lo >> 13 });
-        tmp = this->add(tmp, { hi.hi >> 11, hi.lo >> 11 });
+        extension_repr tmp = hi >> 14;
+        tmp = this->add(tmp, hi >> 13);
+        tmp = this->add(tmp, hi >> 11);
         tmp = this->subtract(hi, tmp);
 
-        extension_repr r = this->add(tmp, { tmp.hi << 2, tmp.lo << 2 });
-        r = this->add(r, { tmp.hi << 3, tmp.lo << 3 });
-        r = this->add(r, { tmp.hi << 5, tmp.lo << 5 });
+        extension_repr r = this->add(tmp, tmp << 2);
+        r = this->add(r, tmp << 3);
+        r = this->add(r, tmp << 5);
 #elif GF2_bits == 32
-        extension_repr tmp = { hi.hi >> 30, hi.lo >> 30 };
-        tmp = this->add(tmp, { hi.hi >> 29, hi.lo >> 29 });
-        tmp = this->add(tmp, { hi.hi >> 25, hi.lo >> 25 });
+        extension_repr tmp = hi >> 30;
+        tmp = this->add(tmp, hi >> 29);
+        tmp = this->add(tmp, hi >> 25);
         tmp = this->subtract(hi, tmp);
 
-        extension_repr r = this->add(tmp, { tmp.hi << 2, tmp.lo << 2 });
-        r = this->add(r, { tmp.hi << 3, tmp.lo << 3 });
-        r = this->add(r, { tmp.hi << 7, tmp.lo << 7 });
+        extension_repr r = this->add(tmp, tmp << 2);
+        r = this->add(r, tmp << 3);
+        r = this->add(r, tmp << 7);
 #else
         /* deg n-2 * deg n*/
         extension_repr r = this->mul(hi, this->q_plus);
-        r = { r.hi >> this->n, r.lo >> this->n };
+        r >>= this->n;
         /* deg n-1 * deg n - 2*/
         r = this->mul(r, this->mod_ast);
 #endif
-        r = { r.hi & this->mask, r.lo & this->mask };
+        r &= this->mask;
         return this->subtract(lo, r);
     }
 
@@ -307,43 +345,29 @@ public:
     {
         uint64_t pack_mask = (this->mask | (this->mask << 32));
 
-        extension_repr hi = {
-            (a.hi >> this->n) & pack_mask,
-            (a.lo >> this->n) & pack_mask
-        };
-        extension_repr lo = {
-            a.hi & pack_mask,
-            a.lo & pack_mask
-        };
+        extension_repr hi = a.shiftr_and(this->n, pack_mask);
+        extension_repr lo = a & pack_mask;
 
         uint64_t m = 0b11 | (0b11ull << 32);
-        extension_repr tmp = {
-            (hi.hi >> 14) & m,
-            (hi.lo >> 14) & m
-        };
+        extension_repr tmp = hi.shiftr_and(14, m);
+
         m = 0b111 | (0b111ull << 32);
         tmp = this->add(
             tmp,
-            {
-                (hi.hi >> 13) & m,
-                (hi.lo >> 13) & m
-            }
+            hi.shiftr_and(13, m)
         );
         m = 0b11111 | (0b11111ull << 32);
         tmp = this->add(
             tmp,
-            {
-                (hi.hi >> 11) & m,
-                (hi.lo >> 11) & m
-            }
+            hi.shiftr_and(11, m)
         );
         tmp = this->subtract(hi, tmp);
 
-        extension_repr r = this->add(tmp, { tmp.hi << 2, tmp.lo << 2 });
-        r = this->add(r, { tmp.hi << 3, tmp.lo << 3 });
-        r = this->add(r, { tmp.hi << 5, tmp.lo << 5 });
+        extension_repr r = this->add(tmp, tmp << 2);
+        r = this->add(r, tmp << 3);
+        r = this->add(r, tmp << 5);
 
-        r = { r.hi & pack_mask, r.lo & pack_mask };
+        r &= pack_mask;
         return this->subtract(lo, r);
     }
 
@@ -380,13 +404,11 @@ public:
         /* d-1 deg * d-1 deg */
         extension_repr u = this->mul(a, this->n_prime);
 
-        u.hi &= this->mask;
-        u.lo &= this->mask;
+        u &= this->mask;
         /* d deg * d-1 deg */
         extension_repr c = this->add(a, this->fast_mul(u, {0, this->mod}));
 
-        c.hi >>= this->n;
-        c.lo >>= this->n;
+        c >>= this->n;
         return c;
     }
 
@@ -442,8 +464,7 @@ public:
                 b.lo & tmp.lo
             };
 
-            aib.lo <<= i;
-            aib.hi <<= i;
+            aib <<= i;
             c = global::E.add(c, aib);
         }
 
