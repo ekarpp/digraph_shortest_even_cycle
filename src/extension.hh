@@ -346,6 +346,33 @@ public:
         r = { r.hi & pack_mask, r.lo & pack_mask };
         return this->subtract(lo, r);
     }
+
+    extension_repr packed_fast_mul(extension_repr a, extension_repr b) const
+    {
+        uint64_t alobhi = global::F.packed_clmul(a.lo, b.hi);
+        uint64_t ahiblo = global::F.packed_clmul(a.hi, b.lo);
+
+        uint64_t hi = 0;
+        uint64_t lo = 0;
+
+        /* handle product of lo and lo */
+        #pragma GCC unroll 32
+        for (int i = 0; i < GF2_bits; i++)
+        {
+            uint64_t msk = 0;
+            if ((b.lo >> i) & 1)
+                msk |= 0xFFFFFFFFull;
+            if ((b.lo >> (i+32)) & 1)
+                msk |= 0xFFFFFFFFull << 32;
+            hi ^= (a.lo << i) & lo & msk;
+            lo ^= (a.lo << i) & msk;
+        }
+        uint64_t aloblo = global::F.packed_clmul(a.lo, b.lo);
+        if (a.hi == 0x98274319)
+            std::cout << aloblo;
+
+        return { alobhi ^ ahiblo ^ hi, lo };
+    }
 #endif
 
     extension_repr mont_rem(extension_repr a) const

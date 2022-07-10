@@ -216,4 +216,50 @@ void Extension_test::test_packed_intel_rem()
     }
     end_test(err);
 }
+
+void Extension_test::test_packed_fast_mul()
+{
+    cout << "test packed fast mul: ";
+    int err = 0;
+    uint64_t mask = 0xFFFF;
+    for (int i = 0; i < this->tests; i++)
+    {
+        extension_repr a;
+        extension_repr b;
+        extension_repr pa = { 0, 0 };
+        extension_repr pb = { 0, 0 };
+        extension_repr ref = { 0, 0 };
+
+        for (int j = 0; j < 2; j++)
+        {
+            uint64_t r = global::randgen();
+
+            a = {
+                r & mask,
+                (r >> 16) & mask
+            };
+
+            b = {
+                (r >> 32) & mask,
+                (r >> 48) & mask
+            };
+
+            pa.hi |= a.hi << (32*j);
+            pa.lo |= a.lo << (32*j);
+
+            pb.hi |= b.hi << (32*j);
+            pb.lo |= b.lo << (32*j);
+
+            extension_repr tmp = global::E.fast_mul(a, b);
+            ref.hi |= tmp.hi << (32*j);
+            ref.lo |= tmp.lo << (32*j);
+        }
+
+        extension_repr fast = global::E.packed_fast_mul(pa, pb);
+
+        if (ref.hi != fast.hi || ref.lo != fast.lo)
+            err++;
+    }
+    end_test(err);
+}
 #endif

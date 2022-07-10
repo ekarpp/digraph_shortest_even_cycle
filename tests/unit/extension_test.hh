@@ -21,6 +21,7 @@ private:
 
 #if GF2_bits == 16
     void test_packed_intel_rem();
+    void test_packed_fast_mul();
 #endif
 
     void run()
@@ -36,6 +37,7 @@ private:
         test_kronecker_mul();
 #if GF2_bits == 16
         test_packed_intel_rem();
+        test_packed_fast_mul();
 #endif
     }
 
