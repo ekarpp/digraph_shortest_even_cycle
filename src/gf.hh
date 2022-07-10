@@ -111,6 +111,29 @@ public:
         return r ^ lo;
     }
 
+#if GF2_bits == 16
+    uint64_t packed_rem(uint64_t a) const
+    {
+        uint64_t pack_mask = this->mask | (this->mask << 32);
+        uint64_t lo = a & pack_mask;
+        uint64_t hi = (a >> this->n) & pack_mask;
+
+        uint64_t r = hi;
+
+        uint64_t m = 0b11 | (0b11ull << 32);
+        r ^= (hi >> 14) & m;
+        m = 0b111 | (0b111ull << 32);
+        r ^= (hi >> 13) & m;
+        m = 0b11111 | (0b11111ull << 32);
+        r ^= (hi >> 11) & m;
+        r &= pack_mask;
+        r ^= (r << 2) ^ (r << 3) ^ (r << 5);
+        r &= pack_mask;
+
+        return r ^ lo;
+    }
+#endif
+
     /* returns s s.t. for some t: s*a + t*field.mod = gcd(field.mod, a)
      * <=> s*a + t*field.mod = 1 taking mod field.mod we get
      * s*a = 1 mod field.mod and thus a^-1 = s mod field.mod*/
@@ -153,6 +176,22 @@ public:
         /* discard hi, only support up to 32 bit */
         return lo;
     }
+
+#if GF2_bits == 16
+    uint64_t packed_clmul(uint64_t a, uint64_t b) const
+    {
+        __m128i aa = _mm_set_epi64x(a >> 32, a & this->mask);
+        __m128i bb = _mm_set_epi64x(b >> 32, b & this->mask);
+        __m128i prod[2];
+        prod[0] = _mm_clmulepi64_si128(aa, bb, 0x00);
+        prod[1] = _mm_clmulepi64_si128(aa, bb, 0x11);
+
+        uint64_t res = _mm_extract_epi64(prod[0], 0x0);
+        res |= _mm_extract_epi64(prod[1], 0x0) << 32;
+
+        return res;
+    }
+#endif
 
     int get_n() const { return this->n; }
     uint64_t get_mod() const { return this->mod; }
