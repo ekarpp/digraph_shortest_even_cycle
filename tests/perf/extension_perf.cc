@@ -13,38 +13,83 @@
 #define PARALLEL 0
 #endif
 
+#if GF2_bits == 16
+#define VAL_PER_WORD 4
+#else
+#define VAL_PER_WORD 2
+#endif
+
+#if GF2_bits == 0
+#define SHIFT_N (n)
+#else
+#define SHIFT_N GF2_bits
+#endif
+
 #define WARMUP (1 << 20)
 
-#define BENCH_MUL(mul_func, last)                           \
+#define EXTRACT_MUL_LOOP(op)                            \
+{                                                       \
+    for (int j = 0; j < VAL_PER_WORD; j++)              \
+    {                                                   \
+        extension_repr lhs =                            \
+            a[i].shiftr_and(                            \
+                j*SHIFT_N,                              \
+                global::E.get_mask()                    \
+            );                                          \
+        extension_repr rhs =                            \
+            b[i].shiftr_and(                            \
+                j*SHIFT_N,                              \
+                global::E.get_mask()                    \
+            );                                          \
+        op(rhs, lhs);                                   \
+    }                                                   \
+}
+
+#define EXTRACT_REM_LOOP(op)                            \
+{                                                       \
+    for (int j = 0; j < VAL_PER_WORD/2; j++)            \
+    {                                                   \
+        extension_repr lhs =                            \
+            a[i].shiftr_and(                            \
+                j*SHIFT_N*2,                            \
+                global::E.get_mask() |                  \
+                (global::E.get_mask() << SHIFT_N)       \
+            );                                          \
+        extension_repr rhs =                            \
+            b[i].shiftr_and(                            \
+                j*SHIFT_N*2,                            \
+                global::E.get_mask() |                  \
+                (global::E.get_mask() << SHIFT_N)       \
+            );                                          \
+        op(rhs);                                        \
+        op(lhs);                                        \
+    }                                                   \
+}
+
+#define BENCH_MUL(mul_func)                                 \
 {                                                           \
     extension_repr w = {0, 0};                              \
     if (PARALLEL) {                                         \
         _Pragma("omp parallel for")                         \
-            for (uint64_t i = 0; i < WARMUP; i++)           \
-            w = global::E.add(w, mul_func(a[i], b[i]));     \
+        for (uint64_t i = 0; i < WARMUP; i++)               \
+            EXTRACT_MUL_LOOP(w = mul_func)                  \
     } else {                                                \
         for (uint64_t i = 0; i < WARMUP; i++)               \
-            w = global::E.add(w, mul_func(a[i], b[i]));     \
+            EXTRACT_MUL_LOOP(w = mul_func)                  \
     }                                                       \
     start = omp_get_wtime();                                \
     if (PARALLEL) {                                         \
         _Pragma("omp parallel for")                         \
         for (uint64_t i = 0; i < t; i++)                    \
-            a[i] = mul_func(a[i], b[i]);                    \
+            EXTRACT_MUL_LOOP(aa[i+j] = mul_func)            \
     } else {                                                \
         for (uint64_t i = 0; i < t; i++)                    \
-            a[i] = mul_func(a[i], b[i]);                    \
+            EXTRACT_MUL_LOOP(aa[i+j] = mul_func)            \
     }                                                       \
     end = omp_get_wtime();                                  \
     if (exp == 0x6fabc73829101) {                           \
-        cout << a[exp].hi << a[exp].lo << endl;             \
+        cout << aa[exp].hi << aa[exp].lo << endl;           \
         cout << w.hi << w.lo << endl;                       \
-    }                                                       \
-    for (uint64_t i = 0; i < t; i++) {                      \
-        if (last)                                           \
-            a[i] = aa[i];                                   \
-        else                                                \
-            aa[i] = a[i];                                   \
     }                                                       \
     delta = (end - start);                                  \
     mhz = t / delta;                                        \
@@ -57,27 +102,25 @@
     if (PARALLEL) {                                         \
         _Pragma("omp parallel for")                         \
         for (uint64_t i = 0; i < WARMUP; i++)               \
-            w = global::E.add(w, rem_func(a[i]));           \
+            EXTRACT_REM_LOOP(w = rem_func)                  \
     } else {                                                \
         for (uint64_t i = 0; i < WARMUP; i++)               \
-            w = global::E.add(w, rem_func(a[i]));           \
+            EXTRACT_REM_LOOP(w = rem_func)                  \
     }                                                       \
     start = omp_get_wtime();                                \
     if (PARALLEL) {                                         \
         _Pragma("omp parallel for")                         \
-            for (uint64_t i = 0; i < t; i++)                \
-                a[i] = rem_func(a[i]);                      \
+        for (uint64_t i = 0; i < t; i++)                    \
+            EXTRACT_REM_LOOP(aa[i+j] = rem_func)            \
     } else {                                                \
         for (uint64_t i = 0; i < t; i++)                    \
-            a[i] = rem_func(a[i]);                          \
+            EXTRACT_REM_LOOP(aa[i+j] = rem_func)            \
     }                                                       \
     end = omp_get_wtime();                                  \
     if (exp == 0x6fabc73829101) {                           \
-        cout << a[exp].hi << a[exp].lo << endl;             \
+        cout << aa[exp].hi << aa[exp].lo << endl;           \
         cout << w.hi << w.lo << endl;                       \
     }                                                       \
-    for (uint64_t i = 0; i < t; i++)                        \
-        a[i] = aa[i];                                       \
     delta = (end - start);                                  \
     mhz = t / delta;                                        \
     mhz /= 1e6;                                             \
@@ -129,41 +172,27 @@ int main(int argc, char **argv)
     global::E.init();
 #endif
 
+    t /= VAL_PER_WORD;
+
     vector<extension_repr> a(t);
     vector<extension_repr> b(t);
-    vector<extension_repr> aa(t);
+    vector<extension_repr> aa(t*VAL_PER_WORD);
 
     double start;
     double end;
 
     start = omp_get_wtime();
-#if GF2_bits == 16
-    #define REPEATS 2
-#else
-    #define REPEATS 1
-#endif
-
-    for (uint64_t i = 0; i < t; i += REPEATS)
+    for (uint64_t i = 0; i < t; i++)
     {
-        uint64_t ar = global::randgen();
-        uint64_t br = global::randgen();
-        for (uint64_t j = 0; j < REPEATS; j++)
-        {
-            uint64_t alo = ar >> (2*GF2_bits*j);
-            uint64_t ahi = ar >> (GF2_bits*(2*j+1));
-            a[i+j] = {
-                ahi & global::E.get_mask(),
-                alo & global::E.get_mask()
-            };
-            aa[i+j] = a[i+j];
-
-            uint64_t blo = br >> (2*GF2_bits*j);
-            uint64_t bhi = br >> (GF2_bits*(2*j+1));
-            b[i+j] = {
-                bhi & global::E.get_mask(),
-                blo & global::E.get_mask()
-            };
-        }
+        a[i] = {
+            global::randgen(),
+            global::randgen()
+        };
+        aa[i] = a[i];
+        b[i] = {
+            global::randgen(),
+            global::randgen()
+        };
     }
     end = omp_get_wtime();
     cout << "initialized in " << end - start << " s" << endl;
@@ -171,17 +200,17 @@ int main(int argc, char **argv)
     double delta;
     double mhz;
 
-    BENCH_MUL(global::E.ref_mul, 1);
+    BENCH_MUL(global::E.ref_mul);
 
     cout << t << " ref multiplications in time: " <<
         delta << " s or " << mhz << " Mhz" << endl;
 
-    BENCH_MUL(global::E.kronecker_mul, 1);
+    BENCH_MUL(global::E.kronecker_mul);
 
     cout << t << " kronecker multiplications in time: " <<
         delta << " s or " << mhz << " Mhz" << endl;
 
-    BENCH_MUL(global::E.fast_mul, 0);
+    BENCH_MUL(global::E.fast_mul);
 
     cout << t << " fast multiplications in time: " <<
         delta << " s or " << mhz << " Mhz" << endl;
@@ -200,7 +229,7 @@ int main(int argc, char **argv)
 
     cout << t << " intel remainders in time " <<
         delta << " s or " << mhz << " Mhz" << endl;
-
+    return 0;
 #if GF2_bits == 16
     uint64_t pack_mask = 0xFFFF | (0xFFFFull << 32);
     t /= 2;
@@ -223,7 +252,7 @@ int main(int argc, char **argv)
     end = omp_get_wtime();
     cout << "initialized in " << end - start << " s" << endl;
 
-    BENCH_MUL(global::E.packed_fast_mul, 0);
+    BENCH_MUL(global::E.packed_fast_mul);
 
     cout << 2*t << " pack fast multiplications in time: " <<
         delta << " s or " << 2*mhz << " Mhz" << endl;
