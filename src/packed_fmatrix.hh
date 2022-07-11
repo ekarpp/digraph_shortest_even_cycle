@@ -9,6 +9,52 @@
 #include "global.hh"
 #include "fmatrix.hh"
 
+#define DET_LOOP(index)                                         \
+    {                                                           \
+        int r0 = 2*col + index;                                 \
+        __m128i mx = this->get(r0, col);                        \
+        int mxi = r0;                                           \
+        uint64_t cmpmsk = 1 << (2*index);                       \
+        for (int row = r0 + 1; row < this->rows; row++)         \
+        {                                                       \
+            uint64_t cmp = _mm_movemask_epi8(                   \
+                _mm_cmpgt_epi16(                                \
+                    this->get(row, col),                        \
+                    mx                                          \
+                    )                                           \
+                );                                              \
+            if (cmp == cmpmsk)                                  \
+            {                                                   \
+                mx = this->get(row, col);                       \
+                mxi = row;                                      \
+            }                                                   \
+        }                                                       \
+        uint64_t cmp = _mm_movemask_epi8(                       \
+            _mm_cmpeq_epi16(                                    \
+                mx,                                             \
+                _mm_setzero_si128()                             \
+                )                                               \
+            );                                                  \
+        if (cmp == 0xFFFF)                                      \
+            return global::F.zero();                            \
+        if (mxi != col)                                         \
+            this->swap_rows(mxi, col);                          \
+        uint64_t mx_ext = _mm_extract_epi64(mx, 1 - index);     \
+        det = global::F.rem(                                    \
+            global::F.clmul(det, mx_ext)                        \
+            );                                                  \
+        mx_ext = global::F.ext_euclid(mx_ext);                  \
+        this->mul_row(col, mx_ext);                             \
+        for (int row = col + 1; row < this->rows; row++)        \
+        {                                                       \
+            uint64_t val = _mm_extract_epi64(                   \
+                this->get(row, col),                            \
+                1 - index                                       \
+                );                                              \
+            this->row_op(col, row, val);                        \
+        }                                                       \
+    }
+
 class Packed_FMatrix
 {
 private:
@@ -18,7 +64,7 @@ private:
 
     __m128i get(int row, int col)
     {
-        return this->m[row*this->cols + col / 2];
+        return this->m[row*this->cols + col];
     }
 
     __m128i gf_mul(__m128i a, __m128i b)
@@ -31,19 +77,19 @@ private:
         __m128i lo = _mm_shuffle_epi8(
             prod,
             _mm_set_epi32(
-                0x80800100,
                 0x80808080,
                 0x80800908,
-                0x80808080
+                0x80808080,
+                0x80800100
             )
         );
         __m128i hi = _mm_shuffle_epi8(
             prod,
             _mm_set_epi32(
-                0x80800302,
                 0x80808080,
                 0x80800B0A,
-                0x80808080
+                0x80808080,
+                0x80800302
             )
         );
 
@@ -92,7 +138,7 @@ public:
                     );
 
             if (this->rows % 2)
-                this->m[r*this->cols + this->rows/2] =
+                this->m[r*this->cols + this->cols - 1] =
                     _mm_set_epi64x(
                         matrix(r, this->rows - 1).get_repr(),
                         0
@@ -113,7 +159,7 @@ public:
         /* first do left to right r1 */
         for (int col = 0; col < this->cols; col++)
         {
-            __m128i elem = this->m[r1*this->cols + col];
+            __m128i elem = this->get(r1, col);
             elem = this->gf_mul(elem, prod);
             this->m[r1*this->cols + col] = elem;
 
@@ -189,59 +235,15 @@ public:
     GF_element det()
     {
         uint64_t det = 0x1;
-        for (int col = 0; col < this->rows; col++)
+        for (int col = 0; col < this->cols - (this->rows%2); col++)
         {
-            // TODO, two loops?
-            __m128i mx = this->get(col, col);
-            int mxi = col;
-            uint64_t cmpmsk = (col % 2 == 1)
-                ? 0x001
-                : 0x100;
-
-            for (int row = col + 1; row < this->rows; row++)
-            {
-                uint64_t cmp = _mm_movemask_epi8(
-                    _mm_cmpgt_epi16(
-                        this->get(row, col),
-                        mx
-                    )
-                );
-                if (cmp == cmpmsk)
-                {
-                    mx = this->get(row, col);
-                    mxi = row;
-                }
-            }
-
-            uint64_t cmp = _mm_movemask_epi8(
-                _mm_cmpeq_epi16(
-                    mx,
-                    _mm_setzero_si128()
-                )
-            );
-            if (cmp == 0xFFFF)
-                return global::F.zero();
-
-            if (mxi != col)
-                this->swap_rows(mxi, col);
-
-            uint64_t mx_ext = (col%2 == 0)
-                ? _mm_extract_epi64(mx, 0x1)
-                : _mm_extract_epi64(mx, 0x0);
-
-            det = global::F.rem(
-                global::F.clmul(det, mx_ext)
-            );
-            mx_ext = global::F.ext_euclid(mx_ext);
-
-            this->mul_row(col, mx_ext);
-            for (int row = col + 1; row < this->rows; row++)
-            {
-                uint64_t val = (col%2 == 0)
-                    ? _mm_extract_epi64(this->get(row, col), 0x1)
-                    : _mm_extract_epi64(this->get(row, col), 0x0);
-                this->row_op(col, row, val);
-            }
+            DET_LOOP(0);
+            DET_LOOP(1);
+        }
+        if (this->rows % 2)
+        {
+            int col = this->cols - 1;
+            DET_LOOP(0);
         }
         return GF_element(det);
     }
