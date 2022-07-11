@@ -22,6 +22,7 @@ private:
     void test_determinant_random();
 #if GF2_bits == 16
     void test_packed_determinant();
+    void test_packed_determinant_singular();
 #endif
 
     void run()
@@ -31,6 +32,7 @@ private:
         test_det_singular();
 #if GF2_bits == 16
         test_packed_determinant();
+        test_packed_determinant_singular();
 #endif
     }
 

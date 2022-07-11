@@ -184,4 +184,29 @@ void FMatrix_test::test_packed_determinant()
     }
     end_test(err);
 }
+
+void FMatrix_test::test_packed_determinant_singular()
+{
+    cout << "determinant on packed singular matrices: ";
+    int err = 0;
+    for (int t = 0; t < this->tests; t++)
+    {
+        FMatrix m = this->random();
+        int r1 = global::randgen() % this->dim;
+        int r2 = global::randgen() % this->dim;
+        while (r1 == r2)
+            r2 = global::randgen() % this->dim;
+
+        /* make it singular */
+        for (int col = 0; col < this->dim; col++)
+            m.set(r1, col, m(r2, col));
+
+        GF_element pack = Packed_FMatrix(m).det();
+        GF_element ref = m.det();
+
+        if (pack != ref)
+            err++;
+    }
+    end_test(err);
+}
 #endif
