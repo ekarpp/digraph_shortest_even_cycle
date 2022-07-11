@@ -175,11 +175,12 @@ public:
             gamma_inv,
             gamma_inv
         );
-        /* fix edge case of odd n */
+        /* fix edge case of odd n, degree is one too high */
         if (this->rows % 2)
             prod = this->gf_mul(prod, pac_gamma);
         pac_gamma = this->gf_mul(pac_gamma, pac_gamma);
-
+        /* final iteration did one extra multiply, revert it */
+        prod = this->gf_mul(prod, pac_gamma);
         /* now do left to right r2 */
         for (int col = 0; col < this->cols; col++)
         {
