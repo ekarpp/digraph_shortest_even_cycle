@@ -24,6 +24,13 @@ private:
             : v & 0xFFFF;
     }
 
+    uint64_t gf_mul(uint64_t a, uint64_t b)
+    {
+        return global::F.packed_rem(
+            global::F.packed_clmul(a, b)
+        );
+    }
+
 public:
     Packed_FMatrix(
         const FMatrix &matrix
@@ -55,12 +62,10 @@ public:
         for (int col = 0; col < this->cols; col++)
         {
             uint64_t elem = this->m[r1*this->cols + col];
-            elem = global::F.packed_clmul(elem, prod);
-            elem = global::F.packed_rem(elem);
+            elem = this->gf_mul(elem, prod);
             this->m[r1*this->cols + col] = elem;
 
-            prod = global::F.packed_clmul(prod, pac_gamma);
-            prod = global::F.packed_rem(prod);
+            prod = this->gf_mul(prod, pac_gamma);
         }
         /* swap prod around */
         prod = (prod << 32) | (prod >> 32);
@@ -69,20 +74,16 @@ public:
         pac_gamma |= pac_gamma << 32;
         /* fix edge case of odd n */
         if (this->rows % 2)
-        {
-            prod = global::F.packed_clmul(prod, pac_gamma);
-            prod = global::F.packed_rem(prod);
-        }
+            prod = this->gf_mul(prod, pac_gamma);
+
         /* now do left to right r2 */
         for (int col = 0; col < this->cols; col++)
         {
             uint64_t elem = this->m[r2*this->cols + col];
-            elem = global::F.packed_clmul(elem, prod);
-            elem = global::F.packed_rem(elem);
+            elem = this->gf_mul(elem, prod);
             this->m[r2*this->cols + col] = elem;
 
-            prod = global::F.packed_clmul(prod, pac_gamma);
-            prod = global::F.packed_rem(prod);
+            prod = this->gf_mul(prod, pac_gamma);
         }
     }
 
@@ -105,8 +106,7 @@ public:
         for (int col = 0; col < this->cols; col++)
         {
             int idx = row*this->cols + col;
-            this->m[idx] = global::F.packed_clmul(this->m[idx], v);
-            this->m[idx] = global::F.packed_rem(this->m[idx]);
+            this->m[idx] = this->gf_mul(this->m[idx], v);
         }
     }
 
@@ -119,8 +119,7 @@ public:
         {
             int idx1 = r1*this->cols + col;
             int idx2 = r2*this->cols + col;
-            uint64_t tmp = global::F.packed_clmul(this->m[idx1], v);
-            tmp = global::F.packed_rem(tmp);
+            uint64_t tmp = this->gf_mul(this->m[idx1], v);
 
             this->m[idx2] ^= tmp;
         }
@@ -150,8 +149,9 @@ public:
             if (mxi != col)
                 this->swap_rows(mxi, col);
 
-            det = global::F.clmul(det, mx);
-            det = global::F.rem(det);
+            det = global::F.rem(
+                global::F.clmul(det, mx)
+            );
             mx = global::F.ext_euclid(mx);
 
             this->mul_row(col, mx);
