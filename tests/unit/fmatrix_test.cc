@@ -175,7 +175,7 @@ void FMatrix_test::test_packed_determinant()
     int err = 0;
     for (int t = 0; t < this->tests; t++)
     {
-        FMatrix m = this->random(20);
+        FMatrix m = this->random();
         GF_element pack = Packed_FMatrix(m).det();
         GF_element ref = m.det();
 
