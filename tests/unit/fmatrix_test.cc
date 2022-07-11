@@ -6,6 +6,9 @@
 #include "../../src/global.hh"
 #include "../../src/fmatrix.hh"
 #include "../../src/gf.hh"
+#if GF2_bits == 16
+#include "../../src/packed_fmatrix.hh"
+#endif
 
 using namespace std;
 
@@ -164,3 +167,21 @@ void FMatrix_test::test_det_singular()
     }
     end_test(err);
 }
+
+#if GF2_bits == 16
+void FMatrix_test::test_packed_determinant()
+{
+    cout << "determinant on packed matrices: ";
+    int err = 0;
+    for (int t = 0; t < this->tests; t++)
+    {
+        FMatrix m = this->random(20);
+        GF_element pack = Packed_FMatrix(m).det();
+        GF_element ref = m.det();
+
+        if (pack != ref)
+            err++;
+    }
+    end_test(err);
+}
+#endif

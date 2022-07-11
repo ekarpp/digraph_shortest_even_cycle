@@ -20,12 +20,18 @@ private:
     void test_determinant_vandermonde();
     void test_det_singular();
     void test_determinant_random();
+#if GF2_bits == 16
+    void test_packed_determinant();
+#endif
 
     void run()
     {
         test_determinant_vandermonde();
         test_determinant_random();
         test_det_singular();
+#if GF2_bits == 16
+        test_packed_determinant();
+#endif
     }
 
     FMatrix vandermonde();
