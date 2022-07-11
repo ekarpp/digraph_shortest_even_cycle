@@ -7,6 +7,10 @@
 #include "ematrix.hh"
 #include "extension.hh"
 
+#if GF2_bits == 16
+#include "packed_fmatrix.hh"
+#endif
+
 using namespace std;
 
 FMatrix::FMatrix(int n, valarray<GF_element> matrix): m(n*n)
@@ -91,6 +95,11 @@ Polynomial FMatrix::pdet(int r1, int r2) const
 
     for (int i = 0; i < 2*this->n - 1; i++)
     {
+#if GF2_bits == 16
+        Packed_FMatrix PA(*this);
+        PA.mul_gamma(r1, r2, gamma[i]);
+        delta[i] = PA.det();
+#else
         FMatrix A = this->copy();
         GF_element prod = gamma[i];
         for (int col = 1; col < this->n; col++)
@@ -100,6 +109,7 @@ Polynomial FMatrix::pdet(int r1, int r2) const
             prod *= gamma[i];
         }
         delta[i] = A.det();
+#endif
     }
 
     /* la grange */
