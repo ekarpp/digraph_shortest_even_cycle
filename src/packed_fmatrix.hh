@@ -3,6 +3,7 @@
 #define P_FMATRIX_H
 
 #include <valarray>
+#include <immintrin.h>
 
 #include "gf.hh"
 #include "global.hh"
@@ -13,22 +14,62 @@ class Packed_FMatrix
 private:
     int rows;
     int cols;
-    std::valarray<uint64_t> m;
+    std::valarray<__m128i> m;
 
-    uint64_t get(int row, int col)
+    __m128i get(int row, int col)
     {
-        uint64_t v = this->m[row*this->cols + col / 2];
-        /* can skip right shift?? */
-        return (col%2 == 0)
-            ? v >> 32
-            : v & 0xFFFF;
+        return this->m[row*this->cols + col / 2];
     }
 
-    uint64_t gf_mul(uint64_t a, uint64_t b)
+    __m128i gf_mul(__m128i a, __m128i b)
     {
-        return global::F.packed_rem(
-            global::F.packed_clmul(a, b)
+        __m128i prod = _mm_unpacklo_epi64(
+            _mm_clmulepi64_si128(a, b, 0x00),
+            _mm_clmulepi64_si128(a, b, 0x11)
         );
+
+        __m128i lo = _mm_shuffle_epi8(
+            prod,
+            _mm_set_epi32(
+                0x80800100,
+                0x80808080,
+                0x80800908,
+                0x80808080
+            )
+        );
+        __m128i hi = _mm_shuffle_epi8(
+            prod,
+            _mm_set_epi32(
+                0x80800302,
+                0x80808080,
+                0x80800B0A,
+                0x80808080
+            )
+        );
+
+        __m128i tmp = _mm_xor_si128(
+            hi,
+            _mm_xor_si128(
+                _mm_srli_epi16(hi, 14),
+                _mm_xor_si128(
+                    _mm_srli_epi16(hi, 13),
+                    _mm_srli_epi16(hi, 11)
+                )
+            )
+        );
+
+        __m128i rem = _mm_xor_si128(
+            tmp,
+            _mm_xor_si128(
+                _mm_slli_epi16(tmp, 2),
+                _mm_xor_si128(
+                    _mm_slli_epi16(tmp, 3),
+                    _mm_slli_epi16(tmp, 5)
+                )
+            )
+        );
+
+        return _mm_xor_si128(rem, lo);
     }
 
 public:
@@ -44,34 +85,49 @@ public:
         for (int r = 0; r < this->rows; r++)
         {
             for (int c = 0; c < this->rows / 2; c++)
-            {
-                this->m[r*this->cols + c] = matrix(r, 2*c).get_repr() << 32;
-                this->m[r*this->cols + c] |= matrix(r, 2*c + 1).get_repr();
-            }
+                this->m[r*this->cols + c] =
+                    _mm_set_epi64x(
+                        matrix(r, 2*c).get_repr(),
+                        matrix(r, 2*c + 1).get_repr()
+                    );
+
             if (this->rows % 2)
                 this->m[r*this->cols + this->rows/2] =
-                    matrix(r, this->rows - 1).get_repr() << 32;
+                    _mm_set_epi64x(
+                        matrix(r, this->rows - 1).get_repr(),
+                        0
+                    );
         }
     }
 
     void mul_gamma(int r1, int r2, const GF_element &gamma)
     {
-        uint64_t pac_gamma = gamma.get_repr() | (gamma.get_repr() << 32);
-        uint64_t prod = gamma.get_repr() | (1ull << 32);
+        __m128i pac_gamma = _mm_set_epi64x(
+            gamma.get_repr(),
+            gamma.get_repr()
+        );
+        __m128i prod = _mm_set_epi64x(
+            1,
+            gamma.get_repr()
+        );
         /* first do left to right r1 */
         for (int col = 0; col < this->cols; col++)
         {
-            uint64_t elem = this->m[r1*this->cols + col];
+            __m128i elem = this->m[r1*this->cols + col];
             elem = this->gf_mul(elem, prod);
             this->m[r1*this->cols + col] = elem;
 
             prod = this->gf_mul(prod, pac_gamma);
         }
         /* swap prod around */
-        prod = (prod << 32) | (prod >> 32);
+        prod = _mm_shuffle_epi32(prod, 0b01001110);
+
         /* pack inverse of gamma */
-        pac_gamma = global::F.ext_euclid(gamma.get_repr());
-        pac_gamma |= pac_gamma << 32;
+        uint64_t gamma_inv = gamma.inv().get_repr();
+        pac_gamma = _mm_set_epi64x(
+            gamma_inv,
+            gamma_inv
+        );
         /* fix edge case of odd n */
         if (this->rows % 2)
             prod = this->gf_mul(prod, pac_gamma);
@@ -79,7 +135,7 @@ public:
         /* now do left to right r2 */
         for (int col = 0; col < this->cols; col++)
         {
-            uint64_t elem = this->m[r2*this->cols + col];
+            __m128i elem = this->m[r2*this->cols + col];
             elem = this->gf_mul(elem, prod);
             this->m[r2*this->cols + col] = elem;
 
@@ -89,7 +145,7 @@ public:
 
     void swap_rows(int r1, int r2)
     {
-        uint64_t tmp;
+        __m128i tmp;
         for (int c = 0; c < this->cols; c++)
         {
             int idx1 = r1*this->cols + c;
@@ -102,26 +158,31 @@ public:
 
     void mul_row(int row, uint64_t v)
     {
-        v |= v << 32;
+        __m128i pack = _mm_set_epi64x(
+            v,
+            v
+        );
         for (int col = 0; col < this->cols; col++)
         {
             int idx = row*this->cols + col;
-            this->m[idx] = this->gf_mul(this->m[idx], v);
+            this->m[idx] = this->gf_mul(this->m[idx], pack);
         }
     }
 
     /* subtract v times r1 from r2 */
     void row_op(int r1, int r2, uint64_t v)
     {
-        /* pack v */
-        v |= v << 32;
+        __m128i pack = _mm_set_epi64x(
+            v,
+            v
+        );
         for (int col = 0; col < this->cols; col++)
         {
             int idx1 = r1*this->cols + col;
             int idx2 = r2*this->cols + col;
-            uint64_t tmp = this->gf_mul(this->m[idx1], v);
+            __m128i tmp = this->gf_mul(this->m[idx1], pack);
 
-            this->m[idx2] ^= tmp;
+            this->m[idx2] = _mm_xor_si128(this->m[idx2], tmp);
         }
     }
 
@@ -130,33 +191,57 @@ public:
         uint64_t det = 0x1;
         for (int col = 0; col < this->rows; col++)
         {
-            //int c0 = 2*col + i;
-            uint64_t mx = this->get(col, col);
+            // TODO, two loops?
+            __m128i mx = this->get(col, col);
             int mxi = col;
+            uint64_t cmpmsk = (col % 2 == 1)
+                ? 0x001
+                : 0x100;
 
             for (int row = col + 1; row < this->rows; row++)
             {
-                if (this->get(row, col) > mx)
+                uint64_t cmp = _mm_movemask_epi8(
+                    _mm_cmpgt_epi16(
+                        this->get(row, col),
+                        mx
+                    )
+                );
+                if (cmp == cmpmsk)
                 {
                     mx = this->get(row, col);
                     mxi = row;
                 }
             }
 
-            if (mx == 0)
+            uint64_t cmp = _mm_movemask_epi8(
+                _mm_cmpeq_epi16(
+                    mx,
+                    _mm_setzero_si128()
+                )
+            );
+            if (cmp == 0xFFFF)
                 return global::F.zero();
 
             if (mxi != col)
                 this->swap_rows(mxi, col);
 
-            det = global::F.rem(
-                global::F.clmul(det, mx)
-            );
-            mx = global::F.ext_euclid(mx);
+            uint64_t mx_ext = (col%2 == 0)
+                ? _mm_extract_epi64(mx, 0x1)
+                : _mm_extract_epi64(mx, 0x0);
 
-            this->mul_row(col, mx);
+            det = global::F.rem(
+                global::F.clmul(det, mx_ext)
+            );
+            mx_ext = global::F.ext_euclid(mx_ext);
+
+            this->mul_row(col, mx_ext);
             for (int row = col + 1; row < this->rows; row++)
-                this->row_op(col, row, this->get(row, col));
+            {
+                uint64_t val = (col%2 == 0)
+                    ? _mm_extract_epi64(this->get(row, col), 0x1)
+                    : _mm_extract_epi64(this->get(row, col), 0x0);
+                this->row_op(col, row, val);
+            }
         }
         return GF_element(det);
     }
