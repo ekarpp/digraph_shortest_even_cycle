@@ -152,6 +152,7 @@ public:
             gamma.get_repr(),
             gamma.get_repr()
         );
+        pac_gamma = this->gf_mul(pac_gamma, pac_gamma);
         __m128i prod = _mm_set_epi64x(
             1,
             gamma.get_repr()
@@ -177,6 +178,7 @@ public:
         /* fix edge case of odd n */
         if (this->rows % 2)
             prod = this->gf_mul(prod, pac_gamma);
+        pac_gamma = this->gf_mul(pac_gamma, pac_gamma);
 
         /* now do left to right r2 */
         for (int col = 0; col < this->cols; col++)
