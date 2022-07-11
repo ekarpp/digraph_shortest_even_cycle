@@ -17,7 +17,7 @@ private:
 
     uint64_t get(int row, int col)
     {
-        uint64_t v = this->m[row*this->cols + col];
+        uint64_t v = this->m[row*this->cols + col / 2];
         /* can skip right shift?? */
         return (col%2 == 0)
             ? v >> 32
@@ -129,37 +129,34 @@ public:
     GF_element det()
     {
         uint64_t det = 0x1;
-        for (int col = 0; col < this->cols; col++)
+        for (int col = 0; col < this->rows; col++)
         {
-            for (int i = 0; i < 2; i++)
+            //int c0 = 2*col + i;
+            uint64_t mx = this->get(col, col);
+            int mxi = col;
+
+            for (int row = col + 1; row < this->rows; row++)
             {
-                int c0 = 2*col + i;
-                uint64_t mx = this->get(c0, c0);
-                int mxi = c0;
-
-                for (int row = c0 + 1; row < this->rows; row++)
+                if (this->get(row, col) > mx)
                 {
-                    if (this->get(row, c0) > mx)
-                    {
-                        mx = this->get(row, c0);
-                        mxi = row;
-                    }
+                    mx = this->get(row, col);
+                    mxi = row;
                 }
-
-                if (mx == 0)
-                    return global::F.zero();
-
-                if (mxi != c0)
-                    this->swap_rows(mxi, c0);
-
-                det = global::F.clmul(det, mx);
-                det = global::F.rem(det);
-                mx = global::F.ext_euclid(mx);
-
-                this->mul_row(c0, mx);
-                for (int row = c0 + 1; row < this->rows; row++)
-                    this->row_op(c0, row, this->get(row, c0));
             }
+
+            if (mx == 0)
+                return global::F.zero();
+
+            if (mxi != col)
+                this->swap_rows(mxi, col);
+
+            det = global::F.clmul(det, mx);
+            det = global::F.rem(det);
+            mx = global::F.ext_euclid(mx);
+
+            this->mul_row(col, mx);
+            for (int row = col + 1; row < this->rows; row++)
+                this->row_op(col, row, this->get(row, col));
         }
         return GF_element(det);
     }
