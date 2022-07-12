@@ -14,7 +14,7 @@
         int r0 = 2*col + index;                                 \
         __m128i mx = this->get(r0, col);                        \
         int mxi = r0;                                           \
-        uint64_t cmpmsk = 1 << (2*index);                       \
+        uint64_t cmpmsk = 0b11 << (8*index);                    \
         for (int row = r0 + 1; row < this->rows; row++)         \
         {                                                       \
             uint64_t cmp = _mm_movemask_epi8(                   \
@@ -23,35 +23,29 @@
                     mx                                          \
                     )                                           \
                 );                                              \
-            if (cmp == cmpmsk)                                  \
+            if (cmp & cmpmsk)                                   \
             {                                                   \
                 mx = this->get(row, col);                       \
                 mxi = row;                                      \
             }                                                   \
         }                                                       \
-        uint64_t cmp = _mm_movemask_epi8(                       \
-            _mm_cmpeq_epi16(                                    \
-                mx,                                             \
-                _mm_setzero_si128()                             \
-                )                                               \
-            );                                                  \
-        if (cmp == 0xFFFF)                                      \
-            return global::F.zero();                            \
-        if (mxi != col)                                         \
-            this->swap_rows(mxi, col);                          \
         uint64_t mx_ext = _mm_extract_epi64(mx, 1 - index);     \
+        if (mx_ext == 0)                                        \
+            return global::F.zero();                            \
+        if (mxi != r0)                                          \
+            this->swap_rows(mxi, r0);                           \
         det = global::F.rem(                                    \
             global::F.clmul(det, mx_ext)                        \
             );                                                  \
         mx_ext = global::F.ext_euclid(mx_ext);                  \
-        this->mul_row(col, mx_ext);                             \
-        for (int row = col + 1; row < this->rows; row++)        \
+        this->mul_row(r0, mx_ext);                              \
+        for (int row = r0 + 1; row < this->rows; row++)         \
         {                                                       \
             uint64_t val = _mm_extract_epi64(                   \
                 this->get(row, col),                            \
                 1 - index                                       \
                 );                                              \
-            this->row_op(col, row, val);                        \
+            this->row_op(r0, row, val);                         \
         }                                                       \
     }
 
@@ -65,6 +59,11 @@ private:
     __m128i get(int row, int col)
     {
         return this->m[row*this->cols + col];
+    }
+
+    void set(int row, int col, __m128i v)
+    {
+        this->m[row*this->cols + col] = v;
     }
 
     __m128i gf_mul(__m128i a, __m128i b)
@@ -131,17 +130,20 @@ public:
         for (int r = 0; r < this->rows; r++)
         {
             for (int c = 0; c < this->rows / 2; c++)
-                this->m[r*this->cols + c] =
-                    _mm_set_epi64x(
-                        matrix(r, 2*c).get_repr(),
-                        matrix(r, 2*c + 1).get_repr()
+                this->set(r, c,
+                          _mm_set_epi64x(
+                              matrix(r, 2*c).get_repr(),
+                              matrix(r, 2*c + 1).get_repr()
+                          )
                     );
 
+
             if (this->rows % 2)
-                this->m[r*this->cols + this->cols - 1] =
-                    _mm_set_epi64x(
-                        matrix(r, this->rows - 1).get_repr(),
-                        0
+                this->set(r, this->cols - 1,
+                          _mm_set_epi64x(
+                              matrix(r, this->rows - 1).get_repr(),
+                              0
+                          )
                     );
         }
     }
@@ -162,7 +164,7 @@ public:
         {
             __m128i elem = this->get(r1, col);
             elem = this->gf_mul(elem, prod);
-            this->m[r1*this->cols + col] = elem;
+            this->set(r1, col, elem);
 
             prod = this->gf_mul(prod, pac_gamma);
         }
@@ -184,9 +186,9 @@ public:
         /* now do left to right r2 */
         for (int col = 0; col < this->cols; col++)
         {
-            __m128i elem = this->m[r2*this->cols + col];
+            __m128i elem = this->get(r2, col);
             elem = this->gf_mul(elem, prod);
-            this->m[r2*this->cols + col] = elem;
+            this->set(r2, col, elem);
 
             prod = this->gf_mul(prod, pac_gamma);
         }
@@ -197,11 +199,9 @@ public:
         __m128i tmp;
         for (int c = 0; c < this->cols; c++)
         {
-            int idx1 = r1*this->cols + c;
-            int idx2 = r2*this->cols + c;
-            tmp = this->m[idx1];
-            this->m[idx1] = this->m[idx2];
-            this->m[idx2] = tmp;
+            tmp = this->get(r1, c);
+            this->set(r1, c, this->get(r2, c));
+            this->set(r2, c, tmp);
         }
     }
 
@@ -212,10 +212,9 @@ public:
             v
         );
         for (int col = 0; col < this->cols; col++)
-        {
-            int idx = row*this->cols + col;
-            this->m[idx] = this->gf_mul(this->m[idx], pack);
-        }
+            this->set(row, col,
+                      this->gf_mul(this->get(row, col), pack)
+                );
     }
 
     /* subtract v times r1 from r2 */
@@ -227,11 +226,11 @@ public:
         );
         for (int col = 0; col < this->cols; col++)
         {
-            int idx1 = r1*this->cols + col;
-            int idx2 = r2*this->cols + col;
-            __m128i tmp = this->gf_mul(this->m[idx1], pack);
+            __m128i tmp = this->gf_mul(this->get(r1, col), pack);
 
-            this->m[idx2] = _mm_xor_si128(this->m[idx2], tmp);
+            this->set(r2, col,
+                      _mm_xor_si128(this->get(r2, col), tmp)
+                );
         }
     }
 
@@ -245,8 +244,13 @@ public:
         }
         if (this->rows % 2)
         {
-            int col = this->cols - 1;
-            DET_LOOP(0);
+            uint64_t mx_ext = _mm_extract_epi64(
+                this->get(this->rows - 1, this->cols - 1),
+                1
+            );
+            det = global::F.rem(
+                global::F.clmul(det, mx_ext)
+            );
         }
         return GF_element(det);
     }
