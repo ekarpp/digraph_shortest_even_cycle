@@ -36,6 +36,7 @@ int main(int argc, char** argv)
         cout << "-n $int degree of modulo polynomial" << endl;
         cout << "-t $int how many times random tests are done" << endl;
         cout << "-c run geng test. \"geng -q $n | directg -q | listg -aq \" has to be piped to this." << endl;
+        cout << "-r $int for seed to pseudo random generator" << endl;
         return 0;
     }
 
@@ -49,12 +50,13 @@ int main(int argc, char** argv)
     int dim = 10;
     int tests = 10000;
     int opt;
+    uint64_t seed = time(nullptr);
 
 #if GF2_bits == 0
     int n = 10;
-    while ((opt = getopt(argc, argv, "cxsuegfmn:d:t:")) != -1)
+    while ((opt = getopt(argc, argv, "cxsuegfmn:d:t:r:")) != -1)
 #else
-    while ((opt = getopt(argc, argv, "cxsuegfmd:t:")) != -1)
+    while ((opt = getopt(argc, argv, "cxsuegfmd:t:r:")) != -1)
 #endif
     {
         switch (opt)
@@ -64,6 +66,9 @@ int main(int argc, char** argv)
             n = stoi(optarg);
             break;
 #endif
+        case 'r':
+            seed = stoi(optarg);
+            break;
         case 'c':
             geng = true;
             break;
@@ -94,7 +99,6 @@ int main(int argc, char** argv)
         }
     }
 
-    uint64_t seed = time(nullptr);
     cout << "seed: " << seed << endl;
     global::randgen.init(seed);
 #if GF2_bits == 0
