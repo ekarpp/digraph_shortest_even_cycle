@@ -71,7 +71,7 @@ private:
         this->m[row*this->cols + col] = v;
     }
 
-    __m256i gf_mul(__m256i a, __m256i b)//done
+    __m256i gf_mul(__m256i a, __m256i b)
     {
         __m256i prod = _mm256_unpacklo_epi64(
             _mm256_clmulepi64_epi128(a, b, 0x00),
@@ -115,7 +115,7 @@ private:
 
 
 public:
-    Packed_FMatrix(//done
+    Packed_FMatrix(
         const FMatrix &matrix
     )
     {
@@ -151,17 +151,17 @@ public:
             switch (r % VECTOR_N)
             {
             case 1:
-                idx = _mm256_set_epi_64x(
+                idx = _mm256_set_epi64x(
                     0, 1, 0, 0
                 );
                 break;
             case 2:
-                idx = _mm256_set_epi_64x(
+                idx = _mm256_set_epi64x(
                     0, 0, 1, 0
                 );
                 break;
             case 3:
-                idx = _mm256_set_epi_64x(
+                idx = _mm256_set_epi64x(
                     0, 0, 0, 1
                 );
                 break;
@@ -170,7 +170,7 @@ public:
         }
     }
 
-    void handle_gamma_zero(int r1, int r2) // done
+    void handle_gamma_zero(int r1, int r2)
     {
         // first 64 ones, rest zeros
         __m256i mask = _mm256_maskz_set1_epi32(
@@ -206,7 +206,7 @@ public:
         this->set(r1, this->cols - 1, _mm256_setzero_si256());
     }
 
-    void mul_gamma(int r1, int r2, const GF_element &gamma) // done
+    void mul_gamma(int r1, int r2, const GF_element &gamma)
     {
         /* alternative approach: do multiplications only in one direction
          * and then in the other direction use shuffle and shift them around
@@ -255,9 +255,9 @@ public:
             gamma_inv
         );
         /* fix edge case of orig n not dividing 4 */
-        if (this->modn)
+        if (this->nmod)
         {
-            for (int i = 0; i < VECTOR_N - this->modn; i++)
+            for (int i = 0; i < VECTOR_N - this->nmod; i++)
                 prod = this->gf_mul(prod, pac_gamma_inv);
         }
         pac_gamma_inv = this->gf_mul(pac_gamma_inv, pac_gamma_inv);
@@ -326,8 +326,8 @@ public:
         {
             DET_LOOP(0);
             DET_LOOP(1);
+            DET_LOOP(2);
             DET_LOOP(3);
-            DET_LOOP(4);
         }
         return GF_element(det);
     }
@@ -342,13 +342,13 @@ public:
             for (int col = 0; col < this->cols; col++)
             {
                 unpacked[row*this->rows + VECTOR_N*col + 0] =
-                    GF_element(_mm_extract_epi64(this->get(row, col), 3));
+                    GF_element(_mm256_extract_epi64(this->get(row, col), 3));
                 unpacked[row*this->rows + VECTOR_N*col + 1] =
-                    GF_element(_mm_extract_epi64(this->get(row, col), 2));
+                    GF_element(_mm256_extract_epi64(this->get(row, col), 2));
                 unpacked[row*this->rows + VECTOR_N*col + 2] =
-                    GF_element(_mm_extract_epi64(this->get(row, col), 1));
+                    GF_element(_mm256_extract_epi64(this->get(row, col), 1));
                 unpacked[row*this->rows + VECTOR_N*col + 3] =
-                    GF_element(_mm_extract_epi64(this->get(row, col), 0));
+                    GF_element(_mm256_extract_epi64(this->get(row, col), 0));
             }
         }
 
