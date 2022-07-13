@@ -101,13 +101,7 @@ Polynomial FMatrix::pdet(int r1, int r2) const
         delta[i] = PA.det();
 #else
         FMatrix A = this->copy();
-        GF_element prod = gamma[i];
-        for (int col = 1; col < this->n; col++)
-        {
-            A.mul(r1, col, prod);
-            A.mul(r2, this->n - 1 - col, prod);
-            prod *= gamma[i];
-        }
+        A.mul_gamma(r1, r2, gamma[i]);
         delta[i] = A.det();
 #endif
     }

@@ -62,6 +62,17 @@ public:
             this->m[row*this->n + col] *= v;
     }
 
+    void mul_gamma(int r1, int r2, const GF_element &gamma)
+    {
+        GF_element prod = gamma;
+        for (int col = 1; col < this->n; col++)
+        {
+            this->mul(r1, col, prod);
+            this->mul(r2, this->n - 1 - col, prod);
+            prod *= gamma;
+        }
+    }
+
     /* subtract v times r1 from r2 */
     void row_op(int r1, int r2, GF_element v)
     {
