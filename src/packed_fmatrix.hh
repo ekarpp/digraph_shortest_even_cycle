@@ -72,49 +72,6 @@ private:
         this->m[row*this->cols + col] = v;
     }
 
-    __m256i gf_mul(__m256i a, __m256i b)
-    {
-        __m256i prod = _mm256_unpacklo_epi64(
-            _mm256_clmulepi64_epi128(a, b, 0x00),
-            _mm256_clmulepi64_epi128(a, b, 0x11)
-        );
-
-        __m256i lo = _mm256_and_si256(
-            prod,
-            _mm256_maskz_set1_epi16(0x1111, 0xFF)
-        );
-        __m256i hi = _mm256_slli_epi32(
-            prod,
-            16 // GF2_bits
-        );
-
-        __m256i tmp = _mm256_xor_si256(
-            hi,
-            _mm256_xor_si256(
-                _mm256_srli_epi16(hi, 14),
-                _mm256_xor_si256(
-                    _mm256_srli_epi16(hi, 13),
-                    _mm256_srli_epi16(hi, 11)
-                )
-            )
-        );
-
-        __m256i rem = _mm256_xor_si256(
-            tmp,
-            _mm256_xor_si256(
-                _mm256_slli_epi16(tmp, 2),
-                _mm256_xor_si256(
-                    _mm256_slli_epi16(tmp, 3),
-                    _mm256_slli_epi16(tmp, 5)
-                )
-            )
-        );
-
-        return _mm256_xor_si256(rem, lo);
-    }
-
-
-
 public:
     Packed_FMatrix(
         const FMatrix &matrix
@@ -256,8 +213,8 @@ public:
             gamma.get_repr()
         );
         // pac_gamme = [gamma^VECTOR_N]
-        pac_gamma = this->gf_mul(pac_gamma, pac_gamma);
-        pac_gamma = this->gf_mul(pac_gamma, pac_gamma);
+        pac_gamma = global::F.wide_mul(pac_gamma, pac_gamma);
+        pac_gamma = global::F.wide_mul(pac_gamma, pac_gamma);
         __m256i prod = _mm256_set_epi64x(
             1,
             gamma.get_repr(),
@@ -268,10 +225,10 @@ public:
         for (int col = 0; col < this->cols; col++)
         {
             __m256i elem = this->get(r1, col);
-            elem = this->gf_mul(elem, prod);
+            elem = global::F.wide_mul(elem, prod);
             this->set(r1, col, elem);
 
-            prod = this->gf_mul(prod, pac_gamma);
+            prod = global::F.wide_mul(prod, pac_gamma);
         }
         /* swap prod around */
         prod = _mm256_permute4x64_epi64(
@@ -291,20 +248,20 @@ public:
         if (this->nmod)
         {
             for (int i = 0; i < VECTOR_N - this->nmod; i++)
-                prod = this->gf_mul(prod, pac_gamma_inv);
+                prod = global::F.wide_mul(prod, pac_gamma_inv);
         }
-        pac_gamma_inv = this->gf_mul(pac_gamma_inv, pac_gamma_inv);
-        pac_gamma_inv = this->gf_mul(pac_gamma_inv, pac_gamma_inv);
+        pac_gamma_inv = global::F.wide_mul(pac_gamma_inv, pac_gamma_inv);
+        pac_gamma_inv = global::F.wide_mul(pac_gamma_inv, pac_gamma_inv);
         /* final iteration did one extra multiply, revert it */
-        prod = this->gf_mul(prod, pac_gamma);
+        prod = global::F.wide_mul(prod, pac_gamma);
         /* now do left to right r2 */
         for (int col = 0; col < this->cols; col++)
         {
             __m256i elem = this->get(r2, col);
-            elem = this->gf_mul(elem, prod);
+            elem = global::F.wide_mul(elem, prod);
             this->set(r2, col, elem);
 
-            prod = this->gf_mul(prod, pac_gamma);
+            prod = global::F.wide_mul(prod, pac_gamma);
         }
     }
 
@@ -329,7 +286,7 @@ public:
         );
         for (int col = 0; col < this->cols; col++)
             this->set(row, col,
-                      this->gf_mul(this->get(row, col), pack)
+                      global::F.wide_mul(this->get(row, col), pack)
                 );
     }
 
@@ -344,7 +301,7 @@ public:
         );
         for (int col = 0; col < this->cols; col++)
         {
-            __m256i tmp = this->gf_mul(this->get(r1, col), pack);
+            __m256i tmp = global::F.wide_mul(this->get(r1, col), pack);
 
             this->set(r2, col,
                       _mm256_xor_si256(this->get(r2, col), tmp)

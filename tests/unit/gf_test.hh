@@ -16,6 +16,7 @@ private:
     void test_lift_project();
 #if GF2_bits == 16
     void test_packed_rem();
+    void test_wide_mul();
 #endif
 
     void run()
@@ -27,6 +28,7 @@ private:
         test_lift_project();
 #if GF2_bits == 16
         test_packed_rem();
+        test_wide_mul();
 #endif
     }
 
