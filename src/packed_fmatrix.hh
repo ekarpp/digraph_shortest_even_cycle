@@ -140,34 +140,59 @@ public:
                           )
                     );
 
-            for (int c = matrix.get_n() / VECTOR_N; c < this->cols; c++)
-                this->set(r, c, _mm256_setzero_si256());
+            int c = this->cols - 1;
+            switch (this->nmod)
+            {
+            case 3:
+                this->set(r, this->cols - 1, _mm256_set_epi64x(
+                              matrix(r, VECTOR_N*c + 0).get_repr(),
+                              matrix(r, VECTOR_N*c + 1).get_repr(),
+                              matrix(r, VECTOR_N*c + 2).get_repr(),
+                              0
+                          ));
+                break;
+            case 2:
+                this->set(r, this->cols - 1, _mm256_set_epi64x(
+                              matrix(r, VECTOR_N*c + 0).get_repr(),
+                              matrix(r, VECTOR_N*c + 1).get_repr(),
+                              0,
+                              0
+                          ));
+                break;
+            case 1:
+                this->set(r, this->cols - 1, _mm256_set_epi64x(
+                              matrix(r, VECTOR_N*c + 0).get_repr(),
+                              0,
+                              0,
+                              0
+                          ));
+                break;
+            }
         }
         for (int r = matrix.get_n(); r < this->rows; r++)
         {
             for (int c = 0; c < this->cols - 1; c++)
                 this->set(r, c, _mm256_setzero_si256());
 
-            __m256i idx;
             switch (r % VECTOR_N)
             {
             case 1:
-                idx = _mm256_set_epi64x(
+                this->set(r, this->cols - 1, _mm256_set_epi64x(
                     0, 1, 0, 0
-                );
+                ));
                 break;
             case 2:
-                idx = _mm256_set_epi64x(
+                this->set(r, this->cols - 1, _mm256_set_epi64x(
                     0, 0, 1, 0
-                );
+                ));
                 break;
             case 3:
-                idx = _mm256_set_epi64x(
+                this->set(r, this->cols - 1, _mm256_set_epi64x(
                     0, 0, 0, 1
-                );
+                ));
                 break;
             }
-            this->set(r, this->cols - 1, idx);
+
         }
     }
 
@@ -186,8 +211,12 @@ public:
             );
 
         // first X zeros, last 64 ones, note original matrix size and appded 0s
+        uint64_t mm = 0x03;
+        if (this->nmod)
+            mm <<= 2*(VECTOR_N - this->nmod);
+
         mask = _mm256_maskz_set1_epi32(
-            0x03 << (2*(VECTOR_N - this->nmod)),
+            mm,
             0xFFFFFFFFull
         );
 
@@ -203,8 +232,11 @@ public:
             this->set(r1, col, _mm256_setzero_si256());
             this->set(r2, col, _mm256_setzero_si256());
         }
-        this->set(r2, 0, _mm256_setzero_si256());
-        this->set(r1, this->cols - 1, _mm256_setzero_si256());
+        if (this->cols > 1)
+        {
+            this->set(r2, 0, _mm256_setzero_si256());
+            this->set(r1, this->cols - 1, _mm256_setzero_si256());
+        }
     }
 
     void mul_gamma(int r1, int r2, const GF_element &gamma)
@@ -353,8 +385,10 @@ public:
             }
         }
 
-        // REMOVE ADDED ROWS + COLUMNS, valarray has slicing stuff for this?
-        return FMatrix(this->rows, unpacked);
+        uint64_t n = this->rows;
+        if (this->nmod)
+            n -= VECTOR_N - this->nmod;
+        return FMatrix(n, unpacked[std::gslice(0, {n,n}, {this->rows,1})]);
     }
 };
 
