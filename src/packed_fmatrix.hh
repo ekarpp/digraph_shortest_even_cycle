@@ -148,8 +148,52 @@ public:
         }
     }
 
+    void handle_gamma_zero(int r1, int r2)
+    {
+        __m128i mask = _mm_set_epi32(
+            0xFFFFFFFFull,
+            0xFFFFFFFFull,
+            0x0,
+            0x0
+        );
+        this->set(r1, 0,
+                  _mm_and_si128(
+                      this->get(r1, 0),
+                      mask
+                  )
+            );
+        if (this->rows % 2 == 0)
+            mask = _mm_shuffle_epi32(
+                mask,
+                0b00011011
+            );
+
+        this->set(r2, this->cols - 1,
+                  _mm_and_si128(
+                      this->get(r2, this->cols - 1),
+                      mask
+                   )
+            );
+
+        for (int col = 1; col < this->cols - 1; col++)
+        {
+            this->set(r1, col, _mm_setzero_si128());
+            this->set(r2, col, _mm_setzero_si128());
+        }
+        this->set(r2, 0, _mm_setzero_si128());
+        this->set(r1, this->cols - 1, _mm_setzero_si128());
+    }
+
     void mul_gamma(int r1, int r2, const GF_element &gamma)
     {
+        /* alternative approach: do multiplications only in one direction
+         * and then in the other direction use shuffle and shift them around
+         * as neccessary (note the uneven row case).
+         * this should be fewer multiplications (and instructions)
+         * and don't need to separately handle the case of gamma being zero. */
+        /* do gamma multiplication during initialization?? */
+        if (gamma.get_repr() == 0)
+            return handle_gamma_zero(r1, r2);
         __m128i pac_gamma = _mm_set_epi64x(
             gamma.get_repr(),
             gamma.get_repr()
@@ -253,6 +297,30 @@ public:
             );
         }
         return GF_element(det);
+    }
+
+    /* only used for testing */
+    FMatrix unpack()
+    {
+        std::valarray<GF_element> unpacked(this->rows * this->rows);
+
+        for (int row = 0; row < this->rows; row++)
+        {
+            for (int col = 0; col < this->cols - (this->rows%2); col++)
+            {
+                unpacked[row*this->rows + 2*col] =
+                    GF_element(_mm_extract_epi64(this->get(row, col), 1));
+                unpacked[row*this->rows + 2*col + 1] =
+                    GF_element(_mm_extract_epi64(this->get(row, col), 0));
+            }
+            if (this->rows%2)
+            {
+                int col = this->cols - 1;
+                unpacked[row*this->rows + 2*col] =
+                    GF_element(_mm_extract_epi64(this->get(row, col), 1));
+            }
+        }
+        return FMatrix(this->rows, unpacked);
     }
 };
 
