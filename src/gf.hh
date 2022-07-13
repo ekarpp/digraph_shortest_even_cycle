@@ -121,9 +121,9 @@ public:
 
         __m256i lo = _mm256_and_si256(
             prod,
-            _mm256_maskz_set1_epi16(0x1111, 0xFF)
+            _mm256_maskz_set1_epi16(0x1111, 0xFFFF)
         );
-        __m256i hi = _mm256_slli_epi32(
+        __m256i hi = _mm256_srli_epi32(
             prod,
             16 // GF2_bits
         );
