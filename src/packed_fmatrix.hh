@@ -153,115 +153,102 @@ public:
         }
     }
 
-    void handle_gamma_zero(int r1, int r2)
-    {
-        // first 64 ones, rest zeros
-        __m256i mask = _mm256_maskz_set1_epi32(
-            0xC0,
-            0xFFFFFFFFull
-        );
-        this->set(r1, 0,
-                  _mm256_and_si256(
-                      this->get(r1, 0),
-                      mask
-                  )
-            );
-
-        // first X zeros, last 64 ones, note original matrix size and appded 0s
-        uint64_t mm = 0x03;
-        if (this->nmod)
-            mm <<= 2*(VECTOR_N - this->nmod);
-
-        mask = _mm256_maskz_set1_epi32(
-            mm,
-            0xFFFFFFFFull
-        );
-
-        this->set(r2, this->cols - 1,
-                  _mm256_and_si256(
-                      this->get(r2, this->cols - 1),
-                      mask
-                   )
-            );
-
-        for (int col = 1; col < this->cols - 1; col++)
-        {
-            this->set(r1, col, _mm256_setzero_si256());
-            this->set(r2, col, _mm256_setzero_si256());
-        }
-        if (this->cols > 1)
-        {
-            this->set(r2, 0, _mm256_setzero_si256());
-            this->set(r1, this->cols - 1, _mm256_setzero_si256());
-        }
-    }
-
     void mul_gamma(int r1, int r2, const GF_element &gamma)
     {
-        /* alternative approach: do multiplications only in one direction
-         * and then in the other direction use shuffle and shift them around
-         * as neccessary (note the uneven row case).
-         * this should be fewer multiplications (and instructions)
-         * and don't need to separately handle the case of gamma being zero. */
+        /* here we do r1 first left to right and save the auxiliary gamma vectors.
+         * then we permute the gamma vectors as required (note this->nmod here),
+         * and do r2 left to right */
         /* do gamma multiplication during initialization?? */
-        if (gamma.get_repr() == 0)
-            return handle_gamma_zero(r1, r2);
         __m256i pac_gamma = _mm256_set_epi64x(
             gamma.get_repr(),
             gamma.get_repr(),
             gamma.get_repr(),
             gamma.get_repr()
         );
-        // pac_gamme = [gamma^VECTOR_N]
+        // pac_gamma = [gamma^VECTOR_N]
         pac_gamma = global::F.wide_mul(pac_gamma, pac_gamma);
         pac_gamma = global::F.wide_mul(pac_gamma, pac_gamma);
+        /* ugly */
         __m256i prod = _mm256_set_epi64x(
             1,
             gamma.get_repr(),
             (gamma*gamma).get_repr(),
             (gamma*gamma*gamma).get_repr()
         );
+        std::vector<__m256i> coeffs(this->cols);
         /* first do left to right r1 */
         for (int col = 0; col < this->cols; col++)
         {
+            /* already save them in reverse order here and permute,
+             * values in reverse order, too*/
+            coeffs[this->cols - 1 - col] = _mm256_permute4x64_epi64(
+                prod,
+                0x1B
+            );
             __m256i elem = this->get(r1, col);
             elem = global::F.wide_mul(elem, prod);
             this->set(r1, col, elem);
 
             prod = global::F.wide_mul(prod, pac_gamma);
         }
-        /* swap prod around */
-        prod = _mm256_permute4x64_epi64(
-            prod,
-            0x1E
-        );
 
-        /* pack inverse of gamma */
-        uint64_t gamma_inv = gamma.inv().get_repr();
-        __m256i pac_gamma_inv = _mm256_set_epi64x(
-            gamma_inv,
-            gamma_inv,
-            gamma_inv,
-            gamma_inv
-        );
-        /* fix edge case of orig n not dividing 4 */
+        /* handle special permutations required in case not divisible by 4 */
         if (this->nmod)
         {
-            for (int i = 0; i < VECTOR_N - this->nmod; i++)
-                prod = global::F.wide_mul(prod, pac_gamma_inv);
+            __m256i idx;
+            switch (this->nmod)
+            {
+            case 1:
+                idx = _mm256_set_epi64x(0b000, 0b111, 0b110, 0b101);
+                break;
+            case 2:
+                idx = _mm256_set_epi64x(0b001, 0b000, 0b111, 0b110);
+                break;
+            case 3:
+                idx = _mm256_set_epi64x(0b010, 0b001, 0b000, 0b111);
+                break;
+            }
+
+            for (int col = 0; col < this->cols - 1; col++)
+                coeffs[col] = _mm256_permutex2var_epi64(
+                    coeffs[col],
+                    idx,
+                    coeffs[col + 1]
+                );
+
+            switch (this->nmod)
+            {
+            case 1:
+                coeffs[this->cols - 1] = _mm256_permute4x64_epi64(
+                    coeffs[this->cols - 1],
+                    0x00
+                );
+                break;
+            case 2:
+                coeffs[this->cols - 1] = _mm256_permute4x64_epi64(
+                    coeffs[this->cols - 1],
+                    0x40
+                );
+                break;
+            case 3:
+                coeffs[this->cols - 1] = _mm256_permute4x64_epi64(
+                    coeffs[this->cols - 1],
+                    0x90
+                );
+                break;
+            }
+
         }
-        pac_gamma_inv = global::F.wide_mul(pac_gamma_inv, pac_gamma_inv);
-        pac_gamma_inv = global::F.wide_mul(pac_gamma_inv, pac_gamma_inv);
-        /* final iteration did one extra multiply, revert it */
-        prod = global::F.wide_mul(prod, pac_gamma);
-        /* now do left to right r2 */
+
+        /* and do r2 left to right */
         for (int col = 0; col < this->cols; col++)
         {
-            __m256i elem = this->get(r2, col);
-            elem = global::F.wide_mul(elem, prod);
-            this->set(r2, col, elem);
-
-            prod = global::F.wide_mul(prod, pac_gamma);
+            this->set(r2, col,
+                      global::F.wide_mul(
+                          this->get(r2, col),
+                          coeffs[col]
+                      )
+                );
         }
     }
 
