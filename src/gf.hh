@@ -112,6 +112,47 @@ public:
     }
 
 #if GF2_bits == 16
+    __m256i wide_mul(__m256i a, __m256i b)
+    {
+        __m256i prod = _mm256_unpacklo_epi64(
+            _mm256_clmulepi64_epi128(a, b, 0x00),
+            _mm256_clmulepi64_epi128(a, b, 0x11)
+        );
+
+        __m256i lo = _mm256_and_si256(
+            prod,
+            _mm256_maskz_set1_epi16(0x1111, 0xFFFF)
+        );
+        __m256i hi = _mm256_srli_epi32(
+            prod,
+            16 // GF2_bits
+        );
+
+        __m256i tmp = _mm256_xor_si256(
+            hi,
+            _mm256_xor_si256(
+                _mm256_srli_epi16(hi, 14),
+                _mm256_xor_si256(
+                    _mm256_srli_epi16(hi, 13),
+                    _mm256_srli_epi16(hi, 11)
+                )
+            )
+        );
+
+        __m256i rem = _mm256_xor_si256(
+            tmp,
+            _mm256_xor_si256(
+                _mm256_slli_epi16(tmp, 2),
+                _mm256_xor_si256(
+                    _mm256_slli_epi16(tmp, 3),
+                    _mm256_slli_epi16(tmp, 5)
+                )
+            )
+        );
+
+        return _mm256_xor_si256(rem, lo);
+    }
+
     uint64_t packed_rem(uint64_t a) const
     {
         uint64_t pack_mask = this->mask | (this->mask << 32);
