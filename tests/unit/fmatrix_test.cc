@@ -238,4 +238,29 @@ void FMatrix_test::test_packed_determinant_singular()
     }
     end_test(err);
 }
+
+void FMatrix_test::test_packed_gamma_mul()
+{
+    cout << "packed gamma mul: ";
+    int err = 0;
+    for (int t = 0; t < this->tests; t++)
+    {
+        GF_element gamma = global::F.random();
+        int r1 = global::randgen() % this->dim;
+        int r2 = global::randgen() % this->dim;
+        while (r1 == r2)
+            r2 = global::randgen() % this->dim;
+
+        FMatrix orig = this->random();
+        FMatrix A = orig.copy();
+        Packed_FMatrix PA(A);
+
+        A.mul_gamma(r1, r2, gamma);
+        PA.mul_gamma(r1, r2, gamma);
+
+        if (A != PA.unpack())
+            err++;
+    }
+    end_test(err);
+}
 #endif

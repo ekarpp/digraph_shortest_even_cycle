@@ -24,6 +24,7 @@ private:
 #if GF2_bits == 16
     void test_packed_determinant();
     void test_packed_determinant_singular();
+    void test_packed_gamma_mul();
 #endif
 
     void run()
@@ -35,6 +36,7 @@ private:
 #if GF2_bits == 16
         test_packed_determinant();
         test_packed_determinant_singular();
+        test_packed_gamma_mul();
 #endif
     }
 
