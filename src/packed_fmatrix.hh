@@ -68,12 +68,12 @@ private:
             // avx512: _mm_cmpgt_epu16_mask
             __m128i tmp_mx = _mm_max_epu16(this->get(row, col), mx);
             uint64_t cmp = _mm_movemask_epi8(
-                _mm_cmpeq_epi16(
-                    tmp_mx,
+                _mm_cmpgt_epi32(
+                    this->get(row, col),
                     mx
                 )
             );
-            if (~cmp & cmpmsk)
+            if (cmp & cmpmsk)
             {
                 mx = this->get(row, col);
                 mxi = row;
