@@ -67,7 +67,7 @@ int main(int argc, char** argv)
             break;
 #endif
         case 'r':
-            seed = stoi(optarg);
+            seed = stoll(optarg);
             break;
         case 'c':
             geng = true;
