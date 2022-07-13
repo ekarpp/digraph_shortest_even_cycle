@@ -3,6 +3,7 @@
 #define P_FMATRIX_H
 
 #include <valarray>
+#include <vector>
 #include <immintrin.h>
 
 #include "gf.hh"
@@ -59,7 +60,7 @@ private:
     int cols;
     // original matrix n moduloe VECTOR_N
     int nmod;
-    std::valarray<__m256i> m;
+    std::vector<__m256i> m;
 
     __m256i get(int row, int col)
     {
