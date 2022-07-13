@@ -20,6 +20,7 @@ private:
     void test_determinant_vandermonde();
     void test_det_singular();
     void test_determinant_random();
+    void test_pdet();
 #if GF2_bits == 16
     void test_packed_determinant();
     void test_packed_determinant_singular();
@@ -30,6 +31,7 @@ private:
         test_determinant_vandermonde();
         test_determinant_random();
         test_det_singular();
+        test_pdet();
 #if GF2_bits == 16
         test_packed_determinant();
         test_packed_determinant_singular();

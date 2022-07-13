@@ -6,6 +6,7 @@
 #include "../../src/global.hh"
 #include "../../src/fmatrix.hh"
 #include "../../src/gf.hh"
+#include "../../src/polynomial.hh"
 #if GF2_bits == 16
 #include "../../src/packed_fmatrix.hh"
 #endif
@@ -164,6 +165,34 @@ void FMatrix_test::test_det_singular()
 
         if (m.det() != global::F.zero())
             err++;
+    }
+    end_test(err);
+}
+
+void FMatrix_test::test_pdet()
+{
+    cout << "polynomial determinant: ";
+    int err = 0;
+    int reps = 10;
+    for (int t = 0; t < this->tests / reps; t++)
+    {
+        FMatrix m = this->random();
+        int r1 = global::randgen() % this->dim;
+        int r2 = global::randgen() % this->dim;
+        while (r1 == r2)
+            r2 = global::randgen() % this->dim;
+
+        Polynomial pdet = m.pdet(r1, r2);
+
+        for (int i = 0; i < reps; i++)
+        {
+            GF_element gamma = global::F.random();
+            FMatrix A = m.copy();
+            A.mul_gamma(r1, r2, gamma);
+            GF_element d = A.det();
+            if (pdet.eval(gamma) != d)
+                err++;
+        }
     }
     end_test(err);
 }
