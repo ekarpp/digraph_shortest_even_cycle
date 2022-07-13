@@ -1,7 +1,7 @@
 SHELL := /bin/bash -O extglob
 
 CXX := g++
-CXXFLAGS := -g -std=c++1z -O3 -Wall -Wextra -march=native -fopenmp
+CXXFLAGS := -g -std=c++1z -O0 -Wall -Wextra -march=native -fopenmp
 LDFLAGS := -fopenmp
 
 VPATH = src:tests/unit:tests/perf

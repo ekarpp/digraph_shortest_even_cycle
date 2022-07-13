@@ -17,15 +17,16 @@
         uint64_t cmpmsk = 0b11 << (8*index);                    \
         for (int row = r0 + 1; row < this->rows; row++)         \
         {                                                       \
+            __m128i tmp_mx = _mm_max_epu16(this->get(row, col), mx);\
             uint64_t cmp = _mm_movemask_epi8(                   \
-                _mm_cmpgt_epi16(                                \
-                    this->get(row, col),                        \
+                _mm_cmpeq_epi16(                                \
+                    tmp_mx,                                     \
                     mx                                          \
                     )                                           \
                 );                                              \
             if (cmp & cmpmsk)                                   \
             {                                                   \
-                mx = this->get(row, col);                       \
+                mx = tmp_mx;                                    \
                 mxi = row;                                      \
             }                                                   \
         }                                                       \
@@ -55,6 +56,49 @@ private:
     int rows;
     int cols;
     std::valarray<__m128i> m;
+
+    void det_loop(int col, int index, uint64_t &det)
+    {
+        int r0 = 2*col + index;
+        __m128i mx = this->get(r0, col);
+        int mxi = r0;
+        uint64_t cmpmsk = 0b11 << (8*index);
+        for (int row = r0 + 1; row < this->rows; row++)
+        {
+            // avx512: _mm_cmpgt_epu16_mask
+            __m128i tmp_mx = _mm_max_epu16(this->get(row, col), mx);
+            uint64_t cmp = _mm_movemask_epi8(
+                _mm_cmpeq_epi16(
+                    tmp_mx,
+                    mx
+                )
+            );
+            if (~cmp & cmpmsk)
+            {
+                mx = this->get(row, col);
+                mxi = row;
+            }
+        }
+        uint64_t mx_ext = (index == 0)
+            ? _mm_extract_epi64(mx, 1)
+            : _mm_extract_epi64(mx, 0);
+//        if (mx_ext == 0)
+//            return global::F.zero();
+        if (mxi != r0)
+            this->swap_rows(mxi, r0);
+        det = global::F.rem(
+            global::F.clmul(det, mx_ext)
+            );
+        mx_ext = global::F.ext_euclid(mx_ext);
+        this->mul_row(r0, mx_ext);
+        for (int row = r0 + 1; row < this->rows; row++)
+        {
+            uint64_t val = (index == 0)
+                ? _mm_extract_epi64(this->get(row, col), 1)
+                : _mm_extract_epi64(this->get(row, col), 0);
+            this->row_op(r0, row, val);
+        }
+    }
 
     __m128i get(int row, int col)
     {
@@ -239,8 +283,8 @@ public:
         uint64_t det = 0x1;
         for (int col = 0; col < this->cols - (this->rows%2); col++)
         {
-            DET_LOOP(0);
-            DET_LOOP(1);
+            det_loop(col, 0, det);//DET_LOOP(0);
+            det_loop(col, 1, det);//DET_LOOP(1);
         }
         if (this->rows % 2)
         {
