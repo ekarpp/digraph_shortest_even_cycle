@@ -14,19 +14,18 @@
         int r0 = 2*col + index;                                 \
         __m128i mx = this->get(r0, col);                        \
         int mxi = r0;                                           \
-        uint64_t cmpmsk = 0b11 << (8*index);                    \
+        uint64_t cmpmsk = 0b11 << (8*(1-index));                \
         for (int row = r0 + 1; row < this->rows; row++)         \
         {                                                       \
-            __m128i tmp_mx = _mm_max_epu16(this->get(row, col), mx);\
             uint64_t cmp = _mm_movemask_epi8(                   \
-                _mm_cmpeq_epi16(                                \
-                    tmp_mx,                                     \
+                _mm_cmpgt_epi32(                                \
+                    this->get(row, col),                        \
                     mx                                          \
                     )                                           \
                 );                                              \
             if (cmp & cmpmsk)                                   \
             {                                                   \
-                mx = tmp_mx;                                    \
+                mx = this->get(row,col);                        \
                 mxi = row;                                      \
             }                                                   \
         }                                                       \
@@ -62,11 +61,10 @@ private:
         int r0 = 2*col + index;
         __m128i mx = this->get(r0, col);
         int mxi = r0;
-        uint64_t cmpmsk = 0b11 << (8*index);
+        uint64_t cmpmsk = 0b11 << (8*(1-index));
         for (int row = r0 + 1; row < this->rows; row++)
         {
             // avx512: _mm_cmpgt_epu16_mask
-            __m128i tmp_mx = _mm_max_epu16(this->get(row, col), mx);
             uint64_t cmp = _mm_movemask_epi8(
                 _mm_cmpgt_epi32(
                     this->get(row, col),
