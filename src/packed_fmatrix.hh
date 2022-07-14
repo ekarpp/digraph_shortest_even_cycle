@@ -175,30 +175,50 @@ public:
          * and do r2 left to right */
         /* do gamma multiplication during initialization?? */
         __m256i pac_gamma = _mm256_set_epi64x(
-            gamma.get_repr(),
-            gamma.get_repr(),
-            gamma.get_repr(),
-            gamma.get_repr()
+            gamma.get_repr() << 32 | gamma.get_repr(),
+            gamma.get_repr() << 32 | gamma.get_repr(),
+            gamma.get_repr() << 32 | gamma.get_repr(),
+            gamma.get_repr() << 32 | gamma.get_repr()
         );
         // pac_gamma = [gamma^VECTOR_N]
         pac_gamma = global::F.wide_mul(pac_gamma, pac_gamma);
         pac_gamma = global::F.wide_mul(pac_gamma, pac_gamma);
-        /* ugly */
+        pac_gamma = global::F.wide_mul(pac_gamma, pac_gamma);
+
+        uint64_t elems[4];
+        uint64_t g = gamma.get_repr();
+        elems[0] = 1ull << 32;
+        elems[1] = 0; elems[2] = 0; elems[3] = 0;
+        for (int i = 1; i < VECTOR_N; i++)
+        {
+            elems[i/2] |= g << (32*(1-i%2));
+            g = global::F.rem(global::F.clmul(g, gamma.get_repr()));
+        }
         __m256i prod = _mm256_set_epi64x(
-            1,
-            gamma.get_repr(),
-            (gamma*gamma).get_repr(),
-            (gamma*gamma*gamma).get_repr()
+            elems[0],
+            elems[1],
+            elems[2],
+            elems[3]
         );
         std::vector<__m256i> coeffs(this->cols);
+        const __m256i idx = _mm256_set_epi32(
+            0b000,
+            0b001,
+            0b010,
+            0b011,
+            0b100,
+            0b101,
+            0b110,
+            0b111
+        );
         /* first do left to right r1 */
         for (int col = 0; col < this->cols; col++)
         {
             /* already save them in reverse order here and permute,
              * values in reverse order, too*/
-            coeffs[this->cols - 1 - col] = _mm256_permute4x64_epi64(
+            coeffs[this->cols - 1 - col] = _mm256_permute8x32_epi32(
                 prod,
-                0x1B
+                idx
             );
             __m256i elem = this->get(r1, col);
             elem = global::F.wide_mul(elem, prod);
@@ -211,16 +231,92 @@ public:
         if (this->nmod)
         {
             __m256i idx;
+            /* lazy and ugly .. */
             switch (this->nmod)
             {
             case 1:
-                idx = _mm256_set_epi64x(0b000, 0b111, 0b110, 0b101);
+                idx = _mm256_set_epi32(
+                    0x0, // 0b0000,
+                    0xF, // 0b1111,
+                    0xE, // 0b1110,
+                    0xD, // 0b1101,
+                    0xC, // 0b1100,
+                    0xB, // 0b1011,
+                    0xA, // 0b1010,
+                    0x9  // 0b1001
+                );
                 break;
             case 2:
-                idx = _mm256_set_epi64x(0b001, 0b000, 0b111, 0b110);
+                idx = _mm256_set_epi32(
+                    0x1, // 0b0001,
+                    0x0, // 0b0000,
+                    0xF, // 0b1111,
+                    0xE, // 0b1110,
+                    0xD, // 0b1101,
+                    0xC, // 0b1100,
+                    0xB, // 0b1011,
+                    0xA  // 0b1010
+                );
                 break;
             case 3:
-                idx = _mm256_set_epi64x(0b010, 0b001, 0b000, 0b111);
+                idx = _mm256_set_epi32(
+                    0x2, // 0b0010,
+                    0x1, // 0b0001,
+                    0x0, // 0b0000,
+                    0xF, // 0b1111,
+                    0xE, // 0b1110,
+                    0xD, // 0b1101,
+                    0xC, // 0b1100,
+                    0xB  // 0b1011
+                );
+                break;
+            case 4:
+                idx = _mm256_set_epi32(
+                    0x3, // 0b0011,
+                    0x2, // 0b0010,
+                    0x1, // 0b0001,
+                    0x0, // 0b0000,
+                    0xF, // 0b1111,
+                    0xE, // 0b1110,
+                    0xD, // 0b1101,
+                    0xC  // 0b1100
+                );
+                break;
+            case 5:
+                idx = _mm256_set_epi32(
+                    0x4, // 0b0100,
+                    0x3, // 0b0011,
+                    0x2, // 0b0010,
+                    0x1, // 0b0001,
+                    0x0, // 0b0000,
+                    0xF, // 0b1111,
+                    0xE, // 0b1110,
+                    0xD  // 0b1101
+                );
+                break;
+            case 6:
+                idx = _mm256_set_epi32(
+                    0x5, // 0b0101,
+                    0x4, // 0b0100,
+                    0x3, // 0b0011,
+                    0x2, // 0b0010,
+                    0x1, // 0b0001,
+                    0x0, // 0b0000,
+                    0xF, // 0b1111,
+                    0xE  // 0b1110
+                );
+                break;
+            case 7:
+                idx = _mm256_set_epi32(
+                    0x6, // 0b0110,
+                    0x5, // 0b0101,
+                    0x4, // 0b0100,
+                    0x3, // 0b0011,
+                    0x2, // 0b0010,
+                    0x1, // 0b0001,
+                    0x0, // 0b0000,
+                    0xF  // 0b1111
+                );
                 break;
             }
 
@@ -231,27 +327,98 @@ public:
                     coeffs[col + 1]
                 );
 
+            /* lazy and ugly.. */
             switch (this->nmod)
             {
             case 1:
-                coeffs[this->cols - 1] = _mm256_permute4x64_epi64(
-                    coeffs[this->cols - 1],
-                    0x00
+                idx = _mm256_set_epi32(
+                    0b0,
+                    0b0,
+                    0b0,
+                    0b0,
+                    0b0,
+                    0b0,
+                    0b0,
+                    0b0
                 );
                 break;
             case 2:
-                coeffs[this->cols - 1] = _mm256_permute4x64_epi64(
-                    coeffs[this->cols - 1],
-                    0x40
+                idx = _mm256_set_epi32(
+                    0b1,
+                    0b0,
+                    0b0,
+                    0b0,
+                    0b0,
+                    0b0,
+                    0b0,
+                    0b0
                 );
                 break;
             case 3:
-                coeffs[this->cols - 1] = _mm256_permute4x64_epi64(
-                    coeffs[this->cols - 1],
-                    0x90
+                idx = _mm256_set_epi32(
+                    0b10,
+                    0b1,
+                    0b0,
+                    0b0,
+                    0b0,
+                    0b0,
+                    0b0,
+                    0b0
+                );
+                break;
+            case 4:
+                idx = _mm256_set_epi32(
+                    0b11,
+                    0b10,
+                    0b1,
+                    0b0,
+                    0b0,
+                    0b0,
+                    0b0,
+                    0b0
+                );
+                break;
+            case 5:
+                idx = _mm256_set_epi32(
+                    0b100,
+                    0b11,
+                    0b10,
+                    0b1,
+                    0b0,
+                    0b0,
+                    0b0,
+                    0b0
+                );
+                break;
+            case 6:
+                idx = _mm256_set_epi32(
+                    0b101,
+                    0b100,
+                    0b11,
+                    0b10,
+                    0b1,
+                    0b0,
+                    0b0,
+                    0b0
+                );
+                break;
+            case 7:
+                idx = _mm256_set_epi32(
+                    0b110,
+                    0b101,
+                    0b100,
+                    0b11,
+                    0b10,
+                    0b1,
+                    0b0,
+                    0b0
                 );
                 break;
             }
+            coeffs[this->cols - 1] = _mm256_permutevar8x32_epi32(
+                coeffs[this->cols - 1],
+                idx
+            );
 
         }
 
