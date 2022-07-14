@@ -325,7 +325,7 @@ public:
             }
 
             for (int col = 0; col < this->cols - 1; col++)
-                coeffs[col] = _mm256_permutex2var_epi64(
+                coeffs[col] = _mm256_permutex2var_epi32(
                     coeffs[col],
                     idx,
                     coeffs[col + 1]
