@@ -10,7 +10,7 @@
 #include "global.hh"
 #include "fmatrix.hh"
 
-#define VECTOR_N 4
+#define VECTOR_N 8
 
 #define DET_LOOP(index)                                         \
     {                                                           \
@@ -90,40 +90,27 @@ public:
             for (int c = 0; c < matrix.get_n() / VECTOR_N; c++)
                 this->set(r, c,
                           _mm256_set_epi64x(
-                              matrix(r, VECTOR_N*c + 0).get_repr(),
-                              matrix(r, VECTOR_N*c + 1).get_repr(),
-                              matrix(r, VECTOR_N*c + 2).get_repr(),
-                              matrix(r, VECTOR_N*c + 3).get_repr()
+                              matrix(r, VECTOR_N*c + 0).get_repr() << 32 | matrix(r, VECTOR_N*c + 1),
+                              matrix(r, VECTOR_N*c + 2).get_repr() << 32 | matrix(r, VECTOR_N*c + 3),
+                              matrix(r, VECTOR_N*c + 4).get_repr() << 32 | matrix(r, VECTOR_N*c + 5),
+                              matrix(r, VECTOR_N*c + 6).get_repr() << 32 | matrix(r, VECTOR_N*c + 7)
                           )
                     );
-
-            int c = this->cols - 1;
-            switch (this->nmod)
+            if (this->nmod)
             {
-            case 3:
-                this->set(r, this->cols - 1, _mm256_set_epi64x(
-                              matrix(r, VECTOR_N*c + 0).get_repr(),
-                              matrix(r, VECTOR_N*c + 1).get_repr(),
-                              matrix(r, VECTOR_N*c + 2).get_repr(),
-                              0
-                          ));
-                break;
-            case 2:
-                this->set(r, this->cols - 1, _mm256_set_epi64x(
-                              matrix(r, VECTOR_N*c + 0).get_repr(),
-                              matrix(r, VECTOR_N*c + 1).get_repr(),
-                              0,
-                              0
-                          ));
-                break;
-            case 1:
-                this->set(r, this->cols - 1, _mm256_set_epi64x(
-                              matrix(r, VECTOR_N*c + 0).get_repr(),
-                              0,
-                              0,
-                              0
-                          ));
-                break;
+                int c = this->cols - 1;
+                uint64_t elems[4];
+                elems[0] = 0; elems[1] = 0; elems[2] = 0; elems[3] = 0;
+                for (int i = 0; i < this->nmod; i++)
+                    elems[i/2] |= matrix(r, VECTOR_N*c + i).get_repr() << (32*(1 - i%2));
+
+                this->set(r, c, _mm256_set_epi64x(
+                              elems[0],
+                              elems[1],
+                              elems[2],
+                              elems[3]
+                          )
+                );
             }
         }
         for (int r = matrix.get_n(); r < this->rows; r++)
@@ -131,22 +118,50 @@ public:
             for (int c = 0; c < this->cols - 1; c++)
                 this->set(r, c, _mm256_setzero_si256());
 
+            /* lazy.... */
             switch (r % VECTOR_N)
             {
             case 1:
                 this->set(r, this->cols - 1, _mm256_set_epi64x(
-                    0, 1, 0, 0
-                ));
+                              1, 0, 0, 0
+                         )
+                );
                 break;
             case 2:
                 this->set(r, this->cols - 1, _mm256_set_epi64x(
-                    0, 0, 1, 0
-                ));
+                              0, 1ull << 32, 0, 0
+                         )
+                );
                 break;
             case 3:
                 this->set(r, this->cols - 1, _mm256_set_epi64x(
-                    0, 0, 0, 1
-                ));
+                              0, 1, 0, 0
+                         )
+                );
+                break;
+            case 4:
+                this->set(r, this->cols - 1, _mm256_set_epi64x(
+                              0, 0, 1ull << 32, 0
+                         )
+                );
+                break;
+            case 5:
+                this->set(r, this->cols - 1, _mm256_set_epi64x(
+                              0, 0, 1, 0
+                         )
+                );
+                break;
+            case 6:
+                this->set(r, this->cols - 1, _mm256_set_epi64x(
+                              0, 0, 0, 1ull << 32
+                         )
+                );
+                break;
+            case 7:
+                this->set(r, this->cols - 1, _mm256_set_epi64x(
+                              0, 0, 0, 1
+                         )
+                );
                 break;
             }
 
