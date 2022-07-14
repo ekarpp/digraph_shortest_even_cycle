@@ -144,7 +144,7 @@ void GF_test::test_wide_mul()
     {
         uint64_t a[WIDTH];
         uint64_t b[WIDTH];
-        uint64_t prod[WIDTH];
+        int64_t prod[WIDTH];
 
         for (int j = 0; j < WIDTH; j++)
         {
