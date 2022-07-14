@@ -246,7 +246,7 @@ public:
         /* handle special permutations required in case not divisible by 4 */
         if (this->nmod)
         {
-            __m256i idx;
+            __m256i idx = { 0, 0, 0, 0 };
             /* lazy and ugly .. */
             switch (this->nmod)
             {
