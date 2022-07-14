@@ -32,20 +32,18 @@
             }                                                   \
         }                                                       \
         uint64_t mx_ext =                                       \
-            _mm256_extract_epi64(mx, 3 - index/2);              \
-        if (index % 2)                                          \
-            mx_ext >>= 32;                                      \
-        else                                                    \
-            mx_ext &= 0xFFFF;                                   \
+            _mm256_extract_epi32(mx, VECTOR_N - 1 - index);     \
         if (mx_ext == 0)                                        \
             return global::F.zero();                            \
         if (mxi != r0)                                          \
             this->swap_rows(mxi, r0);                           \
+        /* vectorize? */                                        \
         det = global::F.rem(                                    \
             global::F.clmul(det, mx_ext)                        \
         );                                                      \
         mx_ext = global::F.ext_euclid(mx_ext);                  \
         this->mul_row(r0, mx_ext);                              \
+        /* vectorize end? */                                    \
         char mask = VECTOR_N - 1 - index;                       \
         __m256i idx = _mm256_set_epi32(                         \
             mask,                                               \
