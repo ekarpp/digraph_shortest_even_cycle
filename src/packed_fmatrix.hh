@@ -62,7 +62,7 @@ private:
     int nmod;
     std::vector<__m256i> m;
 
-    __m256i get(int row, int col)
+    __m256i get(int row, int col) const
     {
         return this->m[row*this->cols + col];
     }
@@ -496,7 +496,7 @@ public:
     }
 
     /* only used for testing */
-    FMatrix unpack()
+    FMatrix unpack() const
     {
         std::valarray<GF_element> unpacked(this->rows * this->rows);
 
@@ -504,14 +504,31 @@ public:
         {
             for (int col = 0; col < this->cols; col++)
             {
-                unpacked[row*this->rows + VECTOR_N*col + 0] =
-                    GF_element(_mm256_extract_epi64(this->get(row, col), 3));
-                unpacked[row*this->rows + VECTOR_N*col + 1] =
-                    GF_element(_mm256_extract_epi64(this->get(row, col), 2));
-                unpacked[row*this->rows + VECTOR_N*col + 2] =
-                    GF_element(_mm256_extract_epi64(this->get(row, col), 1));
-                unpacked[row*this->rows + VECTOR_N*col + 3] =
-                    GF_element(_mm256_extract_epi64(this->get(row, col), 0));
+                for (int e = 0; e < VECTOR_N; e++)
+                {
+                    uint64_t rep;
+                    switch (e/2)
+                    {
+                    case 0:
+                        rep = _mm256_extract_epi64(this->get(row, col), 3);
+                        break;
+                    case 1:
+                        rep = _mm256_extract_epi64(this->get(row, col), 2);
+                        break;
+                    case 2:
+                        rep = _mm256_extract_epi64(this->get(row, col), 1);
+                        break;
+                    case 3:
+                        rep = _mm256_extract_epi64(this->get(row, col), 0);
+                        break;
+                    }
+                    if (e%2)
+                        rep &= 0xFFFF;
+                    else
+                        rep >>= 32*(1 - e%2);
+                    unpacked[row*this->rows + VECTOR_N*col + e] =
+                        GF_element(rep);
+                }
             }
         }
 

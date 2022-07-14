@@ -25,6 +25,7 @@ private:
     void test_packed_determinant();
     void test_packed_determinant_singular();
     void test_packed_gamma_mul();
+    void test_packed_init();
 #endif
 
     void run()
@@ -34,6 +35,7 @@ private:
         test_det_singular();
         test_pdet();
 #if GF2_bits == 16
+        test_packed_init();
         test_packed_determinant();
         test_packed_determinant_singular();
         test_packed_gamma_mul();
