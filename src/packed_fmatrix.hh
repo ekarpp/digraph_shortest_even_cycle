@@ -90,10 +90,14 @@ public:
             for (int c = 0; c < matrix.get_n() / VECTOR_N; c++)
                 this->set(r, c,
                           _mm256_set_epi64x(
-                              matrix(r, VECTOR_N*c + 0).get_repr() << 32 | matrix(r, VECTOR_N*c + 1),
-                              matrix(r, VECTOR_N*c + 2).get_repr() << 32 | matrix(r, VECTOR_N*c + 3),
-                              matrix(r, VECTOR_N*c + 4).get_repr() << 32 | matrix(r, VECTOR_N*c + 5),
-                              matrix(r, VECTOR_N*c + 6).get_repr() << 32 | matrix(r, VECTOR_N*c + 7)
+                              matrix(r, VECTOR_N*c + 0).get_repr() << 32
+                                  | matrix(r, VECTOR_N*c + 1).get_repr(),
+                              matrix(r, VECTOR_N*c + 2).get_repr() << 32
+                                  | matrix(r, VECTOR_N*c + 3).get_repr(),
+                              matrix(r, VECTOR_N*c + 4).get_repr() << 32
+                                  | matrix(r, VECTOR_N*c + 5).get_repr(),
+                              matrix(r, VECTOR_N*c + 6).get_repr() << 32
+                                  | matrix(r, VECTOR_N*c + 7).get_repr()
                           )
                     );
             if (this->nmod)
@@ -216,7 +220,7 @@ public:
         {
             /* already save them in reverse order here and permute,
              * values in reverse order, too*/
-            coeffs[this->cols - 1 - col] = _mm256_permute8x32_epi32(
+            coeffs[this->cols - 1 - col] = _mm256_permutevar8x32_epi32(
                 prod,
                 idx
             );
