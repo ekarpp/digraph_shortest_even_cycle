@@ -2,11 +2,11 @@
 
 #SBATCH --time=00:35:00
 #SBATCH --mem=52G
-#SBATCH --partition=batch-hsw
+#SBATCH --partition=batch-skl
 #SBATCH --cpus-per-task=1
 #SBATCH --ntasks=1
 #SBATCH --output=ext-perf-seq.out
-module load gcc/9.3.0
+module load gcc/11.2.0
 
 hostname
 uname -a
