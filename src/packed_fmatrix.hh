@@ -20,7 +20,7 @@ typedef long long int long4_t __attribute__ ((vector_size (32)));
         long4_t mx = this->get(r0, col);                        \
         int mxi = r0;                                           \
         char cmpmsk = 1 << (VECTOR_N - 1 - index);              \
-        for (uint64_t row = r0 + 1; row < this->rows; row++)    \
+        for (int row = r0 + 1; row < this->rows; row++)         \
         {                                                       \
             char cmp = _mm256_cmp_epu32_mask(                   \
                 mx,                                             \
@@ -57,7 +57,7 @@ typedef long long int long4_t __attribute__ ((vector_size (32)));
             mask,                                               \
             mask                                                \
         );                                                      \
-        for (uint64_t row = r0 + 1; row < this->rows; row++)    \
+        for (int row = r0 + 1; row < this->rows; row++)         \
         {                                                       \
             long4_t val = _mm256_permutevar8x32_epi32(          \
                 this->get(row, col),                            \
@@ -70,10 +70,10 @@ typedef long long int long4_t __attribute__ ((vector_size (32)));
 class Packed_FMatrix
 {
 private:
-    uint64_t rows;
-    uint64_t cols;
+    int rows;
+    int cols;
     // original matrix n moduloe VECTOR_N
-    uint64_t nmod;
+    int nmod;
     std::vector<long4_t> m;
 
     long4_t get(int row, int col) const
@@ -119,7 +119,7 @@ public:
                 int c = this->cols - 1;
                 uint64_t elems[4];
                 elems[0] = 0; elems[1] = 0; elems[2] = 0; elems[3] = 0;
-                for (uint64_t i = 0; i < this->nmod; i++)
+                for (int i = 0; i < this->nmod; i++)
                     elems[i/2] |= matrix(r, VECTOR_N*c + i).get_repr() << (32*(1 - i%2));
 
                 this->set(r, c, _mm256_set_epi64x(
@@ -131,9 +131,9 @@ public:
                 );
             }
         }
-        for (uint64_t r = matrix.get_n(); r < this->rows; r++)
+        for (int r = matrix.get_n(); r < this->rows; r++)
         {
-            for (uint64_t c = 0; c < this->cols - 1; c++)
+            for (int c = 0; c < this->cols - 1; c++)
                 this->set(r, c, _mm256_setzero_si256());
 
             /* lazy.... */
@@ -230,7 +230,7 @@ public:
             0b111
         );
         /* first do left to right r1 */
-        for (uint64_t col = 0; col < this->cols; col++)
+        for (int col = 0; col < this->cols; col++)
         {
             /* already save them in reverse order here and permute,
              * values in reverse order, too*/
@@ -338,7 +338,7 @@ public:
                 break;
             }
 
-            for (uint64_t col = 0; col < this->cols - 1; col++)
+            for (int col = 0; col < this->cols - 1; col++)
                 coeffs[col] = _mm256_permutex2var_epi32(
                     coeffs[col],
                     idx,
@@ -441,7 +441,7 @@ public:
         }
 
         /* and do r2 left to right */
-        for (uint64_t col = 0; col < this->cols; col++)
+        for (int col = 0; col < this->cols; col++)
         {
             this->set(r2, col,
                       global::F.wide_mul(
@@ -455,7 +455,7 @@ public:
     void swap_rows(int r1, int r2)
     {
         long4_t tmp;
-        for (uint64_t c = 0; c < this->cols; c++)
+        for (int c = 0; c < this->cols; c++)
         {
             tmp = this->get(r1, c);
             this->set(r1, c, this->get(r2, c));
@@ -471,7 +471,7 @@ public:
             v << 32 | v,
             v << 32 | v
         );
-        for (uint64_t col = 0; col < this->cols; col++)
+        for (int col = 0; col < this->cols; col++)
             this->set(row, col,
                       global::F.wide_mul(this->get(row, col), pack)
                 );
@@ -480,7 +480,7 @@ public:
     /* subtract v times r1 from r2 */
     void row_op(int r1, int r2, long4_t pack)
     {
-        for (uint64_t col = 0; col < this->cols; col++)
+        for (int col = 0; col < this->cols; col++)
         {
             long4_t tmp = global::F.wide_mul(this->get(r1, col), pack);
 
@@ -493,7 +493,7 @@ public:
     GF_element det()
     {
         uint64_t det = 0x1;
-        for (uint64_t col = 0; col < this->cols; col++)
+        for (int col = 0; col < this->cols; col++)
         {
             DET_LOOP(0);
             DET_LOOP(1);
@@ -512,9 +512,9 @@ public:
     {
         std::valarray<GF_element> unpacked(this->rows * this->rows);
 
-        for (uint64_t row = 0; row < this->rows; row++)
+        for (int row = 0; row < this->rows; row++)
         {
-            for (uint64_t col = 0; col < this->cols; col++)
+            for (int col = 0; col < this->cols; col++)
             {
                 for (int e = 0; e < VECTOR_N; e++)
                 {
@@ -547,7 +547,7 @@ public:
         uint64_t n = this->rows;
         if (this->nmod)
             n -= VECTOR_N - this->nmod;
-        return FMatrix(n, unpacked[std::gslice(0, {n, n}, {this->rows, 1})]);
+        return FMatrix(n, unpacked[std::gslice(0, {n,n}, {this->rows,1})]);
     }
 };
 
