@@ -452,10 +452,10 @@ public:
     void mul_row(int row, uint64_t v)
     {
         __m256i pack = _mm256_set_epi64x(
-            v,
-            v,
-            v,
-            v
+            v << 32 | v,
+            v << 32 | v,
+            v << 32 | v,
+            v << 32 | v
         );
         for (int col = 0; col < this->cols; col++)
             this->set(row, col,
@@ -467,10 +467,10 @@ public:
     void row_op(int r1, int r2, uint64_t v)
     {
         __m256i pack = _mm256_set_epi64x(
-            v,
-            v,
-            v,
-            v
+            v << 32 | v,
+            v << 32 | v,
+            v << 32 | v,
+            v << 32 | v
         );
         for (int col = 0; col < this->cols; col++)
         {
