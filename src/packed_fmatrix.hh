@@ -545,9 +545,10 @@ public:
         }
 
         uint64_t n = this->rows;
+        uint64_t r = this->rows;
         if (this->nmod)
             n -= VECTOR_N - this->nmod;
-        return FMatrix(n, unpacked[std::gslice(0, {n,n}, {this->rows,1})]);
+        return FMatrix(n, unpacked[std::gslice(0, {n,n}, {r,1})]);
     }
 };
 
