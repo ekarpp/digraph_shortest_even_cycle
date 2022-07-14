@@ -153,6 +153,15 @@ void GF_test::test_wide_mul()
             prod[j] = global::F.rem(
                 global::F.clmul(a[j], b[j])
             );
+
+            uint64_t ta = global::randgen() & global::F.get_mask();
+            uint64_t tb = global::randgen() & global::F.get_mask();
+            a[j] |= ta << 32;
+            b[j] |= tb << 32;
+
+            prod[j] |= global::F.rem(
+                global::F.clmul(ta, tb)
+            ) << 32;
         }
 
         __m256i aa = _mm256_set_epi64x(a[3], a[2], a[1], a[0]);

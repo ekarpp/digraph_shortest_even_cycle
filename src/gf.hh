@@ -114,14 +114,41 @@ public:
 #if GF2_bits == 16
     __m256i wide_mul(__m256i a, __m256i b)
     {
-        __m256i prod = _mm256_unpacklo_epi64(
-            _mm256_clmulepi64_epi128(a, b, 0x00),
-            _mm256_clmulepi64_epi128(a, b, 0x11)
+        /* al/bl might not be needed, just use a/b */
+        const __m256i al = _mm256_and_si256(
+            a,
+            _mm256_maskz_set1_epi16(0x1111, 0xFFFF)
+        );
+        const __m256i bl = _mm256_and_si256(
+            b,
+            _mm256_maskz_set1_epi16(0x1111, 0xFFFF)
+        );
+        const __m256i ah = _mm256_srli_epi64(
+            a,
+            32
+        );
+        const __m256i bh = _mm256_srli_epi64(
+            b,
+            32
+        );
+
+        __m256i prod = _mm256_or_si256(
+            _mm256_unpacklo_epi64(
+                _mm256_clmulepi64_epi128(al, bl, 0x00),
+                _mm256_clmulepi64_epi128(al, bl, 0x11)
+            ),
+            _mm256_slli_epi64(
+                _mm256_unpacklo_epi64(
+                    _mm256_clmulepi64_epi128(ah, bh, 0x00),
+                    _mm256_clmulepi64_epi128(ah, bh, 0x11)
+                ),
+                32
+            )
         );
 
         __m256i lo = _mm256_and_si256(
             prod,
-            _mm256_maskz_set1_epi16(0x1111, 0xFFFF)
+            _mm256_maskz_set1_epi16(0x5555, 0xFFFF)
         );
         __m256i hi = _mm256_srli_epi32(
             prod,
