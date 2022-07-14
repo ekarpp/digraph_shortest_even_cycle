@@ -17,7 +17,7 @@
         int r0 = VECTOR_N*col + index;                          \
         __m256i mx = this->get(r0, col);                        \
         int mxi = r0;                                           \
-        char cmpmsk = 1 << (2*(3-index));                       \
+        char cmpmsk = 1 << (VECTOR_N - 1 - index);              \
         for (int row = r0 + 1; row < this->rows; row++)         \
         {                                                       \
             char cmp = _mm256_cmp_epu32_mask(                   \
@@ -32,7 +32,11 @@
             }                                                   \
         }                                                       \
         uint64_t mx_ext =                                       \
-            _mm256_extract_epi64(mx, 3 - index);                \
+            _mm256_extract_epi64(mx, 3 - index/2);              \
+        if (index % 2)                                          \
+            mx_ext >>= 32;                                      \
+        else                                                    \
+            mx_ext &= 0xFFFF;                                   \
         if (mx_ext == 0)                                        \
             return global::F.zero();                            \
         if (mxi != r0)                                          \
@@ -42,12 +46,22 @@
         );                                                      \
         mx_ext = global::F.ext_euclid(mx_ext);                  \
         this->mul_row(r0, mx_ext);                              \
+        char mask = VECTOR_N - 1 - index;                       \
+        __m256i idx = _mm256_set_epi32(                         \
+            mask,                                               \
+            mask,                                               \
+            mask,                                               \
+            mask,                                               \
+            mask,                                               \
+            mask,                                               \
+            mask,                                               \
+            mask                                                \
+        );                                                      \
         for (int row = r0 + 1; row < this->rows; row++)         \
         {                                                       \
-            /* use shuffle magix here? */                       \
-            uint64_t val = _mm256_extract_epi64(                \
+            __m256i val = _mm256_permutevar8x32_epi32(          \
                 this->get(row, col),                            \
-                3 - index                                       \
+                idx                                             \
             );                                                  \
             this->row_op(r0, row, val);                         \
         }                                                       \
@@ -464,14 +478,8 @@ public:
     }
 
     /* subtract v times r1 from r2 */
-    void row_op(int r1, int r2, uint64_t v)
+    void row_op(int r1, int r2, __m256i pack)
     {
-        __m256i pack = _mm256_set_epi64x(
-            v << 32 | v,
-            v << 32 | v,
-            v << 32 | v,
-            v << 32 | v
-        );
         for (int col = 0; col < this->cols; col++)
         {
             __m256i tmp = global::F.wide_mul(this->get(r1, col), pack);
@@ -491,6 +499,10 @@ public:
             DET_LOOP(1);
             DET_LOOP(2);
             DET_LOOP(3);
+            DET_LOOP(4);
+            DET_LOOP(5);
+            DET_LOOP(6);
+            DET_LOOP(7);
         }
         return GF_element(det);
     }
