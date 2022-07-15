@@ -204,12 +204,12 @@ public:
         pac_gamma = global::F.wide_mul(pac_gamma, pac_gamma);
 
         uint64_t elems[4];
-        uint64_t g = gamma.get_repr();
-        elems[0] = 1ull << 32;
-        elems[1] = 0; elems[2] = 0; elems[3] = 0;
-        for (int i = 1; i < VECTOR_N; i++)
+        uint64_t g = 1ull;
+        for (int i = 0; i < 4; i++)
         {
-            elems[i/2] |= g << (32*(1-i%2));
+            elems[i] = g << 32;
+            g = global::F.rem(global::F.clmul(g, gamma.get_repr()));
+            elems[i] |= g;
             g = global::F.rem(global::F.clmul(g, gamma.get_repr()));
         }
         long4_t prod = _mm256_set_epi64x(
