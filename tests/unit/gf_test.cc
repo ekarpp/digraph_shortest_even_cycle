@@ -135,16 +135,38 @@ void GF_test::test_packed_rem()
     this->end_test(err);
 }
 
+uint64_t GF_test::_mm512_extract_epi64(__m512i a, int imm8)
+{
+    __m256i ext;
+    if (imm8 / 4)
+        ext = _mm512_extracti64x4_epi64(a, 1);
+    else
+        ext = _mm512_extracti64x4_epi64(a, 0);
+
+    switch (imm8 % 4)
+    {
+    case 0:
+        return _mm256_extract_epi64(ext, 0);
+    case 1:
+        return _mm256_extract_epi64(ext, 1);
+    case 2:
+        return _mm256_extract_epi64(ext, 2);
+    case 3:
+        return _mm256_extract_epi64(ext, 3);
+    }
+    return 0;
+}
+
 void GF_test::test_wide_mul()
 {
-#define WIDTH 4
+#define WIDTH 8
     cout << "wide mul: ";
     int err = 0;
     for (int i = 0; i < this->tests / WIDTH; i++)
     {
         uint64_t a[WIDTH];
         uint64_t b[WIDTH];
-        int64_t prod[WIDTH];
+        uint64_t prod[WIDTH];
 
         for (int j = 0; j < WIDTH; j++)
         {
@@ -164,20 +186,32 @@ void GF_test::test_wide_mul()
             ) << 32;
         }
 
-        __m256i aa = _mm256_set_epi64x(a[3], a[2], a[1], a[0]);
-        __m256i bb = _mm256_set_epi64x(b[3], b[2], b[1], b[0]);
-        __m256i pp = global::F.wide_mul(aa, bb);
+        __m512i aa = _mm512_set_epi64(a[7], a[6], a[5], a[4], a[3], a[2], a[1], a[0]);
+        __m512i bb = _mm512_set_epi64(b[7], b[6], b[5], b[4], b[3], b[2], b[1], b[0]);
+        __m512i pp = global::F.wide_mul(aa, bb);
 
-        if (prod[0] != _mm256_extract_epi64(pp, 0))
+        if (prod[0] != _mm512_extract_epi64(pp, 0))
             err++;
 
-        if (prod[1] != _mm256_extract_epi64(pp, 1))
+        if (prod[1] != _mm512_extract_epi64(pp, 1))
             err++;
 
-        if (prod[2] != _mm256_extract_epi64(pp, 2))
+        if (prod[2] != _mm512_extract_epi64(pp, 2))
             err++;
 
-        if (prod[3] != _mm256_extract_epi64(pp, 3))
+        if (prod[3] != _mm512_extract_epi64(pp, 3))
+            err++;
+
+        if (prod[4] != _mm512_extract_epi64(pp, 4))
+            err++;
+
+        if (prod[5] != _mm512_extract_epi64(pp, 5))
+            err++;
+
+        if (prod[6] != _mm512_extract_epi64(pp, 6))
+            err++;
+
+        if (prod[7] != _mm512_extract_epi64(pp, 7))
             err++;
     }
     this->end_test(err);

@@ -9,6 +9,8 @@ class GF_test : Test
 private:
     int n;
 
+    uint64_t _mm512_extract_epi64(__m512i a, int imm8);
+
     void test_add_inverse();
     void test_associativity();
     void test_mul_id();
