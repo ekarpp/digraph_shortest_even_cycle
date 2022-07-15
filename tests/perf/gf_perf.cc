@@ -4,6 +4,7 @@
 #include <cmath>
 #include <getopt.h>
 #include <omp.h>
+#include <immintrin.h>
 
 #include "../../src/global.hh"
 #include "../../src/gf.hh"
@@ -51,6 +52,46 @@ int main(int argc, char **argv)
     global::F.init();
 #endif
 
+    double start, end, delta, mhz;
+
+#if GF2_bits == 16
+#define WIDTH 16
+    vector<__m512i> aw(t);
+    vector<__m512i> bw(t);
+
+    for (uint64_t i = 0; i < t; i++)
+    {
+        uint64_t va[WIDTH/2];
+        uint64_t vb[WIDTH/2];
+
+        uint64_t packmask = (0xFFFFull << 32) | 0xFFFF;
+        for (uint64_t j = 0; j < WIDTH / 2; j++)
+        {
+            va[j] = global::randgen() & packmask;
+            vb[j] = global::randgen() & packmask;
+        }
+
+        aw[i] = _mm512_set_epi64(va[0], va[1], va[2], va[3], va[4], va[5], va[6], va[7]);
+        bw[i] = _mm512_set_epi64(vb[0], vb[1], vb[2], vb[3], vb[4], vb[5], vb[6], vb[7]);
+    }
+
+
+    start = omp_get_wtime();
+#ifdef PARALLEL
+    #pragma omp parallel for
+#endif
+    for (uint64_t i = 0; i < t; i++)
+        aw[i] = global::F.wide_mul(aw[i], bw[i]);
+    end = omp_get_wtime();
+    delta = (end - start);
+    mhz = (WIDTH*t) / delta;
+    mhz /= 1e6;
+
+    cout << t*WIDTH << " wide multiplications in time: " <<
+        delta << " s or " << mhz << " Mhz" << endl;
+
+#endif
+
     vector<uint64_t> a(t);
     vector<uint64_t> b(t);
     vector<uint64_t> p(t);
@@ -67,12 +108,10 @@ int main(int argc, char **argv)
         bb[i] = global::F.random();
     }
 
-    double start;
-    double end;
-    double delta;
-    double mhz;
-
     start = omp_get_wtime();
+#ifdef PARALLEL
+    #pragma omp parallel for
+#endif
     for (uint64_t i = 0; i < t; i++)
         aa[i] *= bb[i];
     end = omp_get_wtime();
@@ -84,6 +123,9 @@ int main(int argc, char **argv)
         delta << " s or " << mhz << " Mhz" << endl;
 
     start = omp_get_wtime();
+#ifdef PARALLEL
+    #pragma omp parallel for
+#endif
     for (uint64_t i = 0; i < t; i++)
         p[i] = global::F.clmul(a[i], b[i]);
     end = omp_get_wtime();
@@ -95,6 +137,9 @@ int main(int argc, char **argv)
         delta << " s or " << mhz << " Mhz" << endl;
 
     start = omp_get_wtime();
+#ifdef PARALLEL
+    #pragma omp parallel for
+#endif
     for (uint64_t i = 0; i < t; i++)
         r[i] = global::F.rem(p[i]);
     end = omp_get_wtime();
@@ -106,6 +151,9 @@ int main(int argc, char **argv)
         delta << " s or " << mhz << " Mhz" << endl;
 
     start = omp_get_wtime();
+#ifdef PARALLEL
+    #pragma omp parallel for
+#endif
     for (uint64_t i = 0; i < t; i++)
         r[i] = global::F.ext_euclid(r[i]);
     end = omp_get_wtime();

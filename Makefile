@@ -95,9 +95,12 @@ gf-perf16:
 gf-perf0:
 	$(MAKE) gf-perfX bits=0
 
-gf-perfX: gf_perf$(bits).o $(PERF_OBJ)
-	$(CXX) $^ -o $@ $(LDFLAGS)
+gf-perfX: gf_perf$(bits).o $(PERF_OBJ) gf_perf$(bits)PAR.o
+	$(CXX) gf_perf$(bits).o $(PERF_OBJ) -o $@ $(LDFLAGS)
 	mv $@ gf-perf$(bits)
+
+	$(CXX) gf_perf$(bits)PAR.o $(PERF_OBJ) -o $@ $(LDFLAGS)
+	mv $@ gf-perf$(bits)-PAR
 
 gf-perf: gf-perf32 gf-perf16 gf-perf0
 
