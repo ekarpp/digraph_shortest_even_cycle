@@ -10,19 +10,19 @@
 #include "global.hh"
 #include "fmatrix.hh"
 
-typedef long long int long4_t __attribute__ ((vector_size (32)));
+typedef long long int long8_t __attribute__ ((vector_size (64)));
 
-#define VECTOR_N 8
+#define VECTOR_N 16
 
 #define DET_LOOP(index)                                         \
     {                                                           \
         int r0 = VECTOR_N*col + index;                          \
-        long4_t mx = this->get(r0, col);                        \
+        long8_t mx = this->get(r0, col);                        \
         int mxi = r0;                                           \
-        char cmpmsk = 1 << (VECTOR_N - 1 - index);              \
+        int cmpmsk = 1 << (VECTOR_N - 1 - index);               \
         for (int row = r0 + 1; row < this->rows; row++)         \
         {                                                       \
-            char cmp = _mm256_cmp_epu32_mask(                   \
+            int cmp = _mm512_cmp_epu32_mask(                    \
                 mx,                                             \
                 this->get(row, col),                            \
                 0x1                                             \
@@ -34,7 +34,7 @@ typedef long long int long4_t __attribute__ ((vector_size (32)));
             }                                                   \
         }                                                       \
         uint64_t mx_ext =                                       \
-            _mm256_extract_epi32(mx, VECTOR_N - 1 - index);     \
+            _mm512_extract_epi32(mx, VECTOR_N - 1 - index);     \
         if (mx_ext == 0)                                        \
             return global::F.zero();                            \
         if (mxi != r0)                                          \
@@ -46,8 +46,16 @@ typedef long long int long4_t __attribute__ ((vector_size (32)));
         mx_ext = global::F.ext_euclid(mx_ext);                  \
         this->mul_row(r0, mx_ext);                              \
         /* vectorize end? */                                    \
-        char mask = VECTOR_N - 1 - index;                       \
-        long4_t idx = _mm256_set_epi32(                         \
+        int mask = VECTOR_N - 1 - index;                        \
+        long8_t idx = _mm512_set_epi32(                         \
+            mask,                                               \
+            mask,                                               \
+            mask,                                               \
+            mask,                                               \
+            mask,                                               \
+            mask,                                               \
+            mask,                                               \
+            mask,                                               \
             mask,                                               \
             mask,                                               \
             mask,                                               \
@@ -59,7 +67,7 @@ typedef long long int long4_t __attribute__ ((vector_size (32)));
         );                                                      \
         for (int row = r0 + 1; row < this->rows; row++)         \
         {                                                       \
-            long4_t val = _mm256_permutevar8x32_epi32(          \
+            long8_t val = _mm512_permutexvar_epi32(             \
                 this->get(row, col),                            \
                 idx                                             \
             );                                                  \
@@ -74,16 +82,47 @@ private:
     int cols;
     // original matrix n moduloe VECTOR_N
     int nmod;
-    std::vector<long4_t> m;
+    std::vector<long8_t> m;
 
-    long4_t get(int row, int col) const
+    long8_t get(int row, int col) const
     {
         return this->m[row*this->cols + col];
     }
 
-    void set(int row, int col, long4_t v)
+    void set(int row, int col, long8_t v)
     {
         this->m[row*this->cols + col] = v;
+    }
+
+    uint64_t _mm512_extract_epi32(long8_t a, int imm8)
+    {
+        __m256i ext;
+        if (imm8 / 8)
+            ext = _mm512_extracti32x8_epi32(a, 1);
+        else
+            ext = _mm512_extracti32x8_epi32(a, 0);
+
+        switch (imm8 % 8)
+        {
+        case 0:
+            return _mm256_extract_epi32(ext, 0);
+        case 1:
+            return _mm256_extract_epi32(ext, 1);
+        case 2:
+            return _mm256_extract_epi32(ext, 2);
+        case 3:
+            return _mm256_extract_epi32(ext, 3);
+        case 4:
+            return _mm256_extract_epi32(ext, 4);
+        case 5:
+            return _mm256_extract_epi32(ext, 5);
+        case 6:
+            return _mm256_extract_epi32(ext, 6);
+        case 7:
+            return _mm256_extract_epi32(ext, 7);
+        }
+
+        return 0;
     }
 
 public:
@@ -103,7 +142,7 @@ public:
         {
             for (int c = 0; c < matrix.get_n() / VECTOR_N; c++)
                 this->set(r, c,
-                          _mm256_set_epi64x(
+                          _mm512_set_epi64(
                               matrix(r, VECTOR_N*c + 0).get_repr() << 32
                                   | matrix(r, VECTOR_N*c + 1).get_repr(),
                               matrix(r, VECTOR_N*c + 2).get_repr() << 32
@@ -111,9 +150,18 @@ public:
                               matrix(r, VECTOR_N*c + 4).get_repr() << 32
                                   | matrix(r, VECTOR_N*c + 5).get_repr(),
                               matrix(r, VECTOR_N*c + 6).get_repr() << 32
-                                  | matrix(r, VECTOR_N*c + 7).get_repr()
+                                  | matrix(r, VECTOR_N*c + 7).get_repr(),
+                              matrix(r, VECTOR_N*c + 8).get_repr() << 32
+                                  | matrix(r, VECTOR_N*c + 9).get_repr(),
+                              matrix(r, VECTOR_N*c + 10).get_repr() << 32
+                                  | matrix(r, VECTOR_N*c + 11).get_repr(),
+                              matrix(r, VECTOR_N*c + 12).get_repr() << 32
+                                  | matrix(r, VECTOR_N*c + 13).get_repr(),
+                              matrix(r, VECTOR_N*c + 14).get_repr() << 32
+                                  | matrix(r, VECTOR_N*c + 15).get_repr()
                           )
                     );
+            /*
             if (this->nmod)
             {
                 int c = this->cols - 1;
@@ -130,13 +178,14 @@ public:
                           )
                 );
             }
+            */
         }
+        /*
         for (int r = matrix.get_n(); r < this->rows; r++)
         {
             for (int c = 0; c < this->cols - 1; c++)
                 this->set(r, c, _mm256_setzero_si256());
 
-            /* lazy.... */
             switch (r % VECTOR_N)
             {
             case 1:
@@ -184,6 +233,7 @@ public:
             }
 
         }
+        */
     }
 
     void mul_gamma(int r1, int r2, const GF_element &gamma)
@@ -192,7 +242,11 @@ public:
          * then we permute the gamma vectors as required (note this->nmod here),
          * and do r2 left to right */
         /* do gamma multiplication during initialization?? */
-        long4_t pac_gamma = _mm256_set_epi64x(
+        long8_t pac_gamma = _mm512_set_epi64(
+            gamma.get_repr() << 32 | gamma.get_repr(),
+            gamma.get_repr() << 32 | gamma.get_repr(),
+            gamma.get_repr() << 32 | gamma.get_repr(),
+            gamma.get_repr() << 32 | gamma.get_repr(),
             gamma.get_repr() << 32 | gamma.get_repr(),
             gamma.get_repr() << 32 | gamma.get_repr(),
             gamma.get_repr() << 32 | gamma.get_repr(),
@@ -203,42 +257,54 @@ public:
         pac_gamma = global::F.wide_mul(pac_gamma, pac_gamma);
         pac_gamma = global::F.wide_mul(pac_gamma, pac_gamma);
 
-        uint64_t elems[4];
+        uint64_t elems[8];
         uint64_t g = 1ull;
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 8; i++)
         {
             elems[i] = g << 32;
             g = global::F.rem(global::F.clmul(g, gamma.get_repr()));
             elems[i] |= g;
             g = global::F.rem(global::F.clmul(g, gamma.get_repr()));
         }
-        long4_t prod = _mm256_set_epi64x(
+        long8_t prod = _mm512_set_epi64(
             elems[0],
             elems[1],
             elems[2],
-            elems[3]
+            elems[3],
+            elems[4],
+            elems[5],
+            elems[6],
+            elems[7]
         );
-        std::vector<long4_t> coeffs(this->cols);
-        const long4_t idx = _mm256_set_epi32(
-            0b000,
-            0b001,
-            0b010,
-            0b011,
-            0b100,
-            0b101,
-            0b110,
-            0b111
+        std::vector<long8_t> coeffs(this->cols);
+        const long8_t idx = _mm512_set_epi32(
+            0b0000,
+            0b0001,
+            0b0010,
+            0b0011,
+            0b0100,
+            0b0101,
+            0b0110,
+            0b0111,
+            0b1000,
+            0b1001,
+            0b1010,
+            0b1011,
+            0b1100,
+            0b1101,
+            0b1110,
+            0b1111
         );
         /* first do left to right r1 */
         for (int col = 0; col < this->cols; col++)
         {
             /* already save them in reverse order here and permute,
              * values in reverse order, too*/
-            coeffs[this->cols - 1 - col] = _mm256_permutevar8x32_epi32(
-                prod,
-                idx
+            coeffs[this->cols - 1 - col] = _mm512_permutexvar_epi32(
+                idx,
+                prod
             );
-            long4_t elem = this->get(r1, col);
+            long8_t elem = this->get(r1, col);
             elem = global::F.wide_mul(elem, prod);
             this->set(r1, col, elem);
 
@@ -246,10 +312,10 @@ public:
         }
 
         /* handle special permutations required in case not divisible by 4 */
+        /*
         if (this->nmod)
         {
-            long4_t idx = { 0, 0, 0, 0 };
-            /* lazy and ugly .. */
+            long8_t idx = { 0, 0, 0, 0 };
             switch (this->nmod)
             {
             case 1:
@@ -345,7 +411,6 @@ public:
                     coeffs[col + 1]
                 );
 
-            /* lazy and ugly.. */
             switch (this->nmod)
             {
             case 1:
@@ -439,6 +504,7 @@ public:
             );
 
         }
+        */
 
         /* and do r2 left to right */
         for (int col = 0; col < this->cols; col++)
@@ -454,7 +520,7 @@ public:
 
     void swap_rows(int r1, int r2)
     {
-        long4_t tmp;
+        long8_t tmp;
         for (int c = 0; c < this->cols; c++)
         {
             tmp = this->get(r1, c);
@@ -465,7 +531,11 @@ public:
 
     void mul_row(int row, uint64_t v)
     {
-        long4_t pack = _mm256_set_epi64x(
+        long8_t pack = _mm512_set_epi64(
+            v << 32 | v,
+            v << 32 | v,
+            v << 32 | v,
+            v << 32 | v,
             v << 32 | v,
             v << 32 | v,
             v << 32 | v,
@@ -478,14 +548,14 @@ public:
     }
 
     /* subtract v times r1 from r2 */
-    void row_op(int r1, int r2, long4_t pack)
+    void row_op(int r1, int r2, long8_t pack)
     {
         for (int col = 0; col < this->cols; col++)
         {
-            long4_t tmp = global::F.wide_mul(this->get(r1, col), pack);
+            long8_t tmp = global::F.wide_mul(this->get(r1, col), pack);
 
             this->set(r2, col,
-                      _mm256_xor_si256(this->get(r2, col), tmp)
+                      _mm512_xor_si512(this->get(r2, col), tmp)
                 );
         }
     }
@@ -503,6 +573,14 @@ public:
             DET_LOOP(5);
             DET_LOOP(6);
             DET_LOOP(7);
+            DET_LOOP(8);
+            DET_LOOP(9);
+            DET_LOOP(10);
+            DET_LOOP(11);
+            DET_LOOP(12);
+            DET_LOOP(13);
+            DET_LOOP(14);
+            DET_LOOP(15);
         }
         return GF_element(det);
     }
@@ -512,6 +590,11 @@ public:
     {
         std::valarray<GF_element> unpacked(this->rows * this->rows);
 
+        for (int i = 0; i < this->rows * this->rows; i++)
+            unpacked[i] = global::F.zero();
+
+        return FMatrix(this->rows, unpacked);
+/*
         for (int row = 0; row < this->rows; row++)
         {
             for (int col = 0; col < this->cols; col++)
@@ -549,6 +632,7 @@ public:
         if (this->nmod)
             n -= VECTOR_N - this->nmod;
         return FMatrix(n, unpacked[std::gslice(0, {n,n}, {r,1})]);
+*/
     }
 };
 
