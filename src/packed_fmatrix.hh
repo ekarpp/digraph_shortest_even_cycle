@@ -9,10 +9,12 @@
 #include "global.hh"
 #include "fmatrix.hh"
 
+typedef long long int long2_t __attribute__ ((vector_size (16)));
+
 #define DET_LOOP(index)                                         \
     {                                                           \
         int r0 = 2*col + index;                                 \
-        __m128i mx = this->get(r0, col);                        \
+        long2_t mx = this->get(r0, col);                        \
         int mxi = r0;                                           \
         uint64_t cmpmsk = 0b11 << (8*(1-index));                \
         for (int row = r0 + 1; row < this->rows; row++)         \
@@ -54,26 +56,26 @@ class Packed_FMatrix
 private:
     int rows;
     int cols;
-    std::valarray<__m128i> m;
+    std::valarray<long2_t> m;
 
-    __m128i get(int row, int col)
+    long2_t get(int row, int col)
     {
         return this->m[row*this->cols + col];
     }
 
-    void set(int row, int col, __m128i v)
+    void set(int row, int col, long2_t v)
     {
         this->m[row*this->cols + col] = v;
     }
 
-    __m128i gf_mul(__m128i a, __m128i b)
+    long2_t gf_mul(long2_t a, long2_t b)
     {
-        __m128i prod = _mm_unpacklo_epi64(
+        long2_t prod = _mm_unpacklo_epi64(
             _mm_clmulepi64_si128(a, b, 0x00),
             _mm_clmulepi64_si128(a, b, 0x11)
         );
 
-        __m128i lo = _mm_shuffle_epi8(
+        long2_t lo = _mm_shuffle_epi8(
             prod,
             _mm_set_epi32(
                 0x80808080,
@@ -82,7 +84,7 @@ private:
                 0x80800100
             )
         );
-        __m128i hi = _mm_shuffle_epi8(
+        long2_t hi = _mm_shuffle_epi8(
             prod,
             _mm_set_epi32(
                 0x80808080,
@@ -92,7 +94,7 @@ private:
             )
         );
 
-        __m128i tmp = _mm_xor_si128(
+        long2_t tmp = _mm_xor_si128(
             hi,
             _mm_xor_si128(
                 _mm_srli_epi16(hi, 14),
@@ -103,7 +105,7 @@ private:
             )
         );
 
-        __m128i rem = _mm_xor_si128(
+        long2_t rem = _mm_xor_si128(
             tmp,
             _mm_xor_si128(
                 _mm_slli_epi16(tmp, 2),
@@ -150,7 +152,7 @@ public:
 
     void handle_gamma_zero(int r1, int r2)
     {
-        __m128i mask = _mm_set_epi32(
+        long2_t mask = _mm_set_epi32(
             0xFFFFFFFFull,
             0xFFFFFFFFull,
             0x0,
@@ -192,21 +194,19 @@ public:
          * this should be fewer multiplications (and instructions)
          * and don't need to separately handle the case of gamma being zero. */
         /* do gamma multiplication during initialization?? */
-        if (gamma.get_repr() == 0)
-            return handle_gamma_zero(r1, r2);
-        __m128i pac_gamma = _mm_set_epi64x(
+        long2_t pac_gamma = _mm_set_epi64x(
             gamma.get_repr(),
             gamma.get_repr()
         );
         pac_gamma = this->gf_mul(pac_gamma, pac_gamma);
-        __m128i prod = _mm_set_epi64x(
+        long2_t prod = _mm_set_epi64x(
             1,
             gamma.get_repr()
         );
         /* first do left to right r1 */
         for (int col = 0; col < this->cols; col++)
         {
-            __m128i elem = this->get(r1, col);
+            long2_t elem = this->get(r1, col);
             elem = this->gf_mul(elem, prod);
             this->set(r1, col, elem);
 
@@ -230,7 +230,7 @@ public:
         /* now do left to right r2 */
         for (int col = 0; col < this->cols; col++)
         {
-            __m128i elem = this->get(r2, col);
+            long2_t elem = this->get(r2, col);
             elem = this->gf_mul(elem, prod);
             this->set(r2, col, elem);
 
@@ -240,7 +240,7 @@ public:
 
     void swap_rows(int r1, int r2)
     {
-        __m128i tmp;
+        long2_t tmp;
         for (int c = 0; c < this->cols; c++)
         {
             tmp = this->get(r1, c);
@@ -251,7 +251,7 @@ public:
 
     void mul_row(int row, uint64_t v)
     {
-        __m128i pack = _mm_set_epi64x(
+        long2_t pack = _mm_set_epi64x(
             v,
             v
         );
@@ -264,13 +264,13 @@ public:
     /* subtract v times r1 from r2 */
     void row_op(int r1, int r2, uint64_t v)
     {
-        __m128i pack = _mm_set_epi64x(
+        long2_t pack = _mm_set_epi64x(
             v,
             v
         );
         for (int col = 0; col < this->cols; col++)
         {
-            __m128i tmp = this->gf_mul(this->get(r1, col), pack);
+            long2_t tmp = this->gf_mul(this->get(r1, col), pack);
 
             this->set(r2, col,
                       _mm_xor_si128(this->get(r2, col), tmp)
