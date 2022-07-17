@@ -2,8 +2,8 @@
 
 #SBATCH --time=1:00:00
 #SBATCH --mem=1G
-#SBATCH --partition=batch-skl
-#SBATCH --cpus-per-task=40
+#SBATCH --partition=batch-hsw
+#SBATCH --cpus-per-task=24
 #SBATCH --ntasks=1
 #SBATCH --output=algo-sqale-par.out
 
