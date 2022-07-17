@@ -27,7 +27,7 @@ CLEAN_REGEX := {0,16,32}?(-PAR)
 clean-obj:
 	rm -f *.o
 clean-bin:
-	rm -f $(addsuffix $(CLEAN_REGEX), $(BIN))
+	rm -f $(addsuffix $(CLEAN_REGEX), $(BIN)) mem-bench
 clean: clean-obj clean-bin
 	rm -f *.o *.s *.asm1 *.asm2
 	cd nauty && git clean -xf && git checkout .
