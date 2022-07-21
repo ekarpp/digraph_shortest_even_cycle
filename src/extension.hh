@@ -97,8 +97,14 @@ private:
     uint64_t mod;
     uint64_t mask;
 
+#if GF2_bits == 0
+    std::vector<uint64_t> mod_ast;
+    std::vector<uint64_t> q_plus;
+#else
     extension_repr mod_ast;
     extension_repr q_plus;
+#endif
+
 
     extension_repr n_prime;
     extension_repr r_squared;
@@ -236,8 +242,26 @@ public:
         this->mod = mod;
         this->mask = (1ll << this->n) - 1;
 
-        this->mod_ast = { 0, this->mod & this->mask };
-        this->q_plus = this->quo({0, 1ull << (2*this->n)} , { 0, this->mod });
+        extension_repr q_plus_repr =
+            this->quo({0, 1ull << (2*this->n)} , { 0, this->mod });
+        for (int i = 0; i < this->n + 1; i++)
+        {
+            if (((this->mod >> i) & 1) && i < this->n)
+                this->mod_ast.push_back(i);
+
+            char qphi = (q_plus_repr.hi >> i) & 1;
+            char qplo = (q_plus_repr.lo >> i) & 1;
+            if (qphi || qplo)
+            {
+                this->q_plus.push_back(i);
+                this->q_plus.push_back((qphi)
+                                       ? 0xFFFFFFFFFFFFFFFFull
+                                       : 0x0);
+                this->q_plus.push_back((qplo)
+                                       ? 0xFFFFFFFFFFFFFFFFull
+                                       : 0x0);
+            }
+        }
 
         this->r_squared = {
             0,
@@ -331,10 +355,24 @@ public:
         r = this->add(r, tmp << 7);
 #else
         /* deg n-2 * deg n*/
-        extension_repr r = this->mul(hi, this->q_plus);
-        r >>= this->n;
+        extension_repr rem = { 0x0, 0x0 };
+        for (uint i = 0; i < this->q_plus.size() / 3; i++)
+        {
+            extension_repr tmp = this->mul_const(
+                hi,
+                { this->q_plus[3*i + 1], this->q_plus[3*i + 2] }
+            );
+            tmp <<= this->q_plus[3*i + 0];
+            rem = this->add(rem, tmp);
+        }
+        rem >>= this->n;
         /* deg n-1 * deg n - 2*/
-        r = this->mul(r, this->mod_ast);
+        extension_repr r = { 0x0, 0x0 };
+        for (uint i = 0; i < this->mod_ast.size(); i++)
+        {
+            extension_repr tmp = rem << this->mod_ast[i];
+            r = this->add(r, tmp);
+        }
 #endif
         r &= this->mask;
         return this->subtract(lo, r);
@@ -443,6 +481,14 @@ public:
         return kronecker_mul(a, b);
     }
 
+    extension_repr mul_const(extension_repr a, extension_repr c) const
+    {
+        return {
+            (a.hi & c.lo) ^ (a.lo & c.hi),
+            a.lo & c.lo
+        };
+    }
+
     extension_repr ref_mul(extension_repr a, extension_repr b) const
     {
         extension_repr c = { 0, 0 };
@@ -456,10 +502,7 @@ public:
                 tmp.lo = this->mask;
 
             /* 2 bit carryless multiplier */
-            extension_repr aib = {
-                (b.lo & tmp.hi) ^ (b.hi & tmp.lo),
-                b.lo & tmp.lo
-            };
+            extension_repr aib = this->mul_const(b, tmp);
 
             aib <<= i;
             c = global::E.add(c, aib);
